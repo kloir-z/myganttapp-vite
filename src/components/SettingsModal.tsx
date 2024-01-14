@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
+import React, { useState, useEffect, useRef,useCallback, Dispatch, SetStateAction } from "react";
 import { Overlay, ModalContainer } from "../styles/GanttStyles";
-import { ChartBarColor, AliasMapping } from "../types/colorAliasMapping";
 import { Row, DefaultCellTypes } from "@silevis/reactgrid";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, simpleSetData, setHolidays } from '../reduxComponents/store';
@@ -12,14 +11,14 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 import { ExtendedColumn, ColumnMap, columnMap } from "../hooks/useWBSData";
+import { updateColor, updateAlias, updateAllColors } from '../reduxComponents/colorSlice';
+import { ChromePicker, ColorResult } from 'react-color';
 
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;
   dateRange: { startDate: Date, endDate: Date };
   setDateRange: (range: { startDate: Date, endDate: Date }) => void;
-  aliasMapping: AliasMapping;
-  setAliasMapping: (mapping: AliasMapping) => void;
   headerRow: Row<DefaultCellTypes>;
   columns: ExtendedColumn[];
   setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
@@ -28,15 +27,15 @@ type SettingsModalProps = {
   setWbsWidth: Dispatch<SetStateAction<number>>;
 };
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange, setDateRange, aliasMapping, setAliasMapping, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth }) => {
+  const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs(dateRange.startDate));
   const [endDate, setEndDate] = useState<Dayjs | null>(dayjs(dateRange.endDate));
   const data = useSelector((state: RootState) => state.wbsData.present.data);
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays) as string[];
   const [holidayInput, setHolidayInput] = useState(holidays.join("\n"));
-  const dispatch = useDispatch();
-  const colors: ChartBarColor[] = ['lightblue', 'blue', 'purple', 'pink', 'red', 'yellow', 'green'];
+  const colors = useSelector((state: RootState) => state.color.colors);
   const [fileName, setFileName] = useState("filename");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
@@ -48,6 +47,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
   } else {
     locale = 'en';
   }
+  type DisplayColorPickerType = { [key: number]: boolean };
+  const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
+
+  const handleColorClick = (id: number) => {
+    setDisplayColorPicker({ ...displayColorPicker, [id]: !displayColorPicker[id] });
+  };
+
+  const handleColorClose = (id: number) => {
+    setDisplayColorPicker({ ...displayColorPicker, [id]: false });
+  };
 
   const updateHolidays = (holidayInput: string) => {
     const newHolidays = holidayInput.split("\n").map(holiday => {
@@ -60,7 +69,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
       }
       return null;
     }).filter((holiday): holiday is string => holiday !== null);
-    console.log(newHolidays)
   
     dispatch(setHolidays(newHolidays));
     dispatch(simpleSetData(data));
@@ -72,7 +80,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
 
   const handleExport = () => {
     const settingsData = {
-      aliasMapping,
+      colors,
       dateRange: {
         startDate: dateRange.startDate.toISOString(),
         endDate: dateRange.endDate.toISOString(),
@@ -106,15 +114,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
             const parsedData = JSON.parse(text);
   
             const importStatus = {
-              aliasMapping: false,
+              colors: false,
               dateRange: false,
               columns: false,
               data: false,
             };
   
-            if (parsedData.aliasMapping) {
-              setAliasMapping(parsedData.aliasMapping);
-              importStatus.aliasMapping = true;
+            if (parsedData.colors) {
+              dispatch(updateAllColors(parsedData.colors));
+              importStatus.colors = true;
             }
             if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
               const newStartDate = new Date(parsedData.dateRange.startDate);
@@ -161,12 +169,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
     }
   };    
 
-  const handleAliasChange = (color: string, alias: string) => {
-    setAliasMapping({
-      ...aliasMapping,
-      [color]: alias,
-    });
-  };
+  const handleColorChange = useCallback((id: number, color: string) => {
+    dispatch(updateColor({ id, color }));
+  }, [dispatch]);
+
+  const handleAliasChange = useCallback((id: number, alias: string) => {
+    dispatch(updateAlias({ id, alias }));
+  }, [dispatch]);
 
   const isValidDateRange = (date: Dayjs) => {
     const earliestDate = dayjs('1900-01-01');
@@ -277,14 +286,50 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
             </div>
             <h3>Chart Color</h3>
             <div style={{ marginLeft: '10px' }}>
-              {colors.map(color => (
-                <div key={color}>
-                  <label>{color}: </label>
+              {colors.map(colorInfo => (
+                <div key={colorInfo.id} style={{display: 'flex', flexDirection: 'row'}}>
+                  <div
+                    style={{
+                      width: '50px',
+                      padding: '5px',
+                      background: 'white',
+                      borderRadius: '5px',
+                      position: 'relative'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        background: colorInfo.color,
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0
+                      }}
+                      onClick={() => handleColorClick(colorInfo.id)}
+                    >
+                    </div>
+                  </div>
                   <input
                     type="text"
-                    value={aliasMapping[color] || ''}
-                    onChange={(e) => handleAliasChange(color, e.target.value)}
+                    value={colorInfo.alias}
+                    onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
+                    placeholder="エイリアス"
                   />
+                  { displayColorPicker[colorInfo.id] ? (
+                    <div style={{ position: 'absolute', zIndex: '2' }}>
+                      <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(colorInfo.id)}/>
+                      <ChromePicker
+                        color={colorInfo.color}
+                        onChangeComplete={(color: ColorResult) => {
+                          const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+                          handleColorChange(colorInfo.id, rgbaColor);
+                        }}
+                      />
+                    </div>
+                  ) : null }
                 </div>
               ))}
             </div>

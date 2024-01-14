@@ -6,8 +6,6 @@ import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from '../utils/chartHelpers'; 
 import { addBusinessDays } from '../utils/CalendarUtil';
 import ChartBar from './ChartBar';
-import { convertAliasToChartBarColor } from '../types/colorAliasMapping';
-import { AliasMapping } from "../types/colorAliasMapping";
 import { useSelector } from 'react-redux';
 import { RootState } from '../reduxComponents/store';
 
@@ -16,12 +14,14 @@ interface ChartRowProps {
   dateArray: Date[];
   gridRef: React.RefObject<HTMLDivElement>;
   setCanDrag: (canDrag: boolean) => void;
-  aliasMapping: AliasMapping;
 }
 
-const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag, aliasMapping }) => {
+const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
-  const chartBarColor = convertAliasToChartBarColor(entry.color, aliasMapping) || 'green';
+  const chartBarColor = useSelector((state: RootState) => {
+    const colorInfo = state.color.colors.find(c => c.alias === entry.color);
+    return colorInfo ? colorInfo.color : '#76ff7051';
+  });
   const businessDays = entry.businessDays;
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);

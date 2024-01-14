@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { calculateBusinessDays, addBusinessDays, toLocalISOString } from '../utils/CalendarUtil';
 import defaultHolidays from '../utils/defaultHolidays';
 import copiedRowsReducer from './copiedRowsSlice';
+import colorReducer from './colorSlice'
 import undoable from 'redux-undo';
 
 const assignIds = (data: WBSData[], holidays: string[]): { [id: string]: WBSData } => {
@@ -355,6 +356,7 @@ export const store = configureStore({
   reducer: {
     wbsData: undoable(wbsDataSlice.reducer),
     copiedRows: copiedRowsReducer,
+    color: colorReducer,
   },
 });
 

@@ -15,7 +15,6 @@ import "./css/ReactGrid.css";
 import "./css/HiddenScrollBar.css";
 import SettingButton from './components/SettingButton';
 import SettingsModal from './components/SettingsModal';
-import { ChartBarColor } from "./types/colorAliasMapping";
 import { useWBSData } from './hooks/useWBSData';
 import defaultHolidays from "./utils/defaultHolidays";
 import { ActionCreators } from 'redux-undo';
@@ -32,7 +31,6 @@ function App() {
     endDate: new Date('2025-10-05'),
   });
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
-  const [aliasMapping, setAliasMapping] = useState<{ [color in ChartBarColor]?: string }>({});
   const [isDragging, setIsDragging] = useState(false);
   const [canDrag, setCanDrag] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -102,7 +100,7 @@ function App() {
     return rowCount * 21 < window.innerHeight - 41 ? dynamicGridHeight : maxGridHeight;
   };
 
-  const handleMouseDown = useCallback((event: React.MouseEvent) => {
+  const handleMouseDown = useCallback((event: MouseEvent) => {
     if (canDrag && gridRef.current) {
       setIsDragging(true);
       setStartX(event.clientX + gridRef.current.scrollLeft);
@@ -124,13 +122,13 @@ function App() {
   useEffect(() => {
     const gridElement = gridRef.current;
     if (gridElement) {
-      gridElement.addEventListener('mousedown', handleMouseDown as any);
-      window.addEventListener('mousemove', handleMouseMove as any);
+      gridElement.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
 
       return () => {
-        gridElement.removeEventListener('mousedown', handleMouseDown as any);
-        window.removeEventListener('mousemove', handleMouseMove as any);
+        gridElement.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
       };
     }
@@ -179,8 +177,6 @@ function App() {
           onClose={closeSettingsModal}
           dateRange={dateRange}
           setDateRange={setDateRange}
-          aliasMapping={aliasMapping}
-          setAliasMapping={setAliasMapping}
           headerRow={headerRow}
           columns={columns}
           setColumns={setColumns}
@@ -224,7 +220,6 @@ function App() {
                     dateArray={dateArray}
                     gridRef={gridRef}
                     setCanDrag={setCanDrag}
-                    aliasMapping={aliasMapping}
                   />
                 </GanttRow>
               );
@@ -256,7 +251,6 @@ function App() {
                   dateArray={dateArray}
                   gridRef={gridRef}
                   setCanDrag={setCanDrag}
-                  aliasMapping={aliasMapping}
                 />
                 </GanttRow>
               );

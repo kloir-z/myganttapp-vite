@@ -1,26 +1,27 @@
 // EventRowComponent.tsx
 import React, { useState, memo, useEffect, useCallback  } from 'react';
 import { EventRow } from '../types/DataTypes';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateEventRow } from '../reduxComponents/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from '../utils/chartHelpers'; 
 import ChartBar from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
-import { convertAliasToChartBarColor } from '../types/colorAliasMapping';
-import { AliasMapping } from "../types/colorAliasMapping";
+import { RootState } from '../reduxComponents/store';
 
 interface EventRowProps {
   entry: EventRow;
   dateArray: Date[];
   gridRef: React.RefObject<HTMLDivElement>;
   setCanDrag: (canDrag: boolean) => void;
-  aliasMapping: AliasMapping;
 }
 
-const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag, aliasMapping }) => {
+const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
-  const chartBarColor = convertAliasToChartBarColor(entry.color, aliasMapping) || 'green';
+  const chartBarColor = useSelector((state: RootState) => {
+    const colorInfo = state.color.colors.find(c => c.alias === entry.color);
+    return colorInfo ? colorInfo.color : '#76ff7051';
+  });
   const [localEvents, setLocalEvents] = useState(entry.eventData.map(event => ({
     ...event,
     startDate: event.startDate ? new Date(event.startDate) : null,
