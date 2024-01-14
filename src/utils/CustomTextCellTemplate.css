@@ -1,0 +1,43 @@
+.input-text__item {
+  position: relative;
+  display: inline-block;
+}
+
+.input-text__dummy {
+  display: inline-block;
+  overflow: hidden;
+  min-width: 1em;
+  padding: 3px 5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.input-text__dummy::before {
+  content: '';
+}
+
+.input-text__dummy:empty::before {
+  content: attr(data-placeholder);
+}
+
+.input-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 2px 4px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  font-size: 0.8rem;
+}
+
+.rg-customText-celleditor{
+  width: auto !important;
+  background-color: aliceblue;
+}
