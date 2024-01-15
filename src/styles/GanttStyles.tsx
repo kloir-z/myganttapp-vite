@@ -77,7 +77,7 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   display: flex;
   flex-direction: column;
   margin: 25px;
-  background: #f7f7f7;
+  background: #ffffff;
   padding: 20px;
   border: solid 1px rgb(83 87 97);
   border-radius: 5px;

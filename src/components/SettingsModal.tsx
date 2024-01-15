@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,useCallback, Dispatch, SetStateAction } from "react";
+import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import { Overlay, ModalContainer } from "../styles/GanttStyles";
 import { Row, DefaultCellTypes } from "@silevis/reactgrid";
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,8 +11,8 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 import { ExtendedColumn, ColumnMap, columnMap } from "../hooks/useWBSData";
-import { updateColor, updateAlias, updateAllColors } from '../reduxComponents/colorSlice';
-import { ChromePicker, ColorResult } from 'react-color';
+import { updateAllColors } from '../reduxComponents/colorSlice';
+import ColorSetting from "./ColorSetting";
 
 type SettingsModalProps = {
   show: boolean;
@@ -47,16 +47,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
   } else {
     locale = 'en';
   }
-  type DisplayColorPickerType = { [key: number]: boolean };
-  const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
-
-  const handleColorClick = (id: number) => {
-    setDisplayColorPicker({ ...displayColorPicker, [id]: !displayColorPicker[id] });
-  };
-
-  const handleColorClose = (id: number) => {
-    setDisplayColorPicker({ ...displayColorPicker, [id]: false });
-  };
 
   const updateHolidays = (holidayInput: string) => {
     const newHolidays = holidayInput.split("\n").map(holiday => {
@@ -167,15 +157,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
       };
       reader.readAsText(file);
     }
-  };    
-
-  const handleColorChange = useCallback((id: number, color: string) => {
-    dispatch(updateColor({ id, color }));
-  }, [dispatch]);
-
-  const handleAliasChange = useCallback((id: number, alias: string) => {
-    dispatch(updateAlias({ id, alias }));
-  }, [dispatch]);
+  };
 
   const isValidDateRange = (date: Dayjs) => {
     const earliestDate = dayjs('1900-01-01');
@@ -285,54 +267,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
               </div>
             </div>
             <h3>Chart Color</h3>
-            <div style={{ marginLeft: '10px' }}>
-              {colors.map(colorInfo => (
-                <div key={colorInfo.id} style={{display: 'flex', flexDirection: 'row'}}>
-                  <div
-                    style={{
-                      width: '50px',
-                      padding: '5px',
-                      background: 'white',
-                      borderRadius: '5px',
-                      position: 'relative'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        background: colorInfo.color,
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0
-                      }}
-                      onClick={() => handleColorClick(colorInfo.id)}
-                    >
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    value={colorInfo.alias}
-                    onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
-                    placeholder="エイリアス"
-                  />
-                  { displayColorPicker[colorInfo.id] ? (
-                    <div style={{ position: 'absolute', zIndex: '2' }}>
-                      <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(colorInfo.id)}/>
-                      <ChromePicker
-                        color={colorInfo.color}
-                        onChangeComplete={(color: ColorResult) => {
-                          const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-                          handleColorChange(colorInfo.id, rgbaColor);
-                        }}
-                      />
-                    </div>
-                  ) : null }
-                </div>
-              ))}
-            </div>
+            <ColorSetting />
             <h3>Export File(.json)</h3>
             <div style={{ marginLeft: '10px' }}>
               <input
@@ -351,7 +286,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
             </div>
             <h3>Column Visibility</h3>
             <div style={{ marginLeft: '10px' }}>
-              {columns.map(column => (
+              {columns.map(column => {
+                if (column.columnId === 'no') {
+                  return null;
+                }
+                return(
                 <div key={column.columnId}>
                   <label>
                     <input
@@ -362,7 +301,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
                     {columnMap[column.columnId as keyof ColumnMap]}
                   </label>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
