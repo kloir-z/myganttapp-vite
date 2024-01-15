@@ -39,6 +39,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarDragging(barType);
+    setCanDrag(false);
     setInitialMouseX(event.clientX);
     if (barType === 'planned') {
       setOriginalStartDate(localPlannedStartDate);
@@ -51,6 +52,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarEndDragging(barType);
+    setCanDrag(false);
     setInitialMouseX(event.clientX);
     if (barType === 'planned') {
       setOriginalEndDate(localPlannedEndDate);
@@ -176,15 +178,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     setIsBarEndDragging(null);
     setInitialMouseX(null);
     syncToStore();
+    setCanDrag(true)
   };
-
-  useEffect(() => {
-    if (isBarDragging || isBarEndDragging) {
-      setCanDrag(false);
-    } else {
-      setCanDrag(true);
-    }
-  }, [isBarDragging, isBarEndDragging, setCanDrag]);
 
   return (
     <div style={{position: 'absolute', height: '21px', width: `${calendarWidth}px`}} onDoubleClick={handleDoubleClick}>

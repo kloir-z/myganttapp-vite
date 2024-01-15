@@ -32,8 +32,8 @@ export const Cell = styled.div<CellProps>`
   border-left: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000016')};
   background-color: ${props => {
     let baseColor = '#ffffff00';
-    if (props.$type === 'saturday') return '#cddeff';
-    if (props.$type === 'sundayOrHoliday') return '#ffcaca';
+    if (props.$type === 'saturday') return '#eaf1ff';
+    if (props.$type === 'sundayOrHoliday') return '#ffebeb';
     if (props.$isPlanned) {
       return props.$chartBarColor ? props.$chartBarColor : '#76ff7051';
     }
