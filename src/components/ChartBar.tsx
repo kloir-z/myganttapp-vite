@@ -20,7 +20,7 @@ const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-const ChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onContextMenu }) => {
+const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onContextMenu }) => {
   if (!startDate || !endDate) {
     return null;
   }
@@ -68,4 +68,4 @@ const ChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isAc
   return null;
 };
 
-export default ChartBar;
+export const ChartBar = React.memo(MemoedChartBar);

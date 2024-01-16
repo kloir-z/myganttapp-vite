@@ -17,7 +17,7 @@ export interface ChartRow extends BaseRow {
   color: string;
   plannedStartDate: string;
   plannedEndDate: string;
-  businessDays: number | null,
+  businessDays: number | null;
   actualStartDate: string;
   actualEndDate: string;
   dependentId: string;
@@ -42,6 +42,11 @@ export interface EventRow extends BaseRow {
   textColumn3: string;
   textColumn4: string;
   color: string;
+  plannedStartDate: string;
+  plannedEndDate: string;
+  businessDays: number | null;
+  actualStartDate: string;
+  actualEndDate: string;
   eventData: EventData[];
 }
 

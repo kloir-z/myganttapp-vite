@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 
 interface ResizeBarProps {
   onDrag: (newWidth: number) => void;
   initialWidth: number;
 }
 
-function ResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
+function MemoedResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
   const initialPositionRef = useRef<number | null>(null);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -45,4 +45,4 @@ function ResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
   );
 }
 
-export default ResizeBar;
+export const ResizeBar = React.memo(MemoedResizeBar);

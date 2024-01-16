@@ -5,7 +5,7 @@ import { setPlannedStartDate, setPlannedEndDate, setActualStartDate, setActualEn
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from '../utils/chartHelpers'; 
 import { addBusinessDays } from '../utils/CalendarUtil';
-import ChartBar from './ChartBar';
+import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../reduxComponents/store';
 
@@ -75,6 +75,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   }, [dateArray]);
   
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    setCanDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
     const clickedDate = calculateDateFromX(relativeX);

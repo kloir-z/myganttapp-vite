@@ -106,6 +106,11 @@ export const handleAddEventRow = (dispatch: Dispatch, selectedRowIds: Id[], data
       textColumn2: "",
       textColumn3: "",
       textColumn4: "",
+      plannedStartDate: "",
+      plannedEndDate: "",
+      businessDays: null,
+      actualStartDate: "",
+      actualEndDate: "",
       color: "",
       displayName: "",
       eventData: []

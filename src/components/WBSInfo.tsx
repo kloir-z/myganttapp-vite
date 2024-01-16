@@ -41,7 +41,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
           case 'Separator':
             return createSeparatorRow(item as SeparatorRow, visibleColumns.length);
           case 'Event':
-            return createEventRow(item as EventRow, visibleColumns.length);  
+            return createEventRow(item as EventRow, visibleColumns);  
           default:
             return { rowId: 'empty', height: 21, cells: [{ type: "customText", text: '' } as CustomTextCell], reorderable: true };
         }

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateEventRow } from '../reduxComponents/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from '../utils/chartHelpers'; 
-import ChartBar from './ChartBar';
+import { ChartBar }  from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../reduxComponents/store';
 
@@ -41,6 +41,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarDragging(true);
+    setCanDrag(false);
     setInitialMouseX(event.clientX);
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
@@ -49,6 +50,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarEndDragging(true);
+    setCanDrag(false);
     setInitialMouseX(event.clientX);
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
@@ -68,6 +70,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [dateArray]);
   
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    setCanDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
     const clickedDate = calculateDateFromX(relativeX);
@@ -186,15 +189,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setIsBarEndDragging(false);
     setInitialMouseX(null);
     syncToStore();
+    setCanDrag(true);
   };
-
-  useEffect(() => {
-    if (isBarDragging || isBarEndDragging) {
-      setCanDrag(false);
-    } else {
-      setCanDrag(true);
-    }
-  }, [isBarDragging, isBarEndDragging, setCanDrag]);
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
     event.preventDefault();

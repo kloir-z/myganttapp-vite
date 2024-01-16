@@ -1,6 +1,6 @@
 // gridHandlers.ts
 import { CellChange, TextCell, NumberCell, CheckboxCell, EmailCell, DropdownCell, ChevronCell, HeaderCell, TimeCell, DateCell } from "@silevis/reactgrid";
-import { WBSData, ChartRow } from '../types/DataTypes';
+import { WBSData, ChartRow, SeparatorRow, EventRow } from '../types/DataTypes';
 import { Dispatch } from 'redux';
 import { setData, simpleSetData } from '../reduxComponents/store';
 import { CustomDateCell } from './CustomDateCell';
@@ -16,14 +16,38 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     const rowId = change.rowId.toString();
     const rowData = updatedData[rowId];
 
-    if (rowData && (rowData.rowType === 'Separator' || rowData.rowType === 'Event')) {
+    if (rowData && rowData.rowType === 'Separator') {
+      const fieldName = change.columnId as keyof SeparatorRow; 
       const newCell = change.newCell;
       useSimpleSetData = true;
-      const customTextCell = newCell as CustomTextCell;
-      updatedData[rowId] = {
-        ...rowData,
-        displayName: customTextCell.text
-      };
+      
+      if (newCell.type === 'customText') {
+        const customTextCell = newCell as CustomTextCell;
+        updatedData[rowId] = {
+          ...rowData,
+          [fieldName]: customTextCell.text
+        };
+      }
+    }
+    
+    if (rowData && rowData.rowType === 'Event') {
+      const fieldName = change.columnId as keyof EventRow; 
+      const newCell = change.newCell;
+      useSimpleSetData = true;
+    
+      if (newCell.type === 'customDate') {
+        const customDateCell = newCell as CustomDateCell;
+        updatedData[rowId] = {
+          ...rowData,
+          [fieldName]: customDateCell.text
+        };
+      } else if (newCell.type === 'customText') {
+        const customTextCell = newCell as CustomTextCell;
+        updatedData[rowId] = {
+          ...rowData,
+          [fieldName]: customTextCell.text
+        };
+      }
     }
 
     if (rowData && rowData.rowType === 'Chart') {

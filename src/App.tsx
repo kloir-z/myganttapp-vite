@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setHolidays } from './reduxComponents/store';
 import { generateDates } from './utils/CalendarUtil';
 import GridVertical from './components/GridVertical';
-import ResizeBar from './components/WbsWidthResizer';
+import { ResizeBar } from './components/WbsWidthResizer';
 import "./css/ReactGrid.css";
 import "./css/HiddenScrollBar.css";
 import SettingButton from './components/SettingButton';
