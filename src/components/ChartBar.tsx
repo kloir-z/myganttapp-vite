@@ -27,16 +27,17 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
 
   const startOfDay = getStartOfDay(startDate);
   const endOfDay = getStartOfDay(endDate);
-  let startIndex = dateArray.findIndex(date => date > startOfDay);
-  let endIndex = dateArray.findIndex(date => date > endOfDay);
-  startIndex = startIndex !== -1 ? startIndex - 1 : dateArray.length - 1;
-  endIndex = endIndex !== -1 ? endIndex - 1 : dateArray.length - 1;
   const dateArrayStart = dateArray[0];
   const dateArrayEnd = dateArray[dateArray.length - 1];
 
   if (startDate > dateArrayEnd || endDate < dateArrayStart) {
     return null;
   }
+
+  let startIndex = dateArray.findIndex(date => date >= startOfDay);
+  let endIndex = dateArray.findIndex(date => date > endOfDay);
+  startIndex = startIndex === -1 ? 0 : startIndex;
+  endIndex = endIndex === -1 ? dateArray.length - 1 : endIndex - 1;
 
   if (startIndex !== -1 && endIndex !== -1) {
     const width = ((endIndex - startIndex + 1) * 21) + 0.3;

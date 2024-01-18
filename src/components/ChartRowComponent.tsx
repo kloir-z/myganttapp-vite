@@ -19,6 +19,7 @@ interface ChartRowProps {
 const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
   const chartBarColor = useSelector((state: RootState) => {
+    if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
   });

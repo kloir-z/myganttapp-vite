@@ -16,6 +16,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
     <GanttRow style={{height: '0px', borderBottom: 'none'}}>
       {dateArray.map((date, index) => {
         let type = 'weekday';
+        const isMonthStart = date.getDate() === 1;
 
         if (date.getDay() === 6) type = 'saturday';
         if (date.getDay() === 0 || isHoliday(date, holidays)) type = 'sundayOrHoliday';
@@ -26,6 +27,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
             key={index}
             data-index={index}
             $type={type}
+            $isMonthStart={isMonthStart}
             style={{
               position: 'absolute',
               top: '0px',

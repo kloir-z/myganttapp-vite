@@ -36,6 +36,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
               <Cell 
                 key={index} 
                 data-index={index}
+                $isMonthStart={true}
                 style={{
                   position: 'absolute',
                   left: `${left}px`
@@ -54,12 +55,14 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           if (date.getDay() === 6) type = 'saturday';
           if (date.getDay() === 0 || isHoliday(date, holidays)) type = 'sundayOrHoliday';
           const left = 21 * index;
+          const isMonthStart = date.getDate() === 1;
 
           return (
             <Cell
               key={index}
               data-index={index}
               $type={type}
+              $isMonthStart={isMonthStart}
               style={{
                 position: 'absolute',
                 left: `${left}px`,

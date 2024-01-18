@@ -32,7 +32,7 @@ function App() {
   });
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
-  const [canDrag, setCanDrag] = useState(false);
+  const [canDrag, setCanDrag] = useState(true);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const wbsRef = useRef<HTMLDivElement>(null);
@@ -170,7 +170,7 @@ function App() {
   return (
     <div style={{position: 'fixed'}}>
       <div style={{position: 'relative'}}>
-        <div style={{position: 'absolute', left: '5px', width: '50px', overflow: 'hidden'}} ref={calendarRef}>
+        <div style={{position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden', borderRight: 'solid 1px #00000016'}} ref={calendarRef}>
           <SettingButton onClick={openSettingsModal} />
           <SettingsModal
           show={isSettingsModalOpen}
@@ -186,13 +186,13 @@ function App() {
           // 他の必要なプロパティ
         />
         </div>
-        <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
+        <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth + 16}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
           <Calendar
             dateArray={dateArray}
           />
           <GridVertical dateArray={dateArray} gridHeight={calculateGridHeight()} />
         </div>
-        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll' }} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll', borderRight: 'solid 1px #00000016' }} ref={wbsRef}>
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}

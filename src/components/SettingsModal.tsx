@@ -36,7 +36,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays) as string[];
   const [holidayInput, setHolidayInput] = useState(holidays.join("\n"));
   const colors = useSelector((state: RootState) => state.color.colors);
-  const [fileName, setFileName] = useState("filename");
+  const [fileName, setFileName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -234,7 +234,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
                       '& .MuiInputBase-input': {
                         fontSize: '0.8rem',
                         padding: '5px',
-                        width: '7rem',
+                        width: '70px',
                       },
                       '& .MuiButtonBase-root': {
                         fontSize: '0.8rem',
@@ -255,7 +255,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
                       '& .MuiInputBase-input': {
                         fontSize: '0.8rem',
                         padding: '5px',
-                        width: '7rem'
+                        width: '70px'
                       },
                       '& .MuiButtonBase-root': {
                         padding: '3px',

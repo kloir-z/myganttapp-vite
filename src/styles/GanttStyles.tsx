@@ -20,6 +20,7 @@ interface CellProps {
   $isActual?: boolean;
   $chartBarColor?: ChartBarColor;
   $width?: number;
+  $isMonthStart?: boolean;
 }
 
 export const Cell = styled.div<CellProps>`
@@ -29,11 +30,14 @@ export const Cell = styled.div<CellProps>`
   width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
   height: 21px;
   border: 1px solid transparent;
-  border-left: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000016')};
+  border-left: ${props => {
+    if (props.$isMonthStart) return '1px solid #00000055';
+    return (props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000010';
+  }};
   background-color: ${props => {
     let baseColor = '#ffffff00';
-    if (props.$type === 'saturday') return '#eaf1ff';
-    if (props.$type === 'sundayOrHoliday') return '#ffebeb';
+    if (props.$type === 'saturday') return '#d9e6ff';
+    if (props.$type === 'sundayOrHoliday') return '#ffdcdc';
     if (props.$isPlanned) {
       return props.$chartBarColor ? props.$chartBarColor : '#76ff7051';
     }
@@ -44,7 +48,10 @@ export const Cell = styled.div<CellProps>`
   }};
   &:hover {
     border: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid transparent')};
-    border-left: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016')};
+    border-left: ${props => {
+      if (props.$isMonthStart) return '1.2px solid #00000065';
+      return (props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016';
+    }};
   }
 `;
 

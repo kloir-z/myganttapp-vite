@@ -6,7 +6,7 @@ export type AliasMapping = {
 };
 
 export function convertAliasToChartBarColor(alias: string, mapping: AliasMapping): ChartBarColor {
-  if (isValidColorCode(alias)) { // isValidColorCode はカラーコードが有効かどうかをチェックする関数
+  if (isValidColorCode(alias)) {
     return alias;
   }
   for (const [color, mappedAlias] of Object.entries(mapping)) {
@@ -14,11 +14,10 @@ export function convertAliasToChartBarColor(alias: string, mapping: AliasMapping
       return color;
     }
   }
-  return '#76ff7051'; // デフォルトのフォールバックカラー
+  return '#76ff7051';
 }
 
 function isValidColorCode(color: string): boolean {
-  // 正規表現で16進数のカラーコード（#RRGGBB または #RRGGBBAA 形式）をチェック
   const hexColorRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$|^#(?:[0-9a-fA-F]{4}){1,2}$/;
   return hexColorRegex.test(color);
 }
