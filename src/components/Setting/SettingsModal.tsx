@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
-import { Overlay, ModalContainer } from "../styles/GanttStyles";
-import { Row, DefaultCellTypes } from "@silevis/reactgrid";
+// SettingsModal.tsx
+import React, { useState, useEffect, useRef, Dispatch, memo, SetStateAction } from "react";
+import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, setHolidays } from '../reduxComponents/store';
+import { RootState, simpleSetData, setHolidays } from '../../reduxComponents/store';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -10,16 +10,16 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
-import { ExtendedColumn, ColumnMap, columnMap } from "../hooks/useWBSData";
-import { updateAllColors } from '../reduxComponents/colorSlice';
+import { ExtendedColumn } from "../../hooks/useWBSData";
+import { updateAllColors } from '../../reduxComponents/colorSlice';
 import ColorSetting from "./ColorSetting";
+import ColumnSetting from "./ColumnSetting/ColumnSetting";
 
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;
   dateRange: { startDate: Date, endDate: Date };
   setDateRange: (range: { startDate: Date, endDate: Date }) => void;
-  headerRow: Row<DefaultCellTypes>;
   columns: ExtendedColumn[];
   setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
   toggleColumnVisibility: (columnId: string | number) => void;
@@ -27,7 +27,7 @@ type SettingsModalProps = {
   setWbsWidth: Dispatch<SetStateAction<number>>;
 };
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth }) => {
+const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
   const [startDate, setStartDate] = useState<Dayjs | null>(dayjs(dateRange.startDate));
@@ -284,26 +284,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
               <button onClick={() => fileInputRef.current?.click()}>Import</button>
               <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} accept=".json" />
             </div>
-            <h3>Column Visibility</h3>
-            <div style={{ marginLeft: '10px' }}>
-              {columns.map(column => {
-                if (column.columnId === 'no') {
-                  return null;
-                }
-                return(
-                <div key={column.columnId}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={column.visible}
-                      onChange={() => toggleColumnVisibility(column.columnId)}
-                    />
-                    {columnMap[column.columnId as keyof ColumnMap]}
-                  </label>
-                </div>
-                )
-              })}
-            </div>
+            <h3>Column</h3>
+            <ColumnSetting
+              columns={columns}
+              setColumns={setColumns}
+              toggleColumnVisibility={toggleColumnVisibility}
+            />
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Holidays</h3>
@@ -319,6 +305,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ show, onClose, dateRange,
     </Overlay>
     : null
   );
-};
+});
 
 export default SettingsModal;

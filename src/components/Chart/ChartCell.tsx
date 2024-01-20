@@ -1,8 +1,8 @@
 // ChartCell.tsx
 import React from 'react';
-import { Cell } from '../styles/GanttStyles';
-import AutoWidthInputBox from './AutoWidthInputBox';
-import { ChartBarColor } from '../types/colorAliasMapping';
+import { Cell } from '../../styles/GanttStyles';
+import AutoWidthInputBox from '../AutoWidthInputBox';
+import { ChartBarColor } from '../../types/colorAliasMapping';
 
 interface MemoedChartCellProps {
   entryId? : string;

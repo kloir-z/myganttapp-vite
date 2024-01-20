@@ -1,9 +1,9 @@
 // GridVertial.tsx
 import React, { memo } from 'react';
-import { isHoliday } from '../utils/CalendarUtil';
-import { GanttRow, Cell } from '../styles/GanttStyles';
+import { isHoliday } from '../../utils/CalendarUtil';
+import { GanttRow, Cell } from '../../styles/GanttStyles';
 import { useSelector } from 'react-redux';
-import { RootState } from '../reduxComponents/store';
+import { RootState } from '../../reduxComponents/store';
 
 interface CalendarProps {
   dateArray: Date[];

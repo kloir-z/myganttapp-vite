@@ -102,12 +102,9 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
 
   const syncToStore = useCallback(() => {
     if (isEditing) {
-      // `eventIndex` が存在する場合とそうでない場合で異なるアクションをディスパッチ
       if (typeof eventIndex === 'number') {
-        // EventRow の場合
         dispatch(setEventDisplayName({ id: entryId, eventIndex, displayName: localDisplayName }));
       } else {
-        // ChartRow の場合
         dispatch(setDisplayName({ id: entryId, displayName: localDisplayName }));
       }
     }

@@ -1,13 +1,13 @@
 // EventRowComponent.tsx
 import React, { useState, memo, useEffect, useCallback  } from 'react';
-import { EventRow } from '../types/DataTypes';
+import { EventRow } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow } from '../reduxComponents/store';
+import { updateEventRow } from '../../reduxComponents/store';
 import { debounce } from 'lodash';
-import { formatDate, adjustToLocalMidnight } from '../utils/chartHelpers'; 
+import { formatDate, adjustToLocalMidnight } from '../../utils/chartHelpers'; 
 import { ChartBar }  from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
-import { RootState } from '../reduxComponents/store';
+import { RootState } from '../../reduxComponents/store';
 
 interface EventRowProps {
   entry: EventRow;

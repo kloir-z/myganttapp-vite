@@ -1,7 +1,7 @@
 // ChartBar.tsx
 import React from 'react';
 import { ChartCell } from './ChartCell';
-import { ChartBarColor } from '../types/colorAliasMapping';
+import { ChartBarColor } from '../../types/colorAliasMapping';
 
 interface ChartBarProps {
   startDate: Date | null;

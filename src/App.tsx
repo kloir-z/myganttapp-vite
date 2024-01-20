@@ -1,20 +1,20 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback } from 'react';
-import Calendar from './components/Calendar';
+import Calendar from './components/Chart/Calendar';
 import { ChartRow, EventRow  } from './types/DataTypes';
 import { GanttRow } from './styles/GanttStyles';
-import WBSInfo from './components/WBSInfo';
-import ChartRowComponent from './components/ChartRowComponent';
-import EventRowComponent from './components/EventRowComponent';
+import WBSInfo from './components/Table/WBSInfo';
+import ChartRowComponent from './components/Chart/ChartRowComponent';
+import EventRowComponent from './components/Chart/EventRowComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setHolidays } from './reduxComponents/store';
 import { generateDates } from './utils/CalendarUtil';
-import GridVertical from './components/GridVertical';
+import GridVertical from './components/Chart/GridVertical';
 import { ResizeBar } from './components/WbsWidthResizer';
 import "./css/ReactGrid.css";
 import "./css/HiddenScrollBar.css";
-import SettingButton from './components/SettingButton';
-import SettingsModal from './components/SettingsModal';
+import SettingButton from './components/Setting/SettingButton';
+import SettingsModal from './components/Setting/SettingsModal';
 import { useWBSData } from './hooks/useWBSData';
 import defaultHolidays from "./utils/defaultHolidays";
 import { ActionCreators } from 'redux-undo';
