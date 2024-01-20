@@ -1,6 +1,5 @@
 //GridStyles.ts
 import styled from 'styled-components';
-import { ChartBarColor } from '../types/colorAliasMapping';
 import { css, keyframes } from 'styled-components';
 
 export const GanttRow = styled.div`
@@ -18,7 +17,7 @@ interface CellProps {
   $type?: string;
   $isPlanned?: boolean;
   $isActual?: boolean;
-  $chartBarColor?: ChartBarColor;
+  $chartBarColor?: string;
   $width?: number;
   $isMonthStart?: boolean;
 }

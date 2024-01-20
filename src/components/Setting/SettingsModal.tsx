@@ -10,7 +10,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
-import { ExtendedColumn } from "../../hooks/useWBSData";
+import { ExtendedColumn } from "../Table/hooks/useWBSData";
 import { updateAllColors } from '../../reduxStoreAndSlices/colorSlice';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";

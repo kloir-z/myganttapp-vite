@@ -11,12 +11,12 @@ import { RootState, setHolidays } from './reduxStoreAndSlices/store';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
 import GridVertical from './components/Chart/GridVertical';
 import { ResizeBar } from './components/WbsWidthResizer';
-import "./css/ReactGrid.css";
-import "./css/HiddenScrollBar.css";
+import "./components/Table/css/ReactGrid.css";
+import "./components/Table/css/HiddenScrollBar.css";
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
-import { useWBSData } from './hooks/useWBSData';
-import defaultHolidays from "./utils/defaultHolidays";
+import { useWBSData } from './components/Table/hooks/useWBSData';
+import defaultHolidays from "./defaultSetting/defaultHolidays";
 import { ActionCreators } from 'redux-undo';
 
 function App() {
@@ -177,7 +177,6 @@ function App() {
           onClose={closeSettingsModal}
           dateRange={dateRange}
           setDateRange={setDateRange}
-          headerRow={headerRow}
           columns={columns}
           setColumns={setColumns}
           toggleColumnVisibility={toggleColumnVisibility}

@@ -2,7 +2,7 @@
 import * as React from "react";
 import { CellTemplate, Compatible, Uncertain, UncertainCompatible, keyCodes, Cell } from "@silevis/reactgrid";
 import { isAlphaNumericKey, isNavigationKey, inNumericKey } from "@silevis/reactgrid";
-import "./CustomTextCellTemplate.css";
+import "../css/CustomTextCellTemplate.css";
 
 export interface CustomTextCell extends Cell {
   type: 'customText';

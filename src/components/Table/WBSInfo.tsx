@@ -6,13 +6,13 @@ import "@silevis/reactgrid/styles.css";
 import { handleCopySelectedRow, handlePasteRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
-import { useColumnResizer } from '../../hooks/useColumnResizer';
+import { useColumnResizer } from './hooks/useColumnResizer';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, simpleSetData } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
-import { ExtendedColumn } from '../../hooks/useWBSData';
+import { ExtendedColumn } from './hooks/useWBSData';
 
 type WBSInfoProps = {
   headerRow: Row<DefaultCellTypes>;

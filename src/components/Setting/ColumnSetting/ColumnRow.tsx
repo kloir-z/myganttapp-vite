@@ -1,6 +1,6 @@
 // ColumnRow.tsx
 import React, { useState, useEffect } from 'react';
-import { ExtendedColumn } from "../../../hooks/useWBSData";
+import { ExtendedColumn } from "../../Table/hooks/useWBSData";
 
 type ColumnRowProps = {
   column: ExtendedColumn;

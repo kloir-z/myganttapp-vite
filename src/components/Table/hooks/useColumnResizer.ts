@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Id } from "@silevis/reactgrid";
-import { ExtendedColumn } from '../hooks/useWBSData';
+import { ExtendedColumn } from './useWBSData';
 
 export const useColumnResizer = (setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>) => {
   const handleColumnResize = (columnId: Id, width: number) => {

@@ -1,6 +1,6 @@
 // ColumnSetting.tsx
 import React, { Dispatch, SetStateAction } from "react";
-import { ExtendedColumn } from "../../../hooks/useWBSData";
+import { ExtendedColumn } from "../../Table/hooks/useWBSData";
 import ColumnRow from './ColumnRow';
 
 type ColumnSettingProps = {
