@@ -1,6 +1,6 @@
 // utils/wbsHelpers.ts
 import { v4 as uuidv4 } from 'uuid';
-import { WBSData } from '../types/DataTypes';
+import { WBSData } from '../../../types/DataTypes';
 import { parse, format } from 'date-fns';
 
 export const assignIds = (data: WBSData[]): { [id: string]: WBSData } => {
@@ -15,9 +15,17 @@ export const assignIds = (data: WBSData[]): { [id: string]: WBSData } => {
 export const reorderArray = <T extends { id: string }>(arr: T[], indexesToMove: number[], newIndex: number): T[] => {
   const itemsToMove = indexesToMove.map(index => arr[index]);
   const remainingItems = arr.filter((_, index) => !indexesToMove.includes(index));
+  const maxIndexToMove = Math.max(...indexesToMove);
 
-  if (newIndex > arr.length) newIndex = arr.length;
-  else if (newIndex < 0) newIndex = 0;
+  if (maxIndexToMove < newIndex) {
+    newIndex -= indexesToMove.length - 1;
+  }
+
+  if (newIndex > arr.length - indexesToMove.length) {
+    newIndex = arr.length - indexesToMove.length;
+  } else if (newIndex < 0) {
+    newIndex = 0;
+  }
 
   const start = remainingItems.slice(0, newIndex);
   const end = remainingItems.slice(newIndex);

@@ -2,7 +2,7 @@ import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow } from '../types/DataTypes';
 import { testData } from '../testdata/testdata';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateBusinessDays, addBusinessDays, toLocalISOString } from '../utils/CalendarUtil';
+import { calculateBusinessDays, addBusinessDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
 import defaultHolidays from '../utils/defaultHolidays';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'

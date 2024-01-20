@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setDisplayName, setEventDisplayName } from '../reduxComponents/store';
+import { RootState, setDisplayName, setEventDisplayName } from '../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
 import { EventRow } from '../types/DataTypes';
 

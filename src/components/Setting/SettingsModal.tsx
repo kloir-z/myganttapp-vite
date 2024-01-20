@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, Dispatch, memo, SetStateAction } from "react";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, setHolidays } from '../../reduxComponents/store';
+import { RootState, simpleSetData, setHolidays } from '../../reduxStoreAndSlices/store';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -11,7 +11,7 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 import { ExtendedColumn } from "../../hooks/useWBSData";
-import { updateAllColors } from '../../reduxComponents/colorSlice';
+import { updateAllColors } from '../../reduxStoreAndSlices/colorSlice';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 

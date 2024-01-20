@@ -1,10 +1,10 @@
 // utils/contextMenuHandlers.ts
-import { WBSData, ChartRow, SeparatorRow, EventRow } from '../types/DataTypes';
+import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../../types/DataTypes';
 import { assignIds } from './wbsHelpers';
-import { simpleSetData } from '../reduxComponents/store';
+import { simpleSetData } from '../../../reduxStoreAndSlices/store';
 import { Id } from "@silevis/reactgrid";
 import { Dispatch } from 'redux';
-import { setCopiedRows } from '../reduxComponents/copiedRowsSlice';
+import { setCopiedRows } from '../../../reduxStoreAndSlices/copiedRowsSlice';
 
 export const handleCopySelectedRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const copiedRows = dataArray.filter(item => selectedRowIds.includes(item.id)).map(item => {

@@ -2,12 +2,12 @@
 import React, { useState, memo, useEffect, useCallback  } from 'react';
 import { EventRow } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow } from '../../reduxComponents/store';
+import { updateEventRow } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
-import { formatDate, adjustToLocalMidnight } from '../../utils/chartHelpers'; 
+import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers'; 
 import { ChartBar }  from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
-import { RootState } from '../../reduxComponents/store';
+import { RootState } from '../../reduxStoreAndSlices/store';
 
 interface EventRowProps {
   entry: EventRow;
@@ -19,6 +19,7 @@ interface EventRowProps {
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
   const chartBarColor = useSelector((state: RootState) => {
+    if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
   });

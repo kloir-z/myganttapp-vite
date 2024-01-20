@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../reduxComponents/store';
-import { updateColor, updateAlias } from '../../reduxComponents/colorSlice';
+import { RootState } from '../../reduxStoreAndSlices/store';
+import { updateColor, updateAlias } from '../../reduxStoreAndSlices/colorSlice';
 import { ChromePicker, ColorResult } from 'react-color';
 
 const ColorSetting: React.FC = () => {

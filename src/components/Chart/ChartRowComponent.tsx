@@ -1,13 +1,13 @@
 import React, { useState, memo, useEffect, useCallback  } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { setPlannedStartDate, setPlannedEndDate, setActualStartDate, setActualEndDate } from '../../reduxComponents/store';
+import { setPlannedStartDate, setPlannedEndDate, setActualStartDate, setActualEndDate } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
-import { formatDate, adjustToLocalMidnight } from '../../utils/chartHelpers'; 
-import { addBusinessDays } from '../../utils/CalendarUtil';
+import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers'; 
+import { addBusinessDays } from './utils/CalendarUtil';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../reduxComponents/store';
+import { RootState } from '../../reduxStoreAndSlices/store';
 
 interface ChartRowProps {
   entry: ChartRow;

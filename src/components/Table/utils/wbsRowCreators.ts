@@ -1,5 +1,5 @@
 // wbsRowCreators.ts
-import { ChartRow, SeparatorRow, EventRow } from '../types/DataTypes';
+import { ChartRow, SeparatorRow, EventRow } from '../../../types/DataTypes';
 import { Row, DefaultCellTypes, NumberCell, Column } from "@silevis/reactgrid";
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from './CustomTextCell';
@@ -42,13 +42,13 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
       cellValue = '';
     }
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, value: NaN } as CustomDateCell;
+      return { type: "customDate", text: cellValue, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomDateCell;
     }
     else if (columnId === "no") {
       return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)'}} as NumberCell;
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN } as CustomTextCell;
+      return { type: "customText", text: cellValue as string, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomTextCell;
     }
   });
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };

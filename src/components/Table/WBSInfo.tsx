@@ -3,15 +3,15 @@ import React, { useCallback, Dispatch, SetStateAction } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow  } from '../../types/DataTypes';
 import { ReactGrid, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
-import { handleCopySelectedRow, handlePasteRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from '../../utils/contextMenuHandlers';
-import { createChartRow, createSeparatorRow, createEventRow } from '../../utils/wbsRowCreators';
-import { handleGridChanges } from '../../utils/gridHandlers';
+import { handleCopySelectedRow, handlePasteRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
+import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
+import { handleGridChanges } from './utils/gridHandlers';
 import { useColumnResizer } from '../../hooks/useColumnResizer';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData } from '../../reduxComponents/store';
-import { CustomDateCell, CustomDateCellTemplate } from '../../utils/CustomDateCell';
-import { CustomTextCell, CustomTextCellTemplate } from '../../utils/CustomTextCell';
-import { assignIds, reorderArray } from '../../utils/wbsHelpers';
+import { RootState, simpleSetData } from '../../reduxStoreAndSlices/store';
+import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
+import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
+import { assignIds, reorderArray } from './utils/wbsHelpers';
 import { ExtendedColumn } from '../../hooks/useWBSData';
 
 type WBSInfoProps = {
@@ -114,25 +114,23 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
     const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
-  
-    const reorderedData = reorderArray(dataArray, movingRowsIndexes, targetIndex);
+    const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
+
+    const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
   
     dispatch(simpleSetData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 
   const handleColumnsReorder = useCallback((targetColumnId: Id, columnIds: Id[]) => {
-    const newColumnsOrder = [...columns];
-    const targetIndex = newColumnsOrder.findIndex(column => column.columnId === targetColumnId);
-  
-    columnIds.forEach(columnId => {
-      const index = newColumnsOrder.findIndex(column => column.columnId === columnId);
-      if (index >= 0) {
-        const [column] = newColumnsOrder.splice(index, 1);
-        newColumnsOrder.splice(targetIndex, 0, column);
-      }
-    });
-  
-    setColumns(newColumnsOrder);
+    const targetIndex = columns.findIndex(data => data.columnId === targetColumnId);
+    const movingColumnsIndexes = columnIds.map(id => columns.findIndex(data => data.columnId === id));
+    const sortedMovingColumnsIndexes = [...movingColumnsIndexes].sort((a, b) => a - b);
+
+    const tempColumns = columns.map(column => ({ ...column, id: column.columnId }));
+    const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, targetIndex);
+    const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
+    
+    setColumns(reorderedColumns);
   }, [columns, setColumns]);
 
   const handleCanReorderRows = (targetRowId: Id): boolean => {
