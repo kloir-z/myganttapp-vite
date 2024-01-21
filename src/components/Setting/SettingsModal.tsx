@@ -1,5 +1,5 @@
 // SettingsModal.tsx
-import React, { useState, useEffect, useRef, Dispatch, memo, SetStateAction } from "react";
+import React, { useState, useEffect, useCallback, useRef, Dispatch, memo, SetStateAction } from "react";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, simpleSetData, setHolidays } from '../../reduxStoreAndSlices/store';
@@ -14,6 +14,7 @@ import { ExtendedColumn } from "../Table/hooks/useWBSData";
 import { updateAllColors } from '../../reduxStoreAndSlices/colorSlice';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
+import HolidaySetting from "./HolidaySetting/HolidaySetting";
 
 type SettingsModalProps = {
   show: boolean;
@@ -48,7 +49,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
     locale = 'en';
   }
 
-  const updateHolidays = (holidayInput: string) => {
+  const updateHolidays = useCallback((holidayInput: string) => {
     const newHolidays = holidayInput.split("\n").map(holiday => {
       const match = holiday.match(/(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/);
       if (match) {
@@ -61,12 +62,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
     }).filter((holiday): holiday is string => holiday !== null);
   
     dispatch(setHolidays(newHolidays));
-    dispatch(simpleSetData(data));
-  };
-
-  const handleBlur = () => {
-    updateHolidays(holidayInput);
-  };
+  }, [dispatch]);
 
   const handleExport = () => {
     const settingsData = {
@@ -132,7 +128,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
             if (parsedData.holidayInput) {
               const newHolidayInput = parsedData.holidayInput;
               setHolidayInput(newHolidayInput);
-              updateHolidays(newHolidayInput);
+              updateHolidays(newHolidayInput)
             }
             if (parsedData.data) {
               dispatch(simpleSetData(parsedData.data));
@@ -172,7 +168,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
         return;
       }
 
-      const maxEndDate = dayjs(startDate).add(5, 'year');
+      const maxEndDate = dayjs(startDate).add(3, 'year');
       if (endDate.isAfter(maxEndDate)) {
         setEndDate(maxEndDate);
       } else {
@@ -293,11 +289,10 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Holidays</h3>
-            <textarea
-              value={holidayInput}
-              onChange={(e) => setHolidayInput(e.target.value)}
-              onBlur={handleBlur}
-              style={{ padding: '10px', width: '200px', height: '700px', overflow: 'auto', resize: 'none' }}
+            <HolidaySetting
+              updateHolidays={updateHolidays}
+              holidayInput={holidayInput}
+              setHolidayInput={setHolidayInput}
             />
           </div>
         </div>

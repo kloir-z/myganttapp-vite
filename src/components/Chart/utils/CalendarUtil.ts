@@ -1,26 +1,4 @@
 // CalendarUtils.ts
-
-const parseHolidays = (holidays: string[]): Date[] => {
-  return holidays.map(holiday => {
-    const [year, month, day] = holiday.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  });
-};
-
-export const isHoliday = (date: Date, holidays: string[]): boolean => {
-  const holidayDates = parseHolidays(holidays);
-
-  if (isNaN(date.getTime())) {
-    return false;
-  }
-
-  return holidayDates.some(holiday =>
-    holiday.getFullYear() === date.getFullYear() &&
-    holiday.getMonth() === date.getMonth() &&
-    holiday.getDate() === date.getDate()
-  );
-};
-
 export const generateDates = (start: Date, end: Date): Date[] => {
   if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
     return [];
@@ -37,6 +15,17 @@ export const generateDates = (start: Date, end: Date): Date[] => {
   }
 
   return dateArray;
+};
+
+export const toLocalISOString = (date: Date): string => {
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+
+  const offset = date.getTimezoneOffset();
+  const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
+
+  return adjustedDate.toISOString().split('T')[0];
 };
 
 const getStartOfDay = (date: Date) => {
@@ -59,6 +48,11 @@ export const calculateBusinessDays = (start: Date, end: Date, holidays: string[]
   }
 
   return count;
+};
+
+export const isHoliday = (date: Date, holidays: string[]): boolean => {
+  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return holidays.includes(dateString);
 };
 
 export const addBusinessDays = (start: Date, days: number | null, holidays: string[], includeStartDay: boolean = true): Date => {
@@ -85,15 +79,4 @@ export const addBusinessDays = (start: Date, days: number | null, holidays: stri
   }
 
   return currentDate;
-};
-
-export const toLocalISOString = (date: Date): string => {
-  if (isNaN(date.getTime())) {
-    return '';
-  }
-
-  const offset = date.getTimezoneOffset();
-  const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
-
-  return adjustedDate.toISOString().split('T')[0];
 };
