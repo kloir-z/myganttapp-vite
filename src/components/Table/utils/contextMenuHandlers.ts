@@ -17,13 +17,11 @@ export const handleCopySelectedRow = (dispatch: Dispatch, selectedRowIds: Id[], 
 
 export const handlePasteRows = (dispatch: Dispatch, targetRowId: Id, dataArray: WBSData[], copiedRows: WBSData[]) => {
   if (copiedRows.length === 0) {
-    console.log("No rows to paste");
     return;
   }
 
   const targetIndex = dataArray.findIndex(row => row.id === targetRowId);
   if (targetIndex === -1) {
-    console.log("Target row not found");
     return;
   }
 

@@ -25,10 +25,10 @@ function App() {
   const { headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [wbsWidth, setWbsWidth] = useState(550);
-  const [maxWbsWidth,] = useState(1500);
+  const [maxWbsWidth, setMaxWbsWidth] = useState(1500);
   const [dateRange, setDateRange] = useState({
     startDate: new Date('2023-09-01'),
-    endDate: new Date('2025-10-05'),
+    endDate: new Date('2024-09-01'),
   });
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
@@ -43,6 +43,22 @@ function App() {
   useEffect(() => {
     dispatch(setHolidays(defaultHolidays));
   }, [dispatch]);
+  
+  useEffect(() => {
+    const totalWidth = columns.reduce((sum, column) => {
+      const columnWidth = column.width !== undefined ? column.width : 150;
+      return column.visible ? sum + columnWidth : sum;
+    }, 0);
+    if (columns.length > 0) {
+      const widthDifference = Math.abs(maxWbsWidth - wbsWidth);
+  
+      if (wbsWidth > totalWidth || widthDifference <= 20) {
+        setWbsWidth(totalWidth);
+      }
+    }
+    setMaxWbsWidth(totalWidth);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columns]);
 
   useEffect(() => {
     setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
@@ -170,7 +186,7 @@ function App() {
   return (
     <div style={{position: 'fixed'}}>
       <div style={{position: 'relative'}}>
-        <div style={{position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden', borderRight: 'solid 1px #00000016'}} ref={calendarRef}>
+        <div style={{position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden'}} ref={calendarRef}>
           <SettingButton onClick={openSettingsModal} />
           <SettingsModal
           show={isSettingsModalOpen}
@@ -191,7 +207,7 @@ function App() {
           />
           <GridVertical dateArray={dateArray} gridHeight={calculateGridHeight()} />
         </div>
-        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll', borderRight: 'solid 1px #00000016' }} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll'}} ref={wbsRef}>
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}

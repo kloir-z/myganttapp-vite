@@ -10,7 +10,7 @@ export const GanttRow = styled.div`
   border-bottom: solid 1px #00000016;
   position: relative;
   user-select: none;
-  align-items: center;
+  align-items: start;
 `;
 
 interface CellProps {

@@ -1,23 +1,26 @@
 // gridHandlers.ts
 import { CellChange, TextCell, NumberCell, CheckboxCell, EmailCell, DropdownCell, ChevronCell, HeaderCell, TimeCell, DateCell } from "@silevis/reactgrid";
-import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../../types/DataTypes';
+import { WBSData, ChartRow, EventRow } from '../../../types/DataTypes';
 import { Dispatch } from 'redux';
 import { setData, simpleSetData } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
+import { ExtendedColumn } from "../hooks/useWBSData";
 
 type AllCellTypes  = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;  
 
-export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[]) => {
+export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[],columns: ExtendedColumn[]) => {
   const updatedData = { ...data };
   let useSimpleSetData = false;
+  const visibleColumns = columns.filter(column => column.visible);
+  const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
+
 
   changes.forEach((change) => {
     const rowId = change.rowId.toString();
     const rowData = updatedData[rowId];
 
-    if (rowData && rowData.rowType === 'Separator') {
-      const fieldName = change.columnId as keyof SeparatorRow; 
+    if (rowData && rowData.rowType === 'Separator' && change.columnId === secondVisibleColumnId) {
       const newCell = change.newCell;
       useSimpleSetData = true;
       
@@ -25,7 +28,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.text
+          displayName: customTextCell.text
+
         };
       }
     }

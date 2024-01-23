@@ -122,16 +122,27 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
   }, [dataArray, dispatch]);
 
   const handleColumnsReorder = useCallback((targetColumnId: Id, columnIds: Id[]) => {
+    // Check if 'no' column is in the moving columns
+    if (columnIds.includes("no")) {
+      return; // Do not allow reordering if 'no' column is selected
+    }
+  
     const targetIndex = columns.findIndex(data => data.columnId === targetColumnId);
+    const noColumnIndex = columns.findIndex(data => data.columnId === "no");
+  
+    // Ensure the target index is not before the 'no' column
+    const adjustedTargetIndex = targetIndex <= noColumnIndex ? noColumnIndex + 1 : targetIndex;
+  
     const movingColumnsIndexes = columnIds.map(id => columns.findIndex(data => data.columnId === id));
     const sortedMovingColumnsIndexes = [...movingColumnsIndexes].sort((a, b) => a - b);
-
+  
     const tempColumns = columns.map(column => ({ ...column, id: column.columnId }));
-    const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, targetIndex);
+    const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, adjustedTargetIndex);
     const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
     
     setColumns(reorderedColumns);
   }, [columns, setColumns]);
+  
 
   const handleCanReorderRows = (targetRowId: Id): boolean => {
     return targetRowId !== 'header';
@@ -141,7 +152,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
     <ReactGrid
       rows={rows}
       columns={visibleColumns}
-      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes)}
+      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns)}
       onColumnResized={handleColumnResize}
       onContextMenu={simpleHandleContextMenu}
       stickyTopRows={1}
