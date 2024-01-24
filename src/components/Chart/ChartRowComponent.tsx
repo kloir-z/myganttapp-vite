@@ -203,7 +203,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localPlannedStartDate, localPlannedEndDate, localActualStartDate, localActualEndDate, dispatch, entry.id]);
 
-  const debouncedSyncToStore = debounce(syncToStore, 200);
+  const debouncedSyncToStore = debounce(syncToStore, 20);
 
   useEffect(() => {
     debouncedSyncToStore();
