@@ -34,6 +34,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const [isEditing, setIsEditing] = useState(false);
   const [isBarDragging, setIsBarDragging] = useState(false);
   const [isBarEndDragging, setIsBarEndDragging] = useState(false);
+  const [isBarStartDragging, setIsBarStartDragging] = useState(false);
   const [originalStartDate, setOriginalStartDate] = useState<Date | null>(null);
   const [originalEndDate, setOriginalEndDate] = useState<Date | null>(null);
   const [initialMouseX, setInitialMouseX] = useState<number | null>(null);
@@ -56,7 +57,16 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index); 
-  };  
+  };
+  
+  const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    setIsBarStartDragging(true);
+    setCanDrag(false);
+    setInitialMouseX(event.clientX);
+    setOriginalStartDate(localEvents[index].startDate);
+    setOriginalEndDate(localEvents[index].endDate);
+    setActiveEventIndex(index);
+  };
 
   const calendarWidth = dateArray.length * 21;
 
@@ -91,7 +101,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     });  }
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if ((isBarDragging || isBarEndDragging) && initialMouseX !== null && activeEventIndex !== null) {
+    if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
       const currentMouseX = event.clientX;
       const deltaX = currentMouseX - initialMouseX;
       const gridSteps = Math.floor(deltaX / 21);
@@ -112,6 +122,12 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
               newEndDate.setDate(newEndDate.getDate() + gridSteps);
               if (newEndDate < originalStartDate) {
                 newEndDate.setDate(originalStartDate.getDate());
+              }
+            } else if (isBarStartDragging && originalStartDate && originalEndDate) {
+              newStartDate = new Date(originalStartDate.getTime());
+              newStartDate.setDate(newStartDate.getDate() + gridSteps);
+              if (newStartDate > originalEndDate) {
+                newStartDate.setDate(originalEndDate.getDate());
               }
             }
   
@@ -148,20 +164,20 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         });
       });
     }
-  }, [isBarDragging, isBarEndDragging, initialMouseX, activeEventIndex, isEditing, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
+  }, [isBarDragging, isBarEndDragging, isBarStartDragging, initialMouseX, activeEventIndex, isEditing, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
       
   useEffect(() => {
-    if (!isEditing && !isBarDragging && !isBarEndDragging) {
+    if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {
       setLocalEvents(entry.eventData.map(event => ({
         ...event,
         startDate: event.startDate ? new Date(event.startDate) : null,
         endDate: event.endDate ? new Date(event.endDate) : null,
       })));
     }
-  }, [entry.eventData, isEditing, isBarDragging, isBarEndDragging]);  
+  }, [entry.eventData, isEditing, isBarDragging, isBarEndDragging, isBarStartDragging]);  
 
   const syncToStore = useCallback(() => {
-    if (isEditing || isBarDragging || isBarEndDragging) {
+    if (isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) {
       const updatedEventData = localEvents.map(event => ({
         ...event,
         startDate: event.startDate ? formatDate(event.startDate) : "",
@@ -175,7 +191,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   
       dispatch(updateEventRow({ id: entry.id, updatedEventRow }));
     }
-  }, [isEditing, isBarDragging, isBarEndDragging, localEvents, entry, dispatch]);
+  }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localEvents, entry, dispatch]);
   
   const debouncedSyncToStore = debounce(syncToStore, 20);
   
@@ -188,6 +204,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setIsEditing(false);
     setIsBarDragging(false);
     setIsBarEndDragging(false);
+    setIsBarStartDragging(false);
     setInitialMouseX(null);
     syncToStore();
     setCanDrag(true);
@@ -224,11 +241,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
       handleCloseContextMenu();
     }
   }, [contextMenu, handleCloseContextMenu, dispatch, entry]);
-  
 
   return (
     <div style={{position: 'absolute', height: '21px', width: `${calendarWidth}px`}} onDoubleClick={handleDoubleClick}>
-      {(isEditing || isBarDragging || isBarEndDragging) && (
+      {(isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) && (
         <div
           style={{position: 'fixed', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 12px)', zIndex: 9999, cursor: 'pointer'}}
           onMouseMove={handleMouseMove}
@@ -247,6 +263,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           chartBarColor={chartBarColor}
           onBarMouseDown={(e) => handleBarMouseDown(e, index)}
           onBarEndMouseDown={(e) => handleBarEndMouseDown(e, index)}
+          onBarStartMouseDown={(e) => handleBarStartMouseDown(e, index)}
           onContextMenu={(e) => handleBarRightClick(e, index)}
         />
       ))}

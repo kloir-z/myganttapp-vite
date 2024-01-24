@@ -1,7 +1,6 @@
 // ChartBar.tsx
 import React from 'react';
 import { ChartCell } from './ChartCell';
-import { ChartBarColor } from '../../types/colorAliasMapping';
 
 interface ChartBarProps {
   startDate: Date | null;
@@ -10,9 +9,10 @@ interface ChartBarProps {
   isActual: boolean;
   entryId: string;
   eventIndex?: number;
-  chartBarColor: ChartBarColor;
+  chartBarColor: string;
   onBarMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
   onBarEndMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
+  onBarStartMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
   onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void; 
 }
 
@@ -20,7 +20,7 @@ const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onContextMenu }) => {
+const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
   if (!startDate || !endDate) {
     return null;
   }
@@ -45,6 +45,10 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
 
     return (
       <>
+        <div
+          style={{position: 'absolute', left: `${leftPosition - 8}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
+          {...{ onMouseDown: onBarStartMouseDown }}
+        ></div>
         <div
           style={{position: 'absolute', left: `${leftPosition}px`, width: `${width}px`}}
           {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
