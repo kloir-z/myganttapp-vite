@@ -272,6 +272,22 @@ export const wbsDataSlice = createSlice({
         updateDependentRows(state, id, new Date(endDate));
       }
     },
+    setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+      const { id, startDate, endDate } = action.payload;
+      if (state.data[id] && state.data[id].rowType === 'Chart') {
+        const chartRow = state.data[id] as ChartRow;
+        chartRow.plannedStartDate = startDate;
+        chartRow.plannedEndDate = endDate;
+        
+        // 新しい開始日と終了日を基に営業日数を計算
+        if (startDate && endDate) {
+          const newStartDate = new Date(startDate);
+          const newEndDate = new Date(endDate);
+          chartRow.businessDays = calculateBusinessDays(newStartDate, newEndDate, state.holidays);
+        }
+        updateDependentRows(state, id, new Date(endDate));
+      }
+    },
     setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
       const { id, startDate } = action.payload;
       if (state.data[id] && state.data[id].rowType === 'Chart') {
@@ -284,6 +300,14 @@ export const wbsDataSlice = createSlice({
         (state.data[id] as ChartRow).actualEndDate = endDate;
       }
     },
+    setActualStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+      const { id, startDate, endDate } = action.payload;
+      if (state.data[id] && state.data[id].rowType === 'Chart') {
+        const chartRow = state.data[id] as ChartRow;
+        chartRow.actualStartDate = startDate;
+        chartRow.actualEndDate = endDate;
+      }
+    },    
     setDisplayName: (state, action: PayloadAction<{ id: string; displayName: string }>) => {
       const { id, displayName } = action.payload;
       if (state.data[id]) {
@@ -326,17 +350,34 @@ export const {
   setData, 
   setPlannedStartDate, 
   setPlannedEndDate,
+  setPlannedStartAndEndDate,
   setActualStartDate, 
   setActualEndDate,
+  setActualStartAndEndDate,
   setDisplayName,
   setHolidays,
   setEventDisplayName,
   updateEventRow,
 } = wbsDataSlice.actions;
 
+let lastActionTimestamp = Date.now();
+
+const timeBasedFilter = () => {
+  const now = Date.now();
+  if (now - lastActionTimestamp > 2000) {
+    lastActionTimestamp = now;
+    return true;
+  }
+  return false;
+};
+
+const undoableOptions = {
+  filter: timeBasedFilter
+};
+
 export const store = configureStore({
   reducer: {
-    wbsData: undoable(wbsDataSlice.reducer),
+    wbsData: undoable(wbsDataSlice.reducer, undoableOptions),
     copiedRows: copiedRowsReducer,
     color: colorReducer,
   },

@@ -38,9 +38,13 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
   let endIndex = dateArray.findIndex(date => date > endOfDay);
   startIndex = startIndex === -1 ? 0 : startIndex;
   endIndex = endIndex === -1 ? dateArray.length - 1 : endIndex - 1;
+  
+  if (endIndex < startIndex) {
+    return null;
+  }
 
   if (startIndex !== -1 && endIndex !== -1) {
-    const width = ((endIndex - startIndex + 1) * 21) + 0.3;
+    const width = ((endIndex - startIndex + 1) * 21) + 0.1;
     const leftPosition = startIndex * 21;
 
     return (

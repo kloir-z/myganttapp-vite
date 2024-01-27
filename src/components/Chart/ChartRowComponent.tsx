@@ -1,7 +1,7 @@
 import React, { useState, memo, useEffect, useCallback  } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { setPlannedStartDate, setPlannedEndDate, setActualStartDate, setActualEndDate } from '../../reduxStoreAndSlices/store';
+import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers'; 
 import { addBusinessDays } from './utils/CalendarUtil';
@@ -196,10 +196,35 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   const syncToStore = useCallback(() => {
     if (isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) {
-      if (localPlannedStartDate) {dispatch(setPlannedStartDate({ id: entry.id, startDate: formatDate(localPlannedStartDate) }));}
-      if (localPlannedEndDate) {dispatch(setPlannedEndDate({ id: entry.id, endDate: formatDate(localPlannedEndDate) }));}
-      if (localActualStartDate) {dispatch(setActualStartDate({ id: entry.id, startDate: formatDate(localActualStartDate) }));}
-      if (localActualEndDate) {dispatch(setActualEndDate({ id: entry.id, endDate: formatDate(localActualEndDate) }));}
+      if (localPlannedStartDate && localPlannedEndDate) {
+        dispatch(setPlannedStartAndEndDate({ 
+          id: entry.id, 
+          startDate: formatDate(localPlannedStartDate),
+          endDate: formatDate(localPlannedEndDate) 
+        }));
+      } else {
+        if (localPlannedStartDate) {
+          dispatch(setPlannedStartDate({ id: entry.id, startDate: formatDate(localPlannedStartDate) }));
+        }
+        if (localPlannedEndDate) {
+          dispatch(setPlannedEndDate({ id: entry.id, endDate: formatDate(localPlannedEndDate) }));
+        }
+      }
+  
+      if (localActualStartDate && localActualEndDate) {
+        dispatch(setActualStartAndEndDate({ 
+          id: entry.id, 
+          startDate: formatDate(localActualStartDate), 
+          endDate: formatDate(localActualEndDate) 
+        }));
+      } else {
+        if (localActualStartDate) {
+          dispatch(setActualStartDate({ id: entry.id, startDate: formatDate(localActualStartDate) }));
+        }
+        if (localActualEndDate) {
+          dispatch(setActualEndDate({ id: entry.id, endDate: formatDate(localActualEndDate) }));
+        }
+      }
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localPlannedStartDate, localPlannedEndDate, localActualStartDate, localActualEndDate, dispatch, entry.id]);
 

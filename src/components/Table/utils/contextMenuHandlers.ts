@@ -15,7 +15,7 @@ export const handleCopySelectedRow = (dispatch: Dispatch, selectedRowIds: Id[], 
   dispatch(setCopiedRows(copiedRows));
 };
 
-export const handlePasteRows = (dispatch: Dispatch, targetRowId: Id, dataArray: WBSData[], copiedRows: WBSData[]) => {
+export const handleInsertCopiedRows = (dispatch: Dispatch, targetRowId: Id, dataArray: WBSData[], copiedRows: WBSData[]) => {
   if (copiedRows.length === 0) {
     return;
   }

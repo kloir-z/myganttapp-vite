@@ -1,9 +1,9 @@
 // WBSInfo.tsx
 import React, { useCallback, Dispatch, SetStateAction } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow  } from '../../types/DataTypes';
-import { ReactGrid, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
+import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
-import { handleCopySelectedRow, handlePasteRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
+import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useColumnResizer } from './hooks/useColumnResizer';
@@ -50,67 +50,85 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
   }, [visibleColumns, headerRow]);
 
   const rows = getRows(dataArray);
+
+  const getSelectedIdsFromRanges = useCallback((selectedRanges: Array<Array<CellLocation>>) => {
+    const selectedRowIdsFromRanges = new Set<Id>();
+    const selectedColIdsFromRanges = new Set<Id>();
+  
+    selectedRanges.flat().forEach(({ rowId, columnId }) => {
+      selectedRowIdsFromRanges.add(rowId);
+      selectedColIdsFromRanges.add(columnId);
+    });
+  
+    return { 
+      selectedRowIdsFromRanges: Array.from(selectedRowIdsFromRanges),
+      selectedColIdsFromRanges: Array.from(selectedColIdsFromRanges)
+    };
+  }, []);
   
   const simpleHandleContextMenu = useCallback((
-    selectedRowIds: Id[],
-    selectedColIds: Id[],
-    selectionMode: SelectionMode,
+    _selectedRowIds: Id[],
+    _selectedColIds: Id[],
+    _selectionMode: SelectionMode,
     menuOptions: MenuOption[],
+    selectedRanges: Array<CellLocation[]>
   ): MenuOption[] => {
-    if (selectionMode === 'column') {
-      menuOptions.push({
+    const { selectedRowIdsFromRanges, selectedColIdsFromRanges } = getSelectedIdsFromRanges(selectedRanges);
+  
+    menuOptions.push(
+      {
+        id: "copyRow",
+        label: "Copy Row",
+        handler: () => handleCopySelectedRow(dispatch, selectedRowIdsFromRanges, dataArray)
+      },
+      {
+        id: "cutRow",
+        label: "Cut Row (Copy & Delete)",
+        handler: () => handleCutRows(dispatch, selectedRowIdsFromRanges, dataArray)
+      },
+      {
+        id: "insertCopiedRow",
+        label: "Insert Copied Row",
+        handler: () => {
+          if (selectedRowIdsFromRanges.length > 0) {
+            handleInsertCopiedRows(dispatch, selectedRowIdsFromRanges[0], dataArray, copiedRows);
+          }
+        }
+      },
+      {
+        id: "addChartRow",
+        label: "Add Chart Row",
+        handler: () => handleAddChartRow(dispatch, selectedRowIdsFromRanges, dataArray)
+      },
+      {
+        id: "addSeparatorRow",
+        label: "Add Separator Row",
+        handler: () => handleAddSeparatorRow(dispatch, selectedRowIdsFromRanges, dataArray)
+      },
+      {
+        id: "addEventRow",
+        label: "Add Event Row",
+        handler: () => handleAddEventRow(dispatch, selectedRowIdsFromRanges, dataArray)
+      },
+      {
         id: "hideColumn",
         label: "Hide Column",
-        handler: () => selectedColIds.forEach(colId => toggleColumnVisibility(colId))
-      });
-    }
-    if (selectionMode === 'row') {
-      menuOptions.length = 0;
-      menuOptions.push(
-        {
-          id: "copyRow",
-          label: "Copy Row",
-          handler: () => handleCopySelectedRow(dispatch, selectedRowIds, dataArray)
-        },
-        {
-          id: "cutRow",
-          label: "Cut Row",
-          handler: () => handleCutRows(dispatch, selectedRowIds, dataArray)
-        },
-        {
-          id: "pasteRow",
-          label: "Paste Row",
-          handler: () => {
-            if (selectedRowIds.length > 0) {
-              handlePasteRows(dispatch, selectedRowIds[0], dataArray, copiedRows);
-            }
-          }
-        },
-        {
-          id: "removeSelectedRow",
-          label: "Remove Row",
-          handler: () => handleCutRows(dispatch, selectedRowIds, dataArray)
-        },
-        {
-          id: "addChartRow",
-          label: "Add Chart Row",
-          handler: () => handleAddChartRow(dispatch, selectedRowIds, dataArray)
-        },
-        {
-          id: "addSeparatorRow",
-          label: "Add Separator Row",
-          handler: () => handleAddSeparatorRow(dispatch, selectedRowIds, dataArray)
-        },
-        {
-          id: "addEventRow",
-          label: "Add Event Row",
-          handler: () => handleAddEventRow(dispatch, selectedRowIds, dataArray)
-        },
-      );
-    }
+        handler: () => selectedColIdsFromRanges.forEach((colId: Id) => toggleColumnVisibility(colId))
+      },
+    );
+    columns.forEach(column => {
+      if (!column.visible) {
+        const columnName = column.columnName ? column.columnName : column.columnId;
+        menuOptions.push({
+          id: `showColumn-${column.columnId}`,
+          label: `Show ${columnName} Column`,
+          handler: () => toggleColumnVisibility(column.columnId)
+        });
+      }
+    });
     return menuOptions;
-  }, [toggleColumnVisibility, dispatch, dataArray, copiedRows]);
-
+  }, [getSelectedIdsFromRanges, columns, dispatch, dataArray, copiedRows, toggleColumnVisibility]);
+  
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
     const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
