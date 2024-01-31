@@ -19,7 +19,10 @@ const initialState: ColorState = {
     { id: 4, alias: '', color: '#ff70ea51' },
     { id: 5, alias: '', color: '#ff707051' },
     { id: 6, alias: '', color: '#fffe7051' },
-    { id: 7, alias: '', color: '#76ff7051' }
+    { id: 7, alias: '', color: '#76ff7051' },
+    { id: 8, alias: '', color: '#76ff7051' },
+    { id: 9, alias: '', color: '#76ff7051' },
+    { id: 10, alias: '', color: '#76ff7051' }
   ],
 };
 const colorSlice = createSlice({

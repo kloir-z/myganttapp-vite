@@ -32,7 +32,7 @@ const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-export const calculateBusinessDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean): number => {
+export const calculatePlannedDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean): number => {
   if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
     return 0;
   }
@@ -55,7 +55,7 @@ export const isHoliday = (date: Date, holidays: string[]): boolean => {
   return holidays.includes(dateString);
 };
 
-export const addBusinessDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true): Date => {
+export const addPlannedDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true): Date => {
   if (isNaN(start.getTime()) || days === null || days < 0) {
     return new Date(NaN);
   }

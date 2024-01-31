@@ -38,7 +38,7 @@ function MemoedResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
         position: 'absolute', 
         left: `${initialWidth}px`, 
         height: '100vh', 
-        zIndex: 9999 
+        zIndex: 10 
       }} 
       onMouseDown={handleMouseDown} 
     />

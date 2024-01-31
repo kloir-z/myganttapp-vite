@@ -73,7 +73,7 @@ export const Overlay = styled.div<{ fadeStatus: 'in' | 'out' }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 11;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   border: none;
   color: #ebebeb;

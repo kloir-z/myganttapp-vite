@@ -76,10 +76,8 @@ const ColorSetting: React.FC = () => {
             type="text"
             value={colorInfo.alias}
             onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
-            placeholder="Alias"
             style={{height: '20px', margin: '2px'}}
           />
-
         </div>
       ))}
     </div>

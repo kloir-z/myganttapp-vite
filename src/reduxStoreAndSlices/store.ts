@@ -2,7 +2,7 @@ import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow } from '../types/DataTypes';
 import { testData } from '../testdata/testdata';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateBusinessDays, addBusinessDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
+import { calculatePlannedDays, addPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
 import defaultHolidays from '../defaultSetting/defaultHolidays';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
@@ -16,8 +16,8 @@ const assignIds = (data: WBSData[], holidays: string[]): { [id: string]: WBSData
       const chartRow = row as ChartRow;
       const startDate = new Date(chartRow.plannedStartDate);
       const endDate = new Date(chartRow.plannedEndDate);
-      const businessDays = calculateBusinessDays(startDate, endDate, holidays, chartRow.isIncludeHolidays);
-      dataWithIdsAndNos[id] = { ...chartRow, id, no: index + 1, businessDays };
+      const plannedDays = calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays);
+      dataWithIdsAndNos[id] = { ...chartRow, id, no: index + 1, plannedDays };
     } else {
       dataWithIdsAndNos[id] = { ...row, id, no: index + 1 };
     }
@@ -64,7 +64,7 @@ const updateDependentRows = (
               offsetDays = 1;
             }
             const includeStartDay = false
-            newStartDate = addBusinessDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay); 
+            newStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay); 
             break;
           }
           case 'sameas': {
@@ -79,7 +79,7 @@ const updateDependentRows = (
         }
 
         chartRow.plannedStartDate = toLocalISOString(newStartDate);
-        const dependentEndDate = addBusinessDays(newStartDate, chartRow.businessDays, state.holidays, chartRow.isIncludeHolidays);
+        const dependentEndDate = addPlannedDays(newStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays);
         chartRow.plannedEndDate = toLocalISOString(dependentEndDate);
 
         // 依存関係の更新を再帰的に行う
@@ -106,7 +106,7 @@ const resetEndDate = (
       const endDate = new Date(chartRow.plannedEndDate);
       
       if (affectedHolidays.some(holiday => isDateInRange(holiday, startDate, endDate))) {
-        const dependentEndDate = addBusinessDays(startDate, chartRow.businessDays, state.holidays, chartRow.isIncludeHolidays);
+        const dependentEndDate = addPlannedDays(startDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays);
         state.data[id] = {
           ...chartRow,
           plannedEndDate: toLocalISOString(dependentEndDate)
@@ -169,11 +169,11 @@ export const wbsDataSlice = createSlice({
               }
             }
           }
-          if ((updatedRowData.isIncludeHolidays !== (null || undefined)) || (updatedRowData.businessDays !== (null || undefined))) {
+          if ((updatedRowData.isIncludeHolidays !== (null || undefined)) || (updatedRowData.plannedDays !== (null || undefined))) {
             const startDate = new Date(updatedRowData.plannedStartDate);
             updatedRowData = {
               ...updatedRowData,
-              plannedEndDate: toLocalISOString(addBusinessDays(startDate, updatedRowData.businessDays, state.holidays, updatedRowData.isIncludeHolidays))
+              plannedEndDate: toLocalISOString(addPlannedDays(startDate, updatedRowData.plannedDays, state.holidays, updatedRowData.isIncludeHolidays))
             };
           }
           if ((updatedRowData.plannedStartDate !== ('' || null || undefined)) || (updatedRowData.plannedEndDate !== ('' || null || undefined))) {
@@ -181,7 +181,7 @@ export const wbsDataSlice = createSlice({
             const endDate = new Date(updatedRowData.plannedEndDate);
             updatedRowData = {
               ...updatedRowData,
-              businessDays: calculateBusinessDays(startDate, endDate, state.holidays, updatedRowData.isIncludeHolidays)
+              plannedDays: calculatePlannedDays(startDate, endDate, state.holidays, updatedRowData.isIncludeHolidays)
             };
           }
           acc[rowId] = updatedRowData;
@@ -210,7 +210,7 @@ export const wbsDataSlice = createSlice({
         if (chartRow.plannedEndDate) {
           const newStartDate = new Date(startDate);
           const endDate = new Date(chartRow.plannedEndDate);
-          chartRow.businessDays = calculateBusinessDays(newStartDate, endDate, state.holidays, chartRow.isIncludeHolidays);
+          chartRow.plannedDays = calculatePlannedDays(newStartDate, endDate, state.holidays, chartRow.isIncludeHolidays);
         }
       }
     },
@@ -222,7 +222,7 @@ export const wbsDataSlice = createSlice({
         if (chartRow.plannedStartDate) {
           const startDate = new Date(chartRow.plannedStartDate);
           const newEndDate = new Date(endDate);
-          chartRow.businessDays = calculateBusinessDays(startDate, newEndDate, state.holidays, chartRow.isIncludeHolidays);
+          chartRow.plannedDays = calculatePlannedDays(startDate, newEndDate, state.holidays, chartRow.isIncludeHolidays);
         }
         updateDependentRows(state, id, new Date(endDate));
       }
@@ -238,7 +238,7 @@ export const wbsDataSlice = createSlice({
         if (startDate && endDate) {
           const newStartDate = new Date(startDate);
           const newEndDate = new Date(endDate);
-          chartRow.businessDays = calculateBusinessDays(newStartDate, newEndDate, state.holidays, chartRow.isIncludeHolidays);
+          chartRow.plannedDays = calculatePlannedDays(newStartDate, newEndDate, state.holidays, chartRow.isIncludeHolidays);
         }
         updateDependentRows(state, id, new Date(endDate));
       }

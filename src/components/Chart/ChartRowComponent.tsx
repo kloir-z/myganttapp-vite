@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers'; 
-import { addBusinessDays } from './utils/CalendarUtil';
+import { addPlannedDays } from './utils/CalendarUtil';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
@@ -24,7 +24,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
   });
-  const businessDays = entry.businessDays;
+  const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
@@ -117,7 +117,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       newStartDate.setDate(newStartDate.getDate() + gridSteps);
       if (isBarDragging === 'planned') {
         setLocalPlannedStartDate(newStartDate);
-        const newEndDate = addBusinessDays(newStartDate, businessDays, holidays, isIncludeHolidays);
+        const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays);
         setLocalPlannedEndDate(newEndDate);
       } else if (isBarDragging === 'actual') {
         setLocalActualStartDate(newStartDate);
@@ -184,7 +184,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
       }
     }
-  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, businessDays, holidays, isIncludeHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
+  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, plannedDays, holidays, isIncludeHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
   
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {

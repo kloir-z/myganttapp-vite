@@ -152,7 +152,7 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      if ((event.ctrlKey || event.metaKey) && !isSettingsModalOpen) {
         switch (event.key) {
           case 'z':
             event.preventDefault();
@@ -173,7 +173,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [dispatch]);
+  }, [dispatch, isSettingsModalOpen]);
 
   const openSettingsModal = () => {
     setIsSettingsModalOpen(true);

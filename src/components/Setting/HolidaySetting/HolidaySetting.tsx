@@ -18,7 +18,7 @@ const HolidaySetting: React.FC<HolidaySettingProps> = memo(({ updateHolidays, ho
         value={holidayInput}
         onChange={(e) => setHolidayInput(e.target.value)}
         onBlur={handleBlur}
-        style={{ padding: '10px', width: '200px', height: '700px', overflow: 'auto', resize: 'none' }}
+        style={{ padding: '10px', width: '200px', height: '700px', overflow: 'auto', whiteSpace: 'nowrap' }}
       />
     </div>
   );

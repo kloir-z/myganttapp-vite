@@ -262,25 +262,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
                 </LocalizationProvider>
               </div>
             </div>
-            <h3>Chart Color</h3>
+            <h3>Chart Color (Alias)</h3>
             <ColorSetting />
-            <h3>Export File(.json)</h3>
-            <div style={{ marginLeft: '10px' }}>
-              <input
-                type="text"
-                value={fileName}
-                
-                onChange={(e) => setFileName(e.target.value)}
-                placeholder="Enter file name"
-              />
-              <button onClick={handleExport}>Export</button>
-            </div>
-            <h3>Import File(.json)</h3>
-            <div style={{ marginLeft: '10px' }}>
-              <button onClick={() => fileInputRef.current?.click()}>Import</button>
-              <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} accept=".json" />
-            </div>
-            <h3>Column</h3>
+            <h3>Column (Visiblity & Name)</h3>
             <ColumnSetting
               columns={columns}
               setColumns={setColumns}
@@ -294,6 +278,23 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
               holidayInput={holidayInput}
               setHolidayInput={setHolidayInput}
             />
+          </div>
+          <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
+            <h3>Export File(.json)</h3>
+            <div style={{ marginLeft: '10px' }}>
+              <input
+                type="text"
+                value={fileName}
+                onChange={(e) => setFileName(e.target.value)}
+                placeholder="Enter file name"
+              />
+              <button onClick={handleExport}>Export</button>
+            </div>
+            <h3>Import File(.json)</h3>
+            <div style={{ marginLeft: '10px' }}>
+              <button onClick={() => fileInputRef.current?.click()}>Import</button>
+              <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} accept=".json" />
+            </div>
           </div>
         </div>
       </ModalContainer>

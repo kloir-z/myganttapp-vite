@@ -34,6 +34,10 @@ const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleC
     }
   };
 
+  const handleSpanClick = () => {
+    toggleColumnVisibility(column.columnId);
+  };
+
   if (column.columnId === 'no') {
     return null;
   }
@@ -45,7 +49,9 @@ const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleC
         checked={column.visible}
         onChange={() => toggleColumnVisibility(column.columnId)}
       />
-      <span style={{ width: '100px', marginRight: '10px' }}>{column.columnId}: </span>
+      <span onClick={handleSpanClick} style={{ width: '100px', marginRight: '10px', cursor: 'pointer' }}>
+        {column.columnId.charAt(0).toUpperCase() + column.columnId.slice(1)}:
+      </span>
       <input
         type="text"
         value={localColumnName}
