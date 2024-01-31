@@ -23,6 +23,7 @@ export const useWBSData = () => {
     { columnId: "textColumn2", columnName: "C2", width: 50, resizable: true, reorderable: true, visible: true },
     { columnId: "textColumn3", columnName: "C3", width: 50, resizable: true, reorderable: true, visible: true },
     { columnId: "textColumn4", columnName: "C4", width: 50, resizable: true, reorderable: true, visible: true },
+    { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
   ];
   const [columns, setColumns] = useState<ExtendedColumn[]>(initialColumns);
 

@@ -2,7 +2,22 @@
   font-size: 0.8rem;
 }
 
-.rg-celleditor input{
+.rg-celleditor input {
   font-size: 0.8rem;
   border: none;
+}
+
+.reactgrid-content .rg-pane .rg-cell.rg-checkbox-cell span,
+.reactgrid-content .rg-pane .rg-cell.rg-checkbox-cell label,
+.reactgrid-content .rg-pane .rg-cell.rg-checkbox-cell label input {
+  height: 12px;
+  width: 12px;
+}
+
+.reactgrid-content .rg-pane .rg-cell.rg-checkbox-cell label span:after {
+  left: 4px;
+  top: 1px;
+  width:2px;
+  height:6px;
+  border-width: 0 2px 2px 0;
 }

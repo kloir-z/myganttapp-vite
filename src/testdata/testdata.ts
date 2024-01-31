@@ -14,7 +14,8 @@ export const testData: WBSData[] = [
     businessDays: 5,
     actualStartDate: "2023/09/03",
     actualEndDate: "2023/09/06",
-    displayName: "UIDesign"
+    displayName: "UIDesign",
+    isIncludeHolidays: true
   } as ChartRow,
   {
     rowType: "Chart",

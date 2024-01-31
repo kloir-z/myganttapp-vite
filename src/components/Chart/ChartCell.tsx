@@ -2,7 +2,6 @@
 import React from 'react';
 import { Cell } from '../../styles/GanttStyles';
 import AutoWidthInputBox from '../AutoWidthInputBox';
-import { ChartBarColor } from '../../types/colorAliasMapping';
 
 interface MemoedChartCellProps {
   entryId? : string;
@@ -10,11 +9,11 @@ interface MemoedChartCellProps {
   type?: string;
   isPlanned?: boolean;
   isActual?: boolean;
-  chartBarColor?: ChartBarColor;
+  chartBarColor?: string;
   width?:number;
 }
 
-const MemoedChartCell: React.FC<MemoedChartCellProps> = ({ 
+const MemoedChartCell: React.FC<MemoedChartCellProps> = ({
   entryId,
   eventIndex,
   type,

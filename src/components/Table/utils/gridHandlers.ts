@@ -2,7 +2,7 @@
 import { CellChange, TextCell, NumberCell, CheckboxCell, EmailCell, DropdownCell, ChevronCell, HeaderCell, TimeCell, DateCell } from "@silevis/reactgrid";
 import { WBSData, ChartRow, EventRow } from '../../../types/DataTypes';
 import { Dispatch } from 'redux';
-import { setData, simpleSetData } from '../../../reduxStoreAndSlices/store';
+import { simpleSetData } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
 import { ExtendedColumn } from "../hooks/useWBSData";
@@ -11,7 +11,6 @@ type AllCellTypes  = TextCell | NumberCell | CheckboxCell | EmailCell | Dropdown
 
 export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[],columns: ExtendedColumn[]) => {
   const updatedData = { ...data };
-  let useSimpleSetData = false;
   const visibleColumns = columns.filter(column => column.visible);
   const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
 
@@ -22,7 +21,6 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
 
     if (rowData && rowData.rowType === 'Separator' && change.columnId === secondVisibleColumnId) {
       const newCell = change.newCell;
-      useSimpleSetData = true;
       
       if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
@@ -37,7 +35,6 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     if (rowData && rowData.rowType === 'Event') {
       const fieldName = change.columnId as keyof EventRow; 
       const newCell = change.newCell;
-      useSimpleSetData = true;
     
       if (newCell.type === 'customDate') {
         const customDateCell = newCell as CustomDateCell;
@@ -57,7 +54,6 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     if (rowData && rowData.rowType === 'Chart') {
       const fieldName = change.columnId as keyof ChartRow; 
       const newCell = change.newCell;
-      useSimpleSetData = false;
     
       if (newCell.type === 'customDate') {
         const customDateCell = newCell as CustomDateCell;
@@ -121,13 +117,15 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
           ...rowData,
           [fieldName]: customTextCell.text
         };
+      } else if (newCell.type === 'checkbox') {
+        const customTextCell = newCell as CheckboxCell;
+        updatedData[rowId] = {
+          ...rowData,
+          [fieldName]: customTextCell.checked
+        };
       }
     }    
   });
 
-  if (useSimpleSetData) {
-    dispatch(simpleSetData(updatedData));
-  } else {
-    dispatch(setData(updatedData));
-  }
+  dispatch(simpleSetData(updatedData));
 };

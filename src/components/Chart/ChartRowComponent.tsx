@@ -25,6 +25,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     return colorInfo ? colorInfo.color : '#76ff7051';
   });
   const businessDays = entry.businessDays;
+  const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? new Date(entry.plannedEndDate) : null);
@@ -116,7 +117,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       newStartDate.setDate(newStartDate.getDate() + gridSteps);
       if (isBarDragging === 'planned') {
         setLocalPlannedStartDate(newStartDate);
-        const newEndDate = addBusinessDays(newStartDate, businessDays, holidays);
+        const newEndDate = addBusinessDays(newStartDate, businessDays, holidays, isIncludeHolidays);
         setLocalPlannedEndDate(newEndDate);
       } else if (isBarDragging === 'actual') {
         setLocalActualStartDate(newStartDate);
@@ -183,7 +184,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
       }
     }
-  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, businessDays, holidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
+  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, businessDays, holidays, isIncludeHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
   
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {

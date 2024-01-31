@@ -65,6 +65,7 @@ export const handleAddChartRow = (dispatch: Dispatch, selectedRowIds: Id[], data
       displayName: "",
       dependentId: "",
       dependency: "",
+      isIncludeHolidays: false,
     };
     newDataArray.splice(minIndex + i, 0, newDataRow);
   }

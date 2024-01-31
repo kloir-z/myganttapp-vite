@@ -32,7 +32,7 @@ const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-export const calculateBusinessDays = (start: Date, end: Date, holidays: string[]): number => {
+export const calculateBusinessDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean): number => {
   if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
     return 0;
   }
@@ -41,7 +41,7 @@ export const calculateBusinessDays = (start: Date, end: Date, holidays: string[]
 
   while (currentDate <= getStartOfDay(end)) {
     const dayOfWeek = currentDate.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(currentDate, holidays)) {
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && (!isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       count++;
     }
     currentDate.setDate(currentDate.getDate() + 1);
@@ -55,7 +55,7 @@ export const isHoliday = (date: Date, holidays: string[]): boolean => {
   return holidays.includes(dateString);
 };
 
-export const addBusinessDays = (start: Date, days: number | null, holidays: string[], includeStartDay: boolean = true): Date => {
+export const addBusinessDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true): Date => {
   if (isNaN(start.getTime()) || days === null || days < 0) {
     return new Date(NaN);
   }
@@ -65,7 +65,7 @@ export const addBusinessDays = (start: Date, days: number | null, holidays: stri
   const startDayOfWeek = currentDate.getDay();
 
   if (includeStartDay) {
-    if (startDayOfWeek !== 0 && startDayOfWeek !== 6 && !isHoliday(currentDate, holidays)) {
+    if (startDayOfWeek !== 0 && startDayOfWeek !== 6 && !isHoliday(currentDate, holidays) || isIncludeHolidays) {
       addedDays = 1;
     }
   }
@@ -73,7 +73,7 @@ export const addBusinessDays = (start: Date, days: number | null, holidays: stri
   while (addedDays < days) {
     currentDate.setDate(currentDate.getDate() + 1);
     const dayOfWeek = currentDate.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(currentDate, holidays)) {
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(currentDate, holidays) || isIncludeHolidays) {
       addedDays++;
     }
   }

@@ -22,6 +22,7 @@ export interface ChartRow extends BaseRow {
   actualEndDate: string;
   dependentId: string;
   dependency: string;
+  isIncludeHolidays: boolean;
 }
 
 export interface SeparatorRow extends BaseRow {
