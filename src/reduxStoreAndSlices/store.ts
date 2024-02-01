@@ -57,9 +57,7 @@ const updateDependentRows = (
         let newStartDate;
         switch (dependencyParts[0]) {
           case 'after': {
-            // オフセット日数を取得し、依存元の終了日に加算
             let offsetDays = parseInt(dependencyParts[2], 10);
-            // offsetDays が NaN または 0 以下の場合、1 に設定
             if (isNaN(offsetDays) || offsetDays <= 0) {
               offsetDays = 1;
             }
@@ -68,13 +66,11 @@ const updateDependentRows = (
             break;
           }
           case 'sameas': {
-            // 依存元の開始日と一致させる
             const dependentRow = state.data[currentId] as ChartRow;
             newStartDate = new Date(dependentRow.plannedStartDate);
             break;
           }
           default:
-            // 未知の依存関係タイプの場合は何もしない
             return;
         }
 
@@ -82,7 +78,6 @@ const updateDependentRows = (
         const dependentEndDate = addPlannedDays(newStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays);
         chartRow.plannedEndDate = toLocalISOString(dependentEndDate);
 
-        // 依存関係の更新を再帰的に行う
         updateDependentRows(state, chartRow.id, dependentEndDate, visited);
       }
     }
@@ -153,6 +148,13 @@ export const wbsDataSlice = createSlice({
                 if (currentIndex >= 0 && currentIndex < Object.keys(data).length) {
                   refRowId = Object.keys(data)[currentIndex];
                 }
+              } else if (refRowNo && chartRowData.dependentId) {
+                const matchingRow = Object.entries(data).find(([key, value]) => key === chartRowData.dependentId && value.rowType === 'Chart') as [string, ChartRow] | undefined;
+                if (matchingRow) {
+                  const [, matchingRowData] = matchingRow;
+                  parts[1] = matchingRowData.no.toString();
+                  updatedRowData.dependency = parts.join(',');
+                }
               } else {
                 const targetNo = parseInt(refRowNo, 10);
                 refRowId = Object.keys(data).find(key => {
@@ -169,38 +171,63 @@ export const wbsDataSlice = createSlice({
               }
             }
           }
-          if ((updatedRowData.isIncludeHolidays !== (null || undefined)) || (updatedRowData.plannedDays !== (null || undefined))) {
-            const startDate = new Date(updatedRowData.plannedStartDate);
-            updatedRowData = {
-              ...updatedRowData,
-              plannedEndDate: toLocalISOString(addPlannedDays(startDate, updatedRowData.plannedDays, state.holidays, updatedRowData.isIncludeHolidays))
-            };
-          }
-          if ((updatedRowData.plannedStartDate !== ('' || null || undefined)) || (updatedRowData.plannedEndDate !== ('' || null || undefined))) {
-            const startDate = new Date(updatedRowData.plannedStartDate);
-            const endDate = new Date(updatedRowData.plannedEndDate);
-            updatedRowData = {
-              ...updatedRowData,
-              plannedDays: calculatePlannedDays(startDate, endDate, state.holidays, updatedRowData.isIncludeHolidays)
-            };
-          }
           acc[rowId] = updatedRowData;
         } else {
           acc[rowId] = rowData;
         }
         return acc;
       }, {});
-      state.data = updatedData;
-      Object.keys(state.data).forEach(id => {
-        const row = state.data[id];
-        if (row.rowType === 'Chart') {
-          const chartRow = row as ChartRow;
-          if (chartRow.plannedEndDate) {
-            const newEndDate = new Date(chartRow.plannedEndDate);
-            updateDependentRows(state, id, newEndDate);
+
+      const visited = new Set<string>();
+      const updateDependentRowsInline = (updatedData: { [id: string]: WBSData }, currentId: string, newEndDate: Date) => {
+        if (visited.has(currentId)) return;
+        visited.add(currentId);
+        Object.entries(updatedData).forEach(([id, row]) => {
+          if (row.rowType === 'Chart') {
+            const chartRow = row as ChartRow;
+            if (chartRow.dependentId === currentId) {
+              const dependency = chartRow.dependency.toLowerCase();
+              if (!dependency) return;
+              const dependencyParts = dependency.split(',');
+              let newStartDate;
+              switch (dependencyParts[0]) {
+                case 'after': {
+                  let offsetDays = parseInt(dependencyParts[2], 10);
+                  offsetDays = isNaN(offsetDays) || offsetDays <= 0 ? 1 : offsetDays;
+                  const includeStartDay = false;
+                  newStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay);
+                  break;
+                }
+                case 'sameas': {
+                  const dependentRow = updatedData[chartRow.dependentId] as ChartRow;
+                  newStartDate = new Date(dependentRow.plannedStartDate);
+                  break;
+                }
+                default:
+                  return;
+              }
+              const dependentEndDate = addPlannedDays(newStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays);
+              const updatedChartRow = {
+                ...chartRow,
+                plannedStartDate: toLocalISOString(newStartDate),
+                plannedEndDate: toLocalISOString(dependentEndDate)
+              };
+              updatedData[id] = updatedChartRow;
+              updateDependentRowsInline(updatedData, id, new Date(dependentEndDate));
+            }
           }
+        });
+      };
+
+      Object.keys(updatedData).forEach(id => {
+        const row = updatedData[id];
+        if (row.rowType === 'Chart' && row.plannedEndDate) {
+          const newEndDate = new Date(row.plannedEndDate);
+          updateDependentRowsInline(updatedData, id, newEndDate);
         }
       });
+
+      state.data = updatedData;
     },
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
       const { id, startDate } = action.payload;
@@ -234,7 +261,6 @@ export const wbsDataSlice = createSlice({
         chartRow.plannedStartDate = startDate;
         chartRow.plannedEndDate = endDate;
         
-        // 新しい開始日と終了日を基に営業日数を計算
         if (startDate && endDate) {
           const newStartDate = new Date(startDate);
           const newEndDate = new Date(endDate);

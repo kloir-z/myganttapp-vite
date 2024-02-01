@@ -6,14 +6,15 @@ import { simpleSetData } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
 import { ExtendedColumn } from "../hooks/useWBSData";
+import { calculatePlannedDays, addPlannedDays, toLocalISOString } from "../../Chart/utils/CalendarUtil";
 
 type AllCellTypes  = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;  
 
-export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[],columns: ExtendedColumn[]) => {
+export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[]) => {
   const updatedData = { ...data };
   const visibleColumns = columns.filter(column => column.visible);
   const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
-
+  console.log(changes)
 
   changes.forEach((change) => {
     const rowId = change.rowId.toString();
@@ -52,76 +53,56 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     }
 
     if (rowData && rowData.rowType === 'Chart') {
+      const chartRow =  rowData as ChartRow
       const fieldName = change.columnId as keyof ChartRow; 
       const newCell = change.newCell;
     
-      if (newCell.type === 'customDate') {
+      if (fieldName === "actualStartDate" || fieldName === "actualEndDate") {
         const customDateCell = newCell as CustomDateCell;
         updatedData[rowId] = {
           ...rowData,
           [fieldName]: customDateCell.text
         };
-      } else if (fieldName === 'dependency' && newCell.type === 'customText') {
-        const customText = (newCell as CustomTextCell).text;
-    
-        if (customText) {
-          const parts = customText.split(',');
-          if (parts.length >= 2) {
-            const refRowNo = parts[1].trim();
-      
-            let refRowId: string | undefined;
-            if (refRowNo.startsWith('+') || refRowNo.startsWith('-')) {
-              const offset = parseInt(refRowNo, 10);
-              let currentIndex = Object.keys(data).indexOf(rowId);
-              let steps = Math.abs(offset);
-      
-              while (steps > 0 && currentIndex >= 0 && currentIndex < Object.keys(data).length) {
-                currentIndex += (offset / Math.abs(offset));
-                if (currentIndex < 0 || currentIndex >= Object.keys(data).length) {
-                  break;
-                }
-                if (data[Object.keys(data)[currentIndex]].rowType === 'Chart') {
-                  steps--;
-                }
-              }
-      
-              if (currentIndex >= 0 && currentIndex < Object.keys(data).length) {
-                refRowId = Object.keys(data)[currentIndex];
-              }
-            } else {
-              const targetNo = parseInt(refRowNo, 10);
-              refRowId = Object.keys(data).find(key => {
-                const keyRowData = data[key];
-                return keyRowData.rowType === 'Chart' && (keyRowData as ChartRow).no === targetNo;
-              });
-            }
-      
-            if (refRowId) {
-              updatedData[rowId] = {
-                ...rowData,
-                dependentId: refRowId,
-                dependency: customText
-              };
-            }
-          }
-        } else {
-          updatedData[rowId] = {
-            ...rowData,
-            dependentId: '',
-            dependency: ''
-          };
-        }
+      } else if (fieldName === "plannedStartDate") {
+        const customDateCell = newCell as CustomDateCell;
+        const startDate = new Date(customDateCell.text)
+        const endDate = new Date(chartRow.plannedEndDate)
+        updatedData[rowId] = {
+          ...rowData,
+          plannedStartDate: customDateCell.text,
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays)
+        };
+      } else if (fieldName === "plannedEndDate") {
+        const customDateCell = newCell as CustomDateCell;
+        const startDate = new Date(chartRow.plannedStartDate)
+        const endDate = new Date(customDateCell.text)
+        updatedData[rowId] = {
+          ...rowData,
+          plannedEndDate: customDateCell.text,
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays)
+        };
+      } else if (fieldName === "plannedDays") {
+        const customTextCell = newCell as CustomTextCell;
+        const plannedDays = Math.min(parseInt(customTextCell.text, 10), 9999);
+        const startDate = new Date(chartRow.plannedStartDate)
+        updatedData[rowId] = {
+          ...rowData,
+          plannedEndDate: toLocalISOString(addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays)),
+          plannedDays: plannedDays
+        };
       } else if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
           ...rowData,
           [fieldName]: customTextCell.text
         };
-      } else if (newCell.type === 'checkbox') {
-        const customTextCell = newCell as CheckboxCell;
+      } else if (fieldName === "isIncludeHolidays" && newCell.type === 'checkbox') {
+        const checkboxCell = newCell as CheckboxCell;
+        const startDate = new Date(chartRow.plannedStartDate)
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.checked
+          isIncludeHolidays: checkboxCell.checked,
+          plannedEndDate: toLocalISOString(addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked)),
         };
       }
     }    

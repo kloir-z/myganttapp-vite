@@ -25,6 +25,7 @@ type WBSInfoProps = {
 const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility }) => {
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.present.data);
+  const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const handleColumnResize = useColumnResizer(setColumns);
   const dataArray = Object.values(data);
@@ -170,7 +171,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
     <ReactGrid
       rows={rows}
       columns={visibleColumns}
-      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns)}
+      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays)}
       onColumnResized={handleColumnResize}
       onContextMenu={simpleHandleContextMenu}
       stickyTopRows={1}
