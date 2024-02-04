@@ -7,6 +7,7 @@ import colorReducer from './colorSlice'
 import regularHolidaysReducer from './regularHolidaysSlice';
 import undoable from 'redux-undo';
 import { assignIds } from '../components/Table/utils/wbsHelpers';
+import baseSettingsReducer from './baseSettingsSlice';
 
 const initialState: { data: {
   [id: string]: WBSData },
@@ -366,6 +367,7 @@ export const store = configureStore({
     copiedRows: copiedRowsReducer,
     color: colorReducer,  
     regularHolidays: regularHolidaysReducer,
+    baseSettings: baseSettingsReducer,
   },
 });
 

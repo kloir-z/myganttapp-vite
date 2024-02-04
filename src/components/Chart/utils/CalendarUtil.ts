@@ -1,13 +1,16 @@
 // CalendarUtils.ts
-export const generateDates = (start: Date, end: Date): Date[] => {
-  if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
+
+export const generateDates = (start: string, end: string): Date[] => {
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || start > end) {
     return [];
   }
 
   const dateArray: Date[] = [];
-  const currentDate = new Date(start);
+  const currentDate = new Date(startDate);
 
-  while (currentDate <= end) {
+  while (currentDate <= endDate) {
     const adjustedDate = new Date(currentDate);
     adjustedDate.setHours(0, 0, 0, 0);
     dateArray.push(adjustedDate);

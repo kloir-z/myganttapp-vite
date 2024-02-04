@@ -11,12 +11,12 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 
-
 interface CustomDatePickerProps {
   cell: Compatible<CustomDateCell>;
   onCellChanged: (cell: Compatible<CustomDateCell>, commit: boolean) => void;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(cell.text));
   const [open, setOpen] = useState(false);

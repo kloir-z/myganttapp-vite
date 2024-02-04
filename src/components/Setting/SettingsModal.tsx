@@ -16,36 +16,34 @@ import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
+import { setDateRange, setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { isEqual } from 'lodash';
 
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;
-  dateRange: { startDate: Date, endDate: Date };
-  setDateRange: Dispatch<SetStateAction<{ startDate: Date, endDate: Date }>>;
   columns: ExtendedColumn[];
   setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
   toggleColumnVisibility: (columnId: string | number) => void;
-  wbsWidth: number;
-  setWbsWidth: Dispatch<SetStateAction<number>>;
-  startDate: Dayjs | null;
-  setStartDate: Dispatch<SetStateAction<Dayjs | null>>;
-  endDate: Dayjs | null;
-  setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
-  holidayInput: string;
-  setHolidayInput: Dispatch<SetStateAction<string>>;
-  fileName: string;
-  setFileName: Dispatch<SetStateAction<string>>;
 };
 
 const SettingsModal: React.FC<SettingsModalProps> = memo(({ 
-  show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth,
-  startDate, setStartDate, endDate, setEndDate, holidayInput, setHolidayInput, fileName, setFileName
+  show, onClose, columns, setColumns, toggleColumnVisibility
 }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
-  const data = useSelector((state: RootState) => state.wbsData.present.data);
+  const data = useSelector(
+    (state: RootState) => state.wbsData.present.data,
+    (prevData, nextData) => isEqual(prevData, nextData)
+  );
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const colors = useSelector((state: RootState) => state.color.colors);
+  const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
+  const { startDate, endDate } = useSelector((state: RootState) => state.baseSettings.dateRange);
+  const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
+  const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
+  const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
+  const title = useSelector((state: RootState) => state.baseSettings.title);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -67,6 +65,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
       holidayInput,
       regularHolidaySetting,
       wbsWidth,
+      title
     );
   };
 
@@ -75,14 +74,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     if (file) {
       handleImport(
         file,
-        setDateRange,
         setColumns,
-        setWbsWidth,
         dispatch,
-        setFileName,
-        setHolidayInput,
-        setStartDate,
-        setEndDate,
       );
     }
   };
@@ -94,39 +87,48 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   };
 
   useEffect(() => {
-    if (startDate && endDate && startDate.isValid() && endDate.isValid()) {
-      if (!isValidDateRange(startDate)) {
-        setStartDate(dayjs());
+    // dayjsオブジェクトを生成するために、startDateとendDateをパースします。
+    const startDay = dayjs(startDate);
+    const endDay = dayjs(endDate);
+  
+    if (startDay.isValid() && endDay.isValid()) {
+      if (!isValidDateRange(startDay)) {
+        dispatch(setDateRange({ startDate: dayjs().format('YYYY-MM-DD'), endDate }));
         return;
       }
-
-      const maxEndDate = dayjs(startDate).add(3, 'year');
-      if (endDate.isAfter(maxEndDate)) {
-        setEndDate(maxEndDate);
+  
+      const maxEndDate = startDay.add(3, 'year');
+      if (endDay.isAfter(maxEndDate)) {
+        dispatch(setDateRange({ startDate, endDate: maxEndDate.format('YYYY-MM-DD') }));
       } else {
-        setDateRange({ startDate: startDate.toDate(), endDate: endDate.toDate() });
+        // startDateとendDateは既に文字列形式であるため、直接ディスパッチします。
+        dispatch(setDateRange({ startDate, endDate }));
       }
     }
-  }, [startDate, endDate, setDateRange, setStartDate, setEndDate]);
-
+  }, [startDate, endDate, dispatch]);
+  
   const handleStartDateChange = (date: Dayjs | null) => {
     if (!date || !isValidDateRange(date)) {
       return;
     }
-    setStartDate(date);
   
-    if (!endDate || date.isAfter(endDate)) {
-      const newMaxEndDate = dayjs(date).add(7, 'day');
-      setEndDate(newMaxEndDate);
+    const formattedDate = date.format('YYYY-MM-DD');
+    let newEndDate = endDate;
+    if (!newEndDate || dayjs(date).isAfter(dayjs(endDate))) {
+      newEndDate = date.add(7, 'day').format('YYYY-MM-DD');
     }
+  
+    dispatch(setDateRange({ startDate: formattedDate, endDate: newEndDate }));
   };
-
+  
   const handleEndDateChange = (date: Dayjs | null) => {
-    if (!date || !isValidDateRange(date) || (startDate && startDate.isAfter(date))) {
+    if (!date || !isValidDateRange(date) || dayjs(startDate).isAfter(date)) {
       return;
     }
-    setEndDate(date);
+  
+    dispatch(setDateRange({ startDate, endDate: date.format('YYYY-MM-DD') }));
   };
+  
 
   const handleClose = () => {
     setFadeStatus('out');
@@ -152,7 +154,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                 >
                   <DatePicker
                     label="Clendar Start"
-                    value={startDate}
+                    value={dayjs(dateRange.startDate)}
                     onChange={handleStartDateChange}
                     sx={{
                       '& .MuiInputBase-root': {
@@ -173,7 +175,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                   />
                   <DatePicker
                     label="Calendar End"
-                    value={endDate}
+                    value={dayjs(dateRange.endDate)}
                     onChange={handleEndDateChange}
                     sx={{
                       '& .MuiInputBase-root': {
@@ -205,10 +207,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Holidays</h3>
-            <HolidaySetting
-              holidayInput={holidayInput}
-              setHolidayInput={setHolidayInput}
-            />
+            <HolidaySetting />
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Export File(.json)</h3>
@@ -216,7 +215,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
               <input
                 type="text"
                 value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
+                onChange={(e) => dispatch(setFileName(e.target.value))}
                 placeholder="Enter file name"
               />
               <button onClick={handleExportClick}>Export</button>

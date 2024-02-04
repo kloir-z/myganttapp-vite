@@ -17,18 +17,18 @@ function MemoedResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
     event.preventDefault();
   }, [initialWidth, onDrag]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     initialPositionRef.current = null;
-  };
+  },[handleMouseMove]);
 
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     initialPositionRef.current = event.clientX;
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     event.preventDefault();
-  };
+  },[handleMouseMove, handleMouseUp]);
 
   return (
     <div 

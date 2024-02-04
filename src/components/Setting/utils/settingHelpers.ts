@@ -5,32 +5,29 @@ import { WBSData, RegularHolidaySetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
-import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 
 export const handleExport = (
   colors: ColorInfo[],
   fileName: string,
-  dateRange: { startDate: Date, endDate: Date },
+  dateRange: { startDate: string, endDate: string },
   columns: ExtendedColumn[],
   data: { [id: string]: WBSData },
   holidayInput: string,
   regularHolidaySetting: RegularHolidaySetting[],
   wbsWidth: number,
+  title: string
 ) => {
   const settingsData = {
     colors,
-    dateRange: {
-      startDate: dateRange.startDate.toISOString(),
-      endDate: dateRange.endDate.toISOString(),
-    },
+    dateRange,
     columns,
     data,
     holidayInput,
     regularHolidaySetting,
     wbsWidth,
+    title
   };
-
   const jsonData = JSON.stringify(settingsData, null, 2);
   const blob = new Blob([jsonData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -44,17 +41,11 @@ export const handleExport = (
 
 export const handleImport = (
   file: File,
-  setDateRange: Dispatch<SetStateAction<{ startDate: Date, endDate: Date }>>,
   setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>,
-  setWbsWidth: Dispatch<SetStateAction<number>>,
   dispatch: AppDispatch,
-  setFileName: Dispatch<SetStateAction<string>>,
-  setHolidayInput: Dispatch<SetStateAction<string>>,
-  setStartDate: Dispatch<Dayjs | null>,
-  setEndDate: Dispatch<Dayjs | null>
 ) => {
   if (file) {
-    setFileName(file.name.replace('.json', ''));
+    dispatch(setFileName(file.name.replace('.json', '')));
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result;
@@ -74,14 +65,10 @@ export const handleImport = (
             importStatus.colors = true;
           }
           if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
-            const newStartDate = new Date(parsedData.dateRange.startDate);
-            const newEndDate = new Date(parsedData.dateRange.endDate);
-            setDateRange({
-              startDate: newStartDate,
-              endDate: newEndDate
-            });
-            setStartDate(dayjs(newStartDate));
-            setEndDate(dayjs(newEndDate));
+            dispatch(setDateRange({
+              startDate: parsedData.dateRange.startDate,
+              endDate: parsedData.dateRange.endDate
+            }));
             importStatus.dateRange = true;
           }
           if (parsedData.columns && Array.isArray(parsedData.columns)) {
@@ -93,7 +80,7 @@ export const handleImport = (
           }
           if (parsedData.holidayInput) {
             const newHolidayInput = parsedData.holidayInput;
-            setHolidayInput(newHolidayInput);
+            dispatch(setHolidayInput(newHolidayInput));
             updateHolidays(newHolidayInput, dispatch)
           }
           if (parsedData.data) {
@@ -101,7 +88,10 @@ export const handleImport = (
             importStatus.data = true;
           }
           if (parsedData.wbsWidth) {
-            setWbsWidth(parsedData.wbsWidth);
+            dispatch(setWbsWidth(parsedData.wbsWidth));
+          }
+          if (parsedData.title) {
+            dispatch(setTitle(parsedData.title));
           }
 
           let message = 'Import Results:\n';

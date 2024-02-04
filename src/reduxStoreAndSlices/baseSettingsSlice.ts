@@ -1,34 +1,34 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import dayjs, { Dayjs } from 'dayjs';
+import defaultHolidayInput from '../defaultSetting/defaultHolidays';
 
 interface BaseSettingsState {
   wbsWidth: number;
   maxWbsWidth: number;
   dateRange: {
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
   };
-  startDate: Dayjs | null;
-  endDate: Dayjs | null;
   holidayInput: string;
   fileName: string;
+  title: string;
+  showYear: boolean;
 }
 
 const initialState: BaseSettingsState = {
   wbsWidth: 550,
   maxWbsWidth: 1500,
   dateRange: {
-    startDate: new Date('2023-09-01'),
-    endDate: new Date('2024-09-01'),
+    startDate: '2023-09-01',
+    endDate: '2024-09-01',
   },
-  startDate: dayjs(new Date('2023-09-01')),
-  endDate: dayjs(new Date('2024-09-01')),
-  holidayInput: '',
+  holidayInput: defaultHolidayInput,
   fileName: '',
+  title: '',
+  showYear: false
 };
 
 const baseSettingsSlice = createSlice({
-  name: 'wbs',
+  name: 'baseSettings',
   initialState,
   reducers: {
     setWbsWidth(state, action: PayloadAction<number>) {
@@ -37,10 +37,8 @@ const baseSettingsSlice = createSlice({
     setMaxWbsWidth(state, action: PayloadAction<number>) {
       state.maxWbsWidth = action.payload;
     },
-    setDateRange(state, action: PayloadAction<{ startDate: Date; endDate: Date }>) {
+    setDateRange(state, action: PayloadAction<{ startDate: string; endDate: string }>) {
       state.dateRange = action.payload;
-      state.startDate = dayjs(action.payload.startDate);
-      state.endDate = dayjs(action.payload.endDate);
     },
     setHolidayInput(state, action: PayloadAction<string>) {
       state.holidayInput = action.payload;
@@ -48,9 +46,15 @@ const baseSettingsSlice = createSlice({
     setFileName(state, action: PayloadAction<string>) {
       state.fileName = action.payload;
     },
+    setTitle(state, action: PayloadAction<string>) {
+      state.title = action.payload;
+    },
+    setShowYear(state, action: PayloadAction<boolean>) {
+      state.showYear = action.payload;
+    },
   },
 });
 
-export const { setWbsWidth, setMaxWbsWidth, setDateRange, setHolidayInput, setFileName } = baseSettingsSlice.actions;
+export const { setWbsWidth, setMaxWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setShowYear } = baseSettingsSlice.actions;
 
 export default baseSettingsSlice.reducer;

@@ -13,6 +13,7 @@ import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
 import { ExtendedColumn } from './hooks/useWBSData';
+import { isEqual } from 'lodash';
 
 type WBSInfoProps = {
   headerRow: Row<DefaultCellTypes>;
@@ -24,7 +25,10 @@ type WBSInfoProps = {
 
 const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility }) => {
   const dispatch = useDispatch();
-  const data = useSelector((state: RootState) => state.wbsData.present.data);
+  const data = useSelector(
+    (state: RootState) => state.wbsData.present.data,
+    (prevData, nextData) => isEqual(prevData, nextData)
+  );
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));

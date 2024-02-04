@@ -104,7 +104,7 @@ export function standardizeLongDateFormat(dateStr: string) {
         parsedDate = adjustCenturyForTwoDigitYear(parsedDate);
       }
       if (!isNaN(parsedDate.getTime())) {
-        result = format(parsedDate, 'yyyy-MM-dd');
+        result = format(parsedDate, 'yyyy/M/d');
         break;
       }
     } catch (e) {

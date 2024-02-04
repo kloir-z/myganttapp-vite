@@ -8,6 +8,7 @@ import ChartRowComponent from './components/Chart/ChartRowComponent';
 import EventRowComponent from './components/Chart/EventRowComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './reduxStoreAndSlices/store';
+import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
 import GridVertical from './components/Chart/GridVertical';
 import { ResizeBar } from './components/WbsWidthResizer';
@@ -17,24 +18,22 @@ import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import { useWBSData } from './components/Table/hooks/useWBSData';
 import { ActionCreators } from 'redux-undo';
+import { updateHolidays } from './components/Setting/utils/settingHelpers';
 import defaultHolidayInput from './defaultSetting/defaultHolidays';
-import dayjs, { Dayjs } from 'dayjs';
+import TitleSetting from './components/Setting/TitleSetting';
+import { isEqual } from 'lodash';
 
-function App() {
+function App() {  
   const dispatch = useDispatch();
-  const data = useSelector((state: RootState) => state.wbsData.present.data); 
+  const data = useSelector(
+    (state: RootState) => state.wbsData.present.data,
+    (prevData, nextData) => isEqual(prevData, nextData)
+  );
+  const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
+  const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
+  const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);  
   const { headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [wbsWidth, setWbsWidth] = useState(550);
-  const [maxWbsWidth, setMaxWbsWidth] = useState(1500);
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date('2023-09-01'),
-    endDate: new Date('2024-09-01'),
-  });
-  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs(dateRange.startDate));
-  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs(dateRange.endDate));
-  const [holidayInput, setHolidayInput] = useState(defaultHolidayInput);
-  const [fileName, setFileName] = useState("");
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
   const [canDrag, setCanDrag] = useState(true);
@@ -54,13 +53,16 @@ function App() {
       const widthDifference = Math.abs(maxWbsWidth - wbsWidth);
   
       if (wbsWidth > totalWidth || widthDifference <= 20) {
-        setWbsWidth(totalWidth);
+        dispatch(setWbsWidth(totalWidth));
       }
     }
-    setMaxWbsWidth(totalWidth);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columns]);
+    dispatch(setMaxWbsWidth(totalWidth));
+  }, [columns, dispatch, maxWbsWidth, wbsWidth]);
 
+  useEffect(() => {
+    updateHolidays(defaultHolidayInput, dispatch);
+  }, [dispatch]);
+  
   useEffect(() => {
     setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
   }, [dateRange]);
@@ -106,14 +108,13 @@ function App() {
 
   const handleResize = useCallback((newWidth: number) => {
     const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
-    setWbsWidth(adjustedWidth);
-  }, [maxWbsWidth]);
+    dispatch(setWbsWidth(adjustedWidth));
+  }, [dispatch, maxWbsWidth]);
 
   const calculateGridHeight = () => {
     const rowCount = Object.keys(data).length;
     const maxGridHeight = `calc(100vh - 41px)`;
     const dynamicGridHeight = `${rowCount * 21}px`;
-  
     return rowCount * 21 < window.innerHeight - 41 ? dynamicGridHeight : maxGridHeight;
   };
 
@@ -190,25 +191,14 @@ function App() {
         <div style={{position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden'}} ref={calendarRef}>
           <SettingButton onClick={openSettingsModal} />
           <SettingsModal
-          show={isSettingsModalOpen}
-          onClose={closeSettingsModal}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          columns={columns}
-          setColumns={setColumns}
-          toggleColumnVisibility={toggleColumnVisibility}
-          wbsWidth={wbsWidth}
-          setWbsWidth={setWbsWidth}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-          holidayInput={holidayInput}
-          setHolidayInput={setHolidayInput}
-          fileName={fileName}
-          setFileName={setFileName}
-          // 他の必要なプロパティ
-        />
+            show={isSettingsModalOpen}
+            onClose={closeSettingsModal}
+            columns={columns}
+            setColumns={setColumns}
+            toggleColumnVisibility={toggleColumnVisibility}
+            // 他の必要なプロパティ
+          />
+          <TitleSetting />
         </div>
         <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth + 16}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
           <Calendar

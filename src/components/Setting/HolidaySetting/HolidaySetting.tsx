@@ -1,15 +1,13 @@
 // HolidaySetting.tsx
-import React, { Dispatch, memo, SetStateAction } from "react";
+import React, { memo } from "react";
 import { updateHolidays } from "../utils/settingHelpers";
-import { useDispatch } from "react-redux";
+import { setHolidayInput } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from "../../../reduxStoreAndSlices/store";
 
-type HolidaySettingProps = {
-  holidayInput: string;
-  setHolidayInput: Dispatch<SetStateAction<string>>;
-};
-
-const HolidaySetting: React.FC<HolidaySettingProps> = memo(({ holidayInput, setHolidayInput }) => {
+const HolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
+  const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const handleBlur = () => {
     updateHolidays(holidayInput, dispatch);
   };
@@ -18,7 +16,7 @@ const HolidaySetting: React.FC<HolidaySettingProps> = memo(({ holidayInput, setH
     <div style={{ marginLeft: '10px' }}>
       <textarea
         value={holidayInput}
-        onChange={(e) => setHolidayInput(e.target.value)}
+        onChange={(e) => dispatch(setHolidayInput(e.target.value))}
         onBlur={handleBlur}
         style={{ padding: '10px', width: '200px', height: '700px', overflow: 'auto', whiteSpace: 'nowrap' }}
       />
