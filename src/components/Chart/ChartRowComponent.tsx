@@ -19,14 +19,20 @@ interface ChartRowProps {
 
 const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
-  const chartBarColor = useSelector((state: RootState) => {
+  const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
   });
+  const actualChartBarColor = useSelector((state: RootState) => {
+    const colorInfo = state.color.colors.find(c => c.id === 999);
+    return colorInfo ? colorInfo.color : '#0000003d';
+  });
   const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? new Date(entry.plannedEndDate) : null);
   const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? new Date(entry.actualStartDate) : null);
@@ -117,7 +123,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       newStartDate.setDate(newStartDate.getDate() + gridSteps);
       if (isBarDragging === 'planned') {
         setLocalPlannedStartDate(newStartDate);
-        const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays);
+        const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
         setLocalPlannedEndDate(newEndDate);
       } else if (isBarDragging === 'actual') {
         setLocalActualStartDate(newStartDate);
@@ -184,7 +190,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
       }
     }
-  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, plannedDays, holidays, isIncludeHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
+  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, plannedDays, holidays, isIncludeHolidays, regularHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
   
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {
@@ -285,20 +291,6 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           onMouseUp={handleMouseUp}
         />
       )}
-      {localActualStartDate && localActualEndDate && (
-        <ChartBar
-          startDate={localActualStartDate}
-          endDate={localActualEndDate}
-          dateArray={dateArray}
-          isActual={true}
-          entryId={entry.id}
-          chartBarColor={chartBarColor}
-          onBarMouseDown={(e) => handleBarMouseDown(e, 'actual')}
-          onBarEndMouseDown={(e) => handleBarEndMouseDown(e, 'actual')}
-          onBarStartMouseDown={(e) => handleBarStartMouseDown(e, 'actual')}
-          onContextMenu={(e) => handleBarRightClick(e, 'actual')}
-        />
-      )}
       {localPlannedStartDate && localPlannedEndDate && (
         <ChartBar
           startDate={localPlannedStartDate}
@@ -306,11 +298,25 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           dateArray={dateArray}
           isActual={false}
           entryId={entry.id}
-          chartBarColor={chartBarColor}
+          chartBarColor={plannedChartBarColor}
           onBarMouseDown={(e) => handleBarMouseDown(e, 'planned')}
           onBarEndMouseDown={(e) => handleBarEndMouseDown(e, 'planned')}
           onBarStartMouseDown={(e) => handleBarStartMouseDown(e, 'planned')}
           onContextMenu={(e) => handleBarRightClick(e, 'planned')}
+        />
+      )}
+      {localActualStartDate && localActualEndDate && (
+        <ChartBar
+          startDate={localActualStartDate}
+          endDate={localActualEndDate}
+          dateArray={dateArray}
+          isActual={true}
+          entryId={entry.id}
+          chartBarColor={actualChartBarColor}
+          onBarMouseDown={(e) => handleBarMouseDown(e, 'actual')}
+          onBarEndMouseDown={(e) => handleBarEndMouseDown(e, 'actual')}
+          onBarStartMouseDown={(e) => handleBarStartMouseDown(e, 'actual')}
+          onContextMenu={(e) => handleBarRightClick(e, 'actual')}
         />
       )}
       {contextMenu && (

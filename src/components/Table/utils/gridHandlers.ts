@@ -10,7 +10,7 @@ import { calculatePlannedDays, addPlannedDays, toLocalISOString } from "../../Ch
 
 type AllCellTypes  = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;  
 
-export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[]) => {
+export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[], regularHolidays: number[]) => {
   const updatedData = { ...data };
   const visibleColumns = columns.filter(column => column.visible);
   const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
@@ -70,7 +70,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           plannedStartDate: customDateCell.text,
-          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays)
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularHolidays)
         };
       } else if (fieldName === "plannedEndDate") {
         const customDateCell = newCell as CustomDateCell;
@@ -79,7 +79,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           plannedEndDate: customDateCell.text,
-          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays)
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularHolidays)
         };
       } else if (fieldName === "plannedDays") {
         const customTextCell = newCell as CustomTextCell;
@@ -87,7 +87,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const startDate = new Date(chartRow.plannedStartDate)
         updatedData[rowId] = {
           ...rowData,
-          plannedEndDate: toLocalISOString(addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays)),
+          plannedEndDate: toLocalISOString(addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularHolidays)),
           plannedDays: plannedDays
         };
       } else if (newCell.type === 'customText') {
@@ -102,7 +102,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           isIncludeHolidays: checkboxCell.checked,
-          plannedEndDate: toLocalISOString(addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked)),
+          plannedEndDate: toLocalISOString(addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularHolidays)),
         };
       }
     }    

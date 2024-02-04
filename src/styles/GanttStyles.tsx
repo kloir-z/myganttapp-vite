@@ -34,16 +34,15 @@ export const Cell = styled.div<CellProps>`
     return (props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000010';
   }};
   background-color: ${props => {
-    let baseColor = '#ffffff00';
-    if (props.$type === 'saturday') return '#d9e6ff';
-    if (props.$type === 'sundayOrHoliday') return '#ffdcdc';
+    if (props.$type === 'vertical') {
+      return props.$chartBarColor ? props.$chartBarColor : '#ffffff';
+    }
     if (props.$isPlanned) {
       return props.$chartBarColor ? props.$chartBarColor : '#76ff7051';
     }
     if (props.$isActual) {
-      baseColor = '#0000003d';
+      return props.$chartBarColor ? props.$chartBarColor : '#0000003d';
     }
-    return baseColor;
   }};
   &:hover {
     border: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid transparent')};

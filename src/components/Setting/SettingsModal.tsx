@@ -1,8 +1,8 @@
 // SettingsModal.tsx
-import React, { useState, useEffect, useCallback, useRef, Dispatch, memo, SetStateAction } from "react";
+import React, { useState, useEffect, useRef, Dispatch, memo, SetStateAction } from "react";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, setHolidays } from '../../reduxStoreAndSlices/store';
+import { RootState } from '../../reduxStoreAndSlices/store';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -11,33 +11,41 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 import { ExtendedColumn } from "../Table/hooks/useWBSData";
-import { updateAllColors } from '../../reduxStoreAndSlices/colorSlice';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
+import ReguralHolidaySetting from "./RegularHolidaySetting";
+import { handleImport, handleExport } from "./utils/settingHelpers";
 
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;
   dateRange: { startDate: Date, endDate: Date };
-  setDateRange: (range: { startDate: Date, endDate: Date }) => void;
+  setDateRange: Dispatch<SetStateAction<{ startDate: Date, endDate: Date }>>;
   columns: ExtendedColumn[];
   setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
   toggleColumnVisibility: (columnId: string | number) => void;
   wbsWidth: number;
   setWbsWidth: Dispatch<SetStateAction<number>>;
+  startDate: Dayjs | null;
+  setStartDate: Dispatch<SetStateAction<Dayjs | null>>;
+  endDate: Dayjs | null;
+  setEndDate: Dispatch<SetStateAction<Dayjs | null>>;
+  holidayInput: string;
+  setHolidayInput: Dispatch<SetStateAction<string>>;
+  fileName: string;
+  setFileName: Dispatch<SetStateAction<string>>;
 };
 
-const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth }) => {
+const SettingsModal: React.FC<SettingsModalProps> = memo(({ 
+  show, onClose, dateRange, setDateRange, columns, setColumns, toggleColumnVisibility, wbsWidth, setWbsWidth,
+  startDate, setStartDate, endDate, setEndDate, holidayInput, setHolidayInput, fileName, setFileName
+}) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
-  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs(dateRange.startDate));
-  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs(dateRange.endDate));
   const data = useSelector((state: RootState) => state.wbsData.present.data);
-  const holidays = useSelector((state: RootState) => state.wbsData.present.holidays) as string[];
-  const [holidayInput, setHolidayInput] = useState(holidays.join("\n"));
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const colors = useSelector((state: RootState) => state.color.colors);
-  const [fileName, setFileName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -49,109 +57,33 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
     locale = 'en';
   }
 
-  const updateHolidays = useCallback((holidayInput: string) => {
-    const newHolidays = holidayInput.split("\n").map(holiday => {
-      const match = holiday.match(/(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/);
-      if (match) {
-        const [, year, month, day] = match;
-        const formattedMonth = month.padStart(2, '0');
-        const formattedDay = day.padStart(2, '0');
-        return `${year}-${formattedMonth}-${formattedDay}`;
-      }
-      return null;
-    }).filter((holiday): holiday is string => holiday !== null);
-  
-    dispatch(setHolidays(newHolidays));
-  }, [dispatch]);
-
-  const handleExport = () => {
-    const settingsData = {
+  const handleExportClick = () => {
+    handleExport(
       colors,
-      dateRange: {
-        startDate: dateRange.startDate.toISOString(),
-        endDate: dateRange.endDate.toISOString(),
-      },
+      fileName,
+      dateRange,
       columns,
       data,
       holidayInput,
+      regularHolidaySetting,
       wbsWidth,
-    };
-
-    const jsonData = JSON.stringify(settingsData, null, 2);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${fileName}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    );
   };
 
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFileName(file.name.replace('.json', ''));
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result;
-        if (typeof text === 'string') {
-          try {
-            const parsedData = JSON.parse(text);
-  
-            const importStatus = {
-              colors: false,
-              dateRange: false,
-              columns: false,
-              data: false,
-            };
-  
-            if (parsedData.colors) {
-              dispatch(updateAllColors(parsedData.colors));
-              importStatus.colors = true;
-            }
-            if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
-              const newStartDate = new Date(parsedData.dateRange.startDate);
-              const newEndDate = new Date(parsedData.dateRange.endDate);
-              setDateRange({
-                startDate: newStartDate,
-                endDate: newEndDate
-              });
-              setStartDate(dayjs(newStartDate));
-              setEndDate(dayjs(newEndDate));
-              importStatus.dateRange = true;
-            }
-            if (parsedData.columns && Array.isArray(parsedData.columns)) {
-              setColumns(parsedData.columns);
-              importStatus.columns = true;
-            }
-            if (parsedData.holidayInput) {
-              const newHolidayInput = parsedData.holidayInput;
-              setHolidayInput(newHolidayInput);
-              updateHolidays(newHolidayInput)
-            }
-            if (parsedData.data) {
-              dispatch(simpleSetData(parsedData.data));
-              importStatus.data = true;
-            }
-            if (parsedData.wbsWidth) {
-              setWbsWidth(parsedData.wbsWidth);
-            }
-  
-            let message = 'Import Results:\n';
-            Object.keys(importStatus).forEach((key) => {
-              const typedKey = key as keyof typeof importStatus;
-              message += `${typedKey}: ${importStatus[typedKey] ? 'Success' : 'Failed'}\n`;
-            });
-  
-            alert(message);
-  
-          } catch (error) {
-            alert("Error: An error occurred while loading the file.");
-          }
-        }
-      };
-      reader.readAsText(file);
+      handleImport(
+        file,
+        setDateRange,
+        setColumns,
+        setWbsWidth,
+        dispatch,
+        setFileName,
+        setHolidayInput,
+        setStartDate,
+        setEndDate,
+      );
     }
   };
 
@@ -175,7 +107,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
         setDateRange({ startDate: startDate.toDate(), endDate: endDate.toDate() });
       }
     }
-  }, [startDate, endDate, setDateRange]);
+  }, [startDate, endDate, setDateRange, setStartDate, setEndDate]);
 
   const handleStartDateChange = (date: Dayjs | null) => {
     if (!date || !isValidDateRange(date)) {
@@ -274,7 +206,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Holidays</h3>
             <HolidaySetting
-              updateHolidays={updateHolidays}
               holidayInput={holidayInput}
               setHolidayInput={setHolidayInput}
             />
@@ -288,13 +219,15 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({ show, onClose, dateR
                 onChange={(e) => setFileName(e.target.value)}
                 placeholder="Enter file name"
               />
-              <button onClick={handleExport}>Export</button>
+              <button onClick={handleExportClick}>Export</button>
             </div>
             <h3>Import File(.json)</h3>
             <div style={{ marginLeft: '10px' }}>
               <button onClick={() => fileInputRef.current?.click()}>Import</button>
-              <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} accept=".json" />
+              <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
             </div>
+            <h3>Regular Holidays</h3>
+            <ReguralHolidaySetting />
           </div>
         </div>
       </ModalContainer>

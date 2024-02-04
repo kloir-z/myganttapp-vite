@@ -12,22 +12,30 @@ interface CalendarProps {
 
 const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) => {
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+
   return (
     <GanttRow style={{height: '0px', borderBottom: 'none'}}>
       {dateArray.map((date, index) => {
-        let type = 'weekday';
+        let chartBarColor = '';
+        const dayOfWeek = date.getDay();
         const isMonthStart = date.getDate() === 1;
 
-        if (date.getDay() === 6) type = 'saturday';
-        if (date.getDay() === 0 || isHoliday(date, holidays)) type = 'sundayOrHoliday';
+        const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
+        if (setting) {
+          chartBarColor = setting.color;
+        } else if (isHoliday(date, holidays)) {
+          chartBarColor = regularHolidaySetting[1].color;
+        }
         const left = 21 * index;
 
         return (
           <Cell
             key={index}
             data-index={index}
-            $type={type}
+            $type='vertical'
             $isMonthStart={isMonthStart}
+            $chartBarColor={chartBarColor}
             style={{
               position: 'absolute',
               top: '0px',

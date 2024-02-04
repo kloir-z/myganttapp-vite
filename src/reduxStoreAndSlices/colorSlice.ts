@@ -1,15 +1,15 @@
 // colorSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface ColorInfo {
+export interface ColorInfo {
     id: number;
     alias: string;
     color: string;
   }
-  
-  interface ColorState {
-    colors: ColorInfo[];
-  }
+
+interface ColorState {
+  colors: ColorInfo[];
+}
 
 const initialState: ColorState = {
   colors: [
@@ -22,7 +22,8 @@ const initialState: ColorState = {
     { id: 7, alias: '', color: '#76ff7051' },
     { id: 8, alias: '', color: '#76ff7051' },
     { id: 9, alias: '', color: '#76ff7051' },
-    { id: 10, alias: '', color: '#76ff7051' }
+    { id: 10, alias: '', color: '#76ff7051' },
+    { id: 999, alias: '', color: '#0000003d' }
   ],
 };
 const colorSlice = createSlice({
@@ -30,20 +31,20 @@ const colorSlice = createSlice({
   initialState,
   reducers: {
     updateColor: (state, action: PayloadAction<{ id: number; color: string; }>) => {
-        const index = state.colors.findIndex(c => c.id === action.payload.id);
-        if (index !== -1) {
-          state.colors[index].color = action.payload.color;
-        }
-      },
-      updateAlias: (state, action: PayloadAction<{ id: number; alias: string; }>) => {
-        const index = state.colors.findIndex(c => c.id === action.payload.id);
-        if (index !== -1) {
-          state.colors[index].alias = action.payload.alias;
-        }
-      },  
-      updateAllColors: (state, action: PayloadAction<ColorInfo[]>) => {
-        state.colors = action.payload;
-      },
+      const index = state.colors.findIndex(c => c.id === action.payload.id);
+      if (index !== -1) {
+        state.colors[index].color = action.payload.color;
+      }
+    },
+    updateAlias: (state, action: PayloadAction<{ id: number; alias: string; }>) => {
+      const index = state.colors.findIndex(c => c.id === action.payload.id);
+      if (index !== -1) {
+        state.colors[index].alias = action.payload.alias;
+      }
+    },  
+    updateAllColors: (state, action: PayloadAction<ColorInfo[]>) => {
+      state.colors = action.payload;
+    },
   },
 });
 

@@ -52,3 +52,9 @@ export interface EventRow extends BaseRow {
 }
 
 export type WBSData = ChartRow | SeparatorRow | EventRow;
+
+export type RegularHolidaySetting = {
+  id: number;
+  color: string;
+  days: number[];
+};

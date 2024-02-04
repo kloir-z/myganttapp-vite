@@ -72,12 +72,16 @@ const ColorSetting: React.FC = () => {
                 </div>
             ) : null }
           </div>
-          <input
-            type="text"
-            value={colorInfo.alias}
-            onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
-            style={{height: '20px', margin: '2px'}}
-          />
+          {colorInfo.id === 999 ? (
+            <span style={{ margin: 'auto 0', marginLeft: '10px' }}>Actual Chart Color</span>
+          ) : (
+            <input
+              type="text"
+              value={colorInfo.alias}
+              onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
+              style={{height: '20px', margin: '2px'}}
+            />
+          )}
         </div>
       ))}
     </div>

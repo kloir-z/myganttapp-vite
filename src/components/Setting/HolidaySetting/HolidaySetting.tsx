@@ -1,15 +1,17 @@
 // HolidaySetting.tsx
 import React, { Dispatch, memo, SetStateAction } from "react";
+import { updateHolidays } from "../utils/settingHelpers";
+import { useDispatch } from "react-redux";
 
 type HolidaySettingProps = {
-  updateHolidays: (holidayInput: string) => void;
   holidayInput: string;
   setHolidayInput: Dispatch<SetStateAction<string>>;
 };
 
-const HolidaySetting: React.FC<HolidaySettingProps> = memo(({ updateHolidays, holidayInput, setHolidayInput }) => {
+const HolidaySetting: React.FC<HolidaySettingProps> = memo(({ holidayInput, setHolidayInput }) => {
+  const dispatch = useDispatch();
   const handleBlur = () => {
-    updateHolidays(holidayInput);
+    updateHolidays(holidayInput, dispatch);
   };
 
   return (

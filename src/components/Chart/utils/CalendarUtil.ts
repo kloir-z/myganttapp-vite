@@ -32,7 +32,16 @@ const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 };
 
-export const calculatePlannedDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean): number => {
+const isRegularHoliday = (dayOfWeek: number, regularHolidays: number[]): boolean => {
+  return regularHolidays.includes(dayOfWeek);
+};
+
+export const isHoliday = (date: Date, holidays: string[]): boolean => {
+  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return holidays.includes(dateString);
+};
+
+export const calculatePlannedDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean, regularHolidays: number[]): number => {
   if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
     return 0;
   }
@@ -41,7 +50,7 @@ export const calculatePlannedDays = (start: Date, end: Date, holidays: string[],
 
   while (currentDate <= getStartOfDay(end)) {
     const dayOfWeek = currentDate.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && (!isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       count++;
     }
     currentDate.setDate(currentDate.getDate() + 1);
@@ -50,22 +59,16 @@ export const calculatePlannedDays = (start: Date, end: Date, holidays: string[],
   return count;
 };
 
-export const isHoliday = (date: Date, holidays: string[]): boolean => {
-  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  return holidays.includes(dateString);
-};
-
-export const addPlannedDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true): Date => {
+export const addPlannedDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): Date => {
   if (isNaN(start.getTime()) || days === null || days < 0) {
     return new Date(NaN);
   }
   const currentDate = new Date(start);
   let addedDays = 0;
 
-  const startDayOfWeek = currentDate.getDay();
-
   if (includeStartDay) {
-    if (startDayOfWeek !== 0 && startDayOfWeek !== 6 && !isHoliday(currentDate, holidays) || isIncludeHolidays) {
+    const startDayOfWeek = currentDate.getDay();
+    if ((!isRegularHoliday(startDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays = 1;
     }
   }
@@ -73,7 +76,7 @@ export const addPlannedDays = (start: Date, days: number | null, holidays: strin
   while (addedDays < days) {
     currentDate.setDate(currentDate.getDate() + 1);
     const dayOfWeek = currentDate.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(currentDate, holidays) || isIncludeHolidays) {
+    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays++;
     }
   }

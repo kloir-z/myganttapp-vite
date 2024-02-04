@@ -12,6 +12,7 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   let previousMonth = dateArray[0].getMonth();
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const calendarWidth = dateArray.length * 21;
   const browserLocale = navigator.language.split('-')[0];
   let dateFormat: string;
@@ -51,18 +52,24 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
       </GanttRow>
       <GanttRow style={{ borderBottom: 'none', background: 'none'}}>
         {dateArray.map((date, index) => {
-          let type = 'weekday';
-          if (date.getDay() === 6) type = 'saturday';
-          if (date.getDay() === 0 || isHoliday(date, holidays)) type = 'sundayOrHoliday';
           const left = 21 * index;
+          let chartBarColor = '';
+          const dayOfWeek = date.getDay();
           const isMonthStart = date.getDate() === 1;
+          const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
+          if (setting) {
+            chartBarColor = setting.color;
+          } else if (isHoliday(date, holidays)) {
+            chartBarColor = regularHolidaySetting[1].color;
+          }
 
           return (
             <Cell
               key={index}
               data-index={index}
-              $type={type}
+              $type='vertical'
               $isMonthStart={isMonthStart}
+              $chartBarColor={chartBarColor}
               style={{
                 position: 'absolute',
                 left: `${left}px`,

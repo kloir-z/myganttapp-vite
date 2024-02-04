@@ -7,7 +7,7 @@ import WBSInfo from './components/Table/WBSInfo';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
 import EventRowComponent from './components/Chart/EventRowComponent';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setHolidays } from './reduxStoreAndSlices/store';
+import { RootState } from './reduxStoreAndSlices/store';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
 import GridVertical from './components/Chart/GridVertical';
 import { ResizeBar } from './components/WbsWidthResizer';
@@ -16,8 +16,9 @@ import "./components/Table/css/HiddenScrollBar.css";
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import { useWBSData } from './components/Table/hooks/useWBSData';
-import defaultHolidays from "./defaultSetting/defaultHolidays";
 import { ActionCreators } from 'redux-undo';
+import defaultHolidayInput from './defaultSetting/defaultHolidays';
+import dayjs, { Dayjs } from 'dayjs';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +31,10 @@ function App() {
     startDate: new Date('2023-09-01'),
     endDate: new Date('2024-09-01'),
   });
+  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs(dateRange.startDate));
+  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs(dateRange.endDate));
+  const [holidayInput, setHolidayInput] = useState(defaultHolidayInput);
+  const [fileName, setFileName] = useState("");
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
   const [canDrag, setCanDrag] = useState(true);
@@ -39,10 +44,6 @@ function App() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const calendarWidth = dateArray.length * 21;
-
-  useEffect(() => {
-    dispatch(setHolidays(defaultHolidays));
-  }, [dispatch]);
   
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -104,7 +105,7 @@ function App() {
   }, []);
 
   const handleResize = useCallback((newWidth: number) => {
-    const adjustedWidth = Math.max(5, Math.min(newWidth, maxWbsWidth));
+    const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
     setWbsWidth(adjustedWidth);
   }, [maxWbsWidth]);
 
@@ -198,6 +199,14 @@ function App() {
           toggleColumnVisibility={toggleColumnVisibility}
           wbsWidth={wbsWidth}
           setWbsWidth={setWbsWidth}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          holidayInput={holidayInput}
+          setHolidayInput={setHolidayInput}
+          fileName={fileName}
+          setFileName={setFileName}
           // 他の必要なプロパティ
         />
         </div>
