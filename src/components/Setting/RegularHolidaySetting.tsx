@@ -19,6 +19,7 @@ const ReguralHolidaySetting: React.FC = () => {
 
   const handleColorClose = (id: number) => {
     setDisplayColorPicker({ ...displayColorPicker, [id]: false });
+    handleApplyChanges();
   };
   
   const handleApplyChanges = useCallback(() => {

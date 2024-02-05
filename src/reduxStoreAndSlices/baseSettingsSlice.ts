@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import defaultHolidayInput from '../defaultSetting/defaultHolidays';
 import { Column } from "@silevis/reactgrid";
 
 export interface ExtendedColumn extends Column {
@@ -29,7 +28,7 @@ const initialState: BaseSettingsState = {
     startDate: '2023-09-01',
     endDate: '2024-09-01',
   },
-  holidayInput: defaultHolidayInput,
+  holidayInput: '',
   fileName: '',
   title: '',
   showYear: false,

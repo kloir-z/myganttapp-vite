@@ -1,12 +1,10 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/DataTypes';
-import { testData } from '../testdata/testdata';
 import { calculatePlannedDays, addPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import regularHolidaysReducer from './regularHolidaysSlice';
 import undoable from 'redux-undo';
-import { assignIds } from '../components/Table/utils/wbsHelpers';
 import baseSettingsReducer from './baseSettingsSlice';
 
 const initialState: { data: {
@@ -14,7 +12,7 @@ const initialState: { data: {
   holidays: string[],
   regularHolidaySetting: RegularHolidaySetting[]
 } = {
-  data: assignIds(testData),
+  data: {},
   holidays: [],
   regularHolidaySetting: [
     { id: 1, color: '#d9e6ff', days: [6] },

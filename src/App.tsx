@@ -18,10 +18,9 @@ import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import { useWBSData } from './components/Table/hooks/useWBSData';
 import { ActionCreators } from 'redux-undo';
-import { updateHolidays } from './components/Setting/utils/settingHelpers';
-import defaultHolidayInput from './defaultSetting/defaultHolidays';
 import TitleSetting from './components/Setting/TitleSetting';
 import { isEqual } from 'lodash';
+import { handleImport } from './components/Setting/utils/settingHelpers';
 
 function App() {  
   const dispatch = useDispatch();
@@ -61,7 +60,14 @@ function App() {
   }, [columns, dispatch, maxWbsWidth, wbsWidth]);
 
   useEffect(() => {
-    updateHolidays(defaultHolidayInput, dispatch);
+    const initConfigPath = '/src/testdata/testfile.json';
+    fetch(initConfigPath)
+      .then(response => response.json())
+      .then(data => {
+        const file = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        handleImport(new File([file], "testfile.json"), dispatch);
+      })
+      .catch(error => console.error("Failed to load initialization file:", error));
   }, [dispatch]);
   
   useEffect(() => {

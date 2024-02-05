@@ -51,27 +51,17 @@ export const handleImport = (
         try {
           const parsedData = JSON.parse(text);
 
-          const importStatus = {
-            colors: false,
-            dateRange: false,
-            columns: false,
-            data: false,
-          };
-
           if (parsedData.colors) {
             dispatch(updateAllColors(parsedData.colors));
-            importStatus.colors = true;
           }
           if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
             dispatch(setDateRange({
               startDate: parsedData.dateRange.startDate,
               endDate: parsedData.dateRange.endDate
             }));
-            importStatus.dateRange = true;
           }
           if (parsedData.columns && Array.isArray(parsedData.columns)) {
             dispatch(setColumns(parsedData.columns));
-            importStatus.columns = true;
           }
           if (parsedData.regularHolidaySetting) {
             dispatch(updateRegularHolidaySetting(parsedData.regularHolidaySetting));
@@ -83,7 +73,6 @@ export const handleImport = (
           }
           if (parsedData.data) {
             dispatch(simpleSetData(parsedData.data));
-            importStatus.data = true;
           }
           if (parsedData.wbsWidth) {
             dispatch(setWbsWidth(parsedData.wbsWidth));
@@ -91,14 +80,6 @@ export const handleImport = (
           if (parsedData.title) {
             dispatch(setTitle(parsedData.title));
           }
-
-          let message = 'Import Results:\n';
-          Object.keys(importStatus).forEach((key) => {
-            const typedKey = key as keyof typeof importStatus;
-            message += `${typedKey}: ${importStatus[typedKey] ? 'Success' : 'Failed'}\n`;
-          });
-
-          alert(message);
 
         } catch (error) {
           alert("Error: An error occurred while loading the file.");

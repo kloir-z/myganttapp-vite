@@ -1,4 +1,23 @@
 import React, { useRef, useCallback } from 'react';
+import styled from 'styled-components';
+
+interface StyledResizeBarProps {
+  initialWidth: number;
+}
+
+const StyledResizeBar = styled.div<StyledResizeBarProps>`
+  width: 5px;
+  cursor: ew-resize;
+  position: absolute;
+  left: ${props => props.initialWidth}px;
+  height: 100vh;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #2773ff90;
+  }
+`;
 
 interface ResizeBarProps {
   onDrag: (newWidth: number) => void;
@@ -21,26 +40,19 @@ function MemoedResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     initialPositionRef.current = null;
-  },[handleMouseMove]);
+  }, [handleMouseMove]);
 
   const handleMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     initialPositionRef.current = event.clientX;
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     event.preventDefault();
-  },[handleMouseMove, handleMouseUp]);
+  }, [handleMouseMove, handleMouseUp]);
 
   return (
-    <div 
-      style={{ 
-        width: '5px', 
-        cursor: 'ew-resize', 
-        position: 'absolute', 
-        left: `${initialWidth}px`, 
-        height: '100vh', 
-        zIndex: 10 
-      }} 
-      onMouseDown={handleMouseDown} 
+    <StyledResizeBar
+      initialWidth={initialWidth}
+      onMouseDown={handleMouseDown}
     />
   );
 }
