@@ -20,6 +20,7 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
     if (cellValue === null || cellValue === undefined) {
       cellValue = '';
     }
+    const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
       return { type: "customDate", text: cellValue, value: NaN } as CustomDateCell;
     }
@@ -33,7 +34,7 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
       return { type: "checkbox", checked: cellValue as boolean } as CheckboxCell;
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN } as CustomTextCell;
+      return { type: "customText", text: cellValue as string, value: NaN, columnWidth } as CustomTextCell;
     }
   });
   return { rowId: chartRow.id, height: 21, cells: rowCells, reorderable: true };
@@ -47,6 +48,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
     if (cellValue === null || cellValue === undefined) {
       cellValue = '';
     }
+    const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
       return { type: "customDate", text: cellValue, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomDateCell;
     }
@@ -54,7 +56,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
       return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)'}} as NumberCell;
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomTextCell;
+      return { type: "customText", text: cellValue as string, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomTextCell;
     }
   });
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };

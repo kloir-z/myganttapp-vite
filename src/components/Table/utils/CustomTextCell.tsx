@@ -8,6 +8,7 @@ export interface CustomTextCell extends Cell {
   type: 'customText';
   text: string;
   value: number;
+  columnWidth?: number;
 }
 
 export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
@@ -46,9 +47,13 @@ export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
     onCellChanged: (cell: Compatible<CustomTextCell>, commit: boolean) => void
   ): React.ReactNode {
     if (isInEditMode) {
+      const columnWidth = cell.columnWidth ? cell.columnWidth - 21 : 80; 
+      const inputStyle = {
+        minWidth: `${columnWidth}px`,
+      };
       return (
         <div className="input-text__item">
-          <div className="input-text__dummy js-dummy-input-text" data-placeholder=" "></div>
+          <div className="input-text__dummy js-dummy-input-text" style={inputStyle} data-placeholder=" "></div>
           <input
             type="text"
             className="input-text js-input-text"
