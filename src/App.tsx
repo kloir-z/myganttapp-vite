@@ -65,7 +65,7 @@ function App() {
       .then(response => response.json())
       .then(data => {
         const file = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        handleImport(new File([file], "testfile.json"), dispatch);
+        handleImport(new File([file], "file.json"), dispatch);
       })
       .catch(error => console.error("Failed to load initialization file:", error));
   }, [dispatch]);

@@ -4,7 +4,7 @@ import { WBSData, RegularHolidaySetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
-import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setColumns } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setColumns, setShowYear } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 
 export const handleExport = (
   colors: ColorInfo[],
@@ -15,7 +15,8 @@ export const handleExport = (
   holidayInput: string,
   regularHolidaySetting: RegularHolidaySetting[],
   wbsWidth: number,
-  title: string
+  title: string,
+  showYear: boolean,
 ) => {
   const settingsData = {
     colors,
@@ -25,7 +26,8 @@ export const handleExport = (
     holidayInput,
     regularHolidaySetting,
     wbsWidth,
-    title
+    title,
+    showYear
   };
   const jsonData = JSON.stringify(settingsData, null, 2);
   const blob = new Blob([jsonData], { type: 'application/json' });
@@ -79,6 +81,9 @@ export const handleImport = (
           }
           if (parsedData.title) {
             dispatch(setTitle(parsedData.title));
+          }
+          if (parsedData.showYear) {
+            dispatch(setShowYear(parsedData.showYear));
           }
 
         } catch (error) {
