@@ -1,31 +1,11 @@
-// hooks/useWBSData.ts
 import { useState, useEffect } from 'react';
-import { Column, Row, DefaultCellTypes, HeaderCell } from "@silevis/reactgrid";
-
-export interface ExtendedColumn extends Column {
-  columnId: string;
-  columnName?: string;
-  visible: boolean;
-}
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../reduxStoreAndSlices/store';
+import { ExtendedColumn } from '../../../reduxStoreAndSlices/baseSettingsSlice';
+import { Row, DefaultCellTypes, HeaderCell } from "@silevis/reactgrid";
 
 export const useWBSData = () => {
-  const initialColumns: ExtendedColumn[] = [
-    { columnId: "no", columnName: "No", width: 30, resizable: false, visible: true },
-    { columnId: "displayName", columnName: "DisplayName", width: 100, resizable: true, reorderable: true, visible: true },
-    { columnId: "color", columnName: "Color", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedStartDate", columnName: "PlanS", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedEndDate", columnName: "PlanE", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedDays", columnName: "Days", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "actualStartDate", columnName: "ActS", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "actualEndDate", columnName: "ActE", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "dependency", columnName: "Dep", width: 60, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn1", columnName: "Text1", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn2", columnName: "Text2", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn3", columnName: "Text3", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn4", columnName: "Text4", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
-  ];
-  const [columns, setColumns] = useState<ExtendedColumn[]>(initialColumns);
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);
 
   const getHeaderRow = (columns: ExtendedColumn[]): Row<DefaultCellTypes> => {
     const cells = columns.filter(column => column.visible).map(column => {
@@ -40,21 +20,11 @@ export const useWBSData = () => {
 
   const [headerRow, setHeaderRow] = useState<Row<DefaultCellTypes>>(getHeaderRow(columns));
 
-  const visibleColumns = columns.filter(column => column.visible);
-
   useEffect(() => {
     setHeaderRow(getHeaderRow(columns));
   }, [columns]);
 
-  const toggleColumnVisibility = (columnId: string | number) => {
-    setColumns(prevColumns =>
-      prevColumns.map(column =>
-        column.columnId === columnId
-          ? { ...column, visible: !column.visible }
-          : column
-      )
-    );
-  };
+  const visibleColumns = columns.filter(column => column.visible);
 
-  return { initialColumns, visibleColumns, columns, setColumns, headerRow, toggleColumnVisibility };
-}
+  return { visibleColumns, headerRow };
+};

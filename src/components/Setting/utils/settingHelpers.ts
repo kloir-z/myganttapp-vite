@@ -1,11 +1,10 @@
-import { Dispatch, SetStateAction } from "react";
-import { ExtendedColumn } from "../../Table/hooks/useWBSData";
+import { ExtendedColumn } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
 import { WBSData, RegularHolidaySetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
-import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setColumns } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 
 export const handleExport = (
   colors: ColorInfo[],
@@ -41,7 +40,6 @@ export const handleExport = (
 
 export const handleImport = (
   file: File,
-  setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>,
   dispatch: AppDispatch,
 ) => {
   if (file) {
@@ -72,7 +70,7 @@ export const handleImport = (
             importStatus.dateRange = true;
           }
           if (parsedData.columns && Array.isArray(parsedData.columns)) {
-            setColumns(parsedData.columns);
+            dispatch(setColumns(parsedData.columns));
             importStatus.columns = true;
           }
           if (parsedData.regularHolidaySetting) {

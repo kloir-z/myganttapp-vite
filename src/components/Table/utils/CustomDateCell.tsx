@@ -104,6 +104,10 @@ export interface CustomDateCell extends Cell {
 }
 
 export class CustomDateCellTemplate implements CellTemplate<CustomDateCell> {
+  showYear: boolean;
+  constructor(showYear: boolean) {
+    this.showYear = showYear;
+  }
   getCompatibleCell(uncertainCell: Uncertain<CustomDateCell>): Compatible<CustomDateCell> {
     let text = uncertainCell.text || '';
     let shortDate = ''
@@ -142,6 +146,6 @@ export class CustomDateCellTemplate implements CellTemplate<CustomDateCell> {
         />
       );
     }
-    return <span>{cell.shortDate}</span>;
+    return <span>{this.showYear ? cell.text : cell.shortDate}</span>;
   }  
 }

@@ -1,23 +1,19 @@
-// ColumnSetting.tsx
-import React, { Dispatch, SetStateAction } from "react";
-import { ExtendedColumn } from "../../Table/hooks/useWBSData";
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../../reduxStoreAndSlices/store'; // `RootState` はストアの状態の型です
+import { setColumns, toggleColumnVisibility } from '../../../reduxStoreAndSlices/baseSettingsSlice';
 import ColumnRow from './ColumnRow';
 
-type ColumnSettingProps = {
-  columns: ExtendedColumn[];
-  setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
-  toggleColumnVisibility: (columnId: string | number) => void;
-};
+const ColumnSetting: React.FC = () => {
+  const dispatch = useDispatch();
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);
 
-const ColumnSetting: React.FC<ColumnSettingProps> = ({ columns, setColumns, toggleColumnVisibility }) => {
   const updateColumnName = (columnId: string, newName: string) => {
-    setColumns(prevColumns =>
-      prevColumns.map(column =>
-        column.columnId === columnId
-          ? { ...column, columnName: newName }
-          : column
+    dispatch(setColumns(
+      columns.map(column =>
+        column.columnId === columnId ? { ...column, columnName: newName } : column
       )
-    );
+    ));
   };
 
   return (
@@ -27,7 +23,7 @@ const ColumnSetting: React.FC<ColumnSettingProps> = ({ columns, setColumns, togg
           key={column.columnId}
           column={column}
           updateColumnName={updateColumnName}
-          toggleColumnVisibility={toggleColumnVisibility}
+          toggleColumnVisibility={() => dispatch(toggleColumnVisibility(column.columnId))}
         />
       ))}
     </div>

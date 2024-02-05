@@ -20,6 +20,7 @@ const AutoWidthDiv = styled.div`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   font-size: 0.8rem;
+  font-weight: 600;
   padding: 2px 5px;
   white-space: nowrap;
   opacity: 0;
@@ -33,7 +34,7 @@ const AutoWidthDiv = styled.div`
 
 const StyledInput = styled.input`
   position: absolute;
-  top: 0;
+  top: 2px;
   font-size: 0.8rem;
   font-weight: 600;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -46,6 +47,10 @@ const StyledInput = styled.input`
   padding: 2px 4px;
   background: none;
   border: none;
+  &::placeholder {
+    color: #c1c1c1;
+    font-weight: 600;
+  }
   &:focus {
     outline: none;
     text-decoration:underline;
@@ -58,7 +63,7 @@ const TitleSetting: React.FC = () => {
   const [title, setTitleLocal] = useState(globalTitle);
   const [isEditing, setIsEditing] = useState(false);
   const dummyRef = useRef<HTMLDivElement>(null);
-  const placeholder = 'Project Name'
+  const placeholder = 'Enter Chart Name'
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLocal(e.target.value);

@@ -1,5 +1,5 @@
 // SettingsModal.tsx
-import React, { useState, useEffect, useRef, Dispatch, memo, SetStateAction } from "react";
+import React, { useState, useEffect, useRef, memo } from "react";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
@@ -10,25 +10,21 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
-import { ExtendedColumn } from "../Table/hooks/useWBSData";
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
-import { setDateRange, setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { setDateRange, setFileName, setShowYear } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
 
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;
-  columns: ExtendedColumn[];
-  setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
-  toggleColumnVisibility: (columnId: string | number) => void;
 };
 
 const SettingsModal: React.FC<SettingsModalProps> = memo(({ 
-  show, onClose, columns, setColumns, toggleColumnVisibility
+  show, onClose
 }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
@@ -44,6 +40,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const title = useSelector((state: RootState) => state.baseSettings.title);
+  const showYear = useSelector((state: RootState) => state.baseSettings.showYear);
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -74,7 +72,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     if (file) {
       handleImport(
         file,
-        setColumns,
         dispatch,
       );
     }
@@ -87,21 +84,17 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   };
 
   useEffect(() => {
-    // dayjsオブジェクトを生成するために、startDateとendDateをパースします。
     const startDay = dayjs(startDate);
     const endDay = dayjs(endDate);
-  
     if (startDay.isValid() && endDay.isValid()) {
       if (!isValidDateRange(startDay)) {
         dispatch(setDateRange({ startDate: dayjs().format('YYYY-MM-DD'), endDate }));
         return;
       }
-  
       const maxEndDate = startDay.add(3, 'year');
       if (endDay.isAfter(maxEndDate)) {
         dispatch(setDateRange({ startDate, endDate: maxEndDate.format('YYYY-MM-DD') }));
       } else {
-        // startDateとendDateは既に文字列形式であるため、直接ディスパッチします。
         dispatch(setDateRange({ startDate, endDate }));
       }
     }
@@ -111,13 +104,11 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     if (!date || !isValidDateRange(date)) {
       return;
     }
-  
     const formattedDate = date.format('YYYY-MM-DD');
     let newEndDate = endDate;
     if (!newEndDate || dayjs(date).isAfter(dayjs(endDate))) {
       newEndDate = date.add(7, 'day').format('YYYY-MM-DD');
     }
-  
     dispatch(setDateRange({ startDate: formattedDate, endDate: newEndDate }));
   };
   
@@ -125,8 +116,12 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     if (!date || !isValidDateRange(date) || dayjs(startDate).isAfter(date)) {
       return;
     }
-  
     dispatch(setDateRange({ startDate, endDate: date.format('YYYY-MM-DD') }));
+  };
+
+  const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    dispatch(setShowYear(isChecked));
   };
   
 
@@ -199,11 +194,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             <h3>Chart Color (Alias)</h3>
             <ColorSetting />
             <h3>Column (Visiblity & Name)</h3>
-            <ColumnSetting
-              columns={columns}
-              setColumns={setColumns}
-              toggleColumnVisibility={toggleColumnVisibility}
-            />
+            <ColumnSetting />
           </div>
           <div style={{ border: '1px solid #AAA',borderRadius: '4px', padding: '10px 10px', margin: '0px 10px'}}>
             <h3>Holidays</h3>
@@ -227,6 +218,16 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             </div>
             <h3>Regular Holidays</h3>
             <ReguralHolidaySetting />
+            
+            <h3>Date Format</h3>
+            <div style={{ marginLeft: '10px' }}>
+              <input
+                type="checkbox"
+                checked={showYear}
+                onChange={handleShowYearChange}
+              />
+              <span style={{ marginLeft: '10px' }}>{showYear ? 'Y/M/D' : 'M/D'}</span>
+            </div>
           </div>
         </div>
       </ModalContainer>

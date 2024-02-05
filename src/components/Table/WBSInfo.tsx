@@ -1,29 +1,25 @@
 // WBSInfo.tsx
-import React, { useCallback, Dispatch, SetStateAction } from 'react';
+import React, { useCallback } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow  } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
-import { useColumnResizer } from './hooks/useColumnResizer';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, simpleSetData } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
-import { ExtendedColumn } from './hooks/useWBSData';
+import { ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns } from '../../reduxStoreAndSlices/baseSettingsSlice';
 import { isEqual } from 'lodash';
 
 type WBSInfoProps = {
   headerRow: Row<DefaultCellTypes>;
   visibleColumns: ExtendedColumn[];
-  columns: ExtendedColumn[];
-  setColumns: Dispatch<SetStateAction<ExtendedColumn[]>>;
-  toggleColumnVisibility: (columnId: string | number) => void;
 };
 
-const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility }) => {
+const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.wbsData.present.data,
@@ -33,10 +29,11 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
-  const handleColumnResize = useColumnResizer(setColumns);
+  const showYear = useSelector((state: RootState) => state.baseSettings.showYear);
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);
   const dataArray = Object.values(data);
-  const customDateCellTemplate = new CustomDateCellTemplate();
-  const customTextCellTemplate = new CustomTextCellTemplate();  
+  const customDateCellTemplate = new CustomDateCellTemplate(showYear);
+  const customTextCellTemplate = new CustomTextCellTemplate();
 
   const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell>[] => {
     return [
@@ -120,7 +117,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
       {
         id: "hideColumn",
         label: "Hide Column",
-        handler: () => selectedColIdsFromRanges.forEach((colId: Id) => toggleColumnVisibility(colId))
+        handler: () => selectedColIdsFromRanges.forEach((colId: Id) => dispatch(toggleColumnVisibility(colId.toString())))
       },
     );
     columns.forEach(column => {
@@ -129,12 +126,12 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
         menuOptions.push({
           id: `showColumn-${column.columnId}`,
           label: `Show ${columnName} Column`,
-          handler: () => toggleColumnVisibility(column.columnId)
+          handler: () => dispatch(toggleColumnVisibility(column.columnId))
         });
       }
     });
     return menuOptions;
-  }, [getSelectedIdsFromRanges, columns, dispatch, dataArray, copiedRows, toggleColumnVisibility]);
+  }, [getSelectedIdsFromRanges, columns, dispatch, dataArray, copiedRows]);
   
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
@@ -165,9 +162,13 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
     const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, adjustedTargetIndex);
     const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
     
-    setColumns(reorderedColumns);
-  }, [columns, setColumns]);
-  
+    dispatch(setColumns(reorderedColumns));
+  }, [columns, dispatch]);
+
+  const onColumnResize = (columnId: Id, width: number) => {
+    const columnIdAsString = columnId.toString();
+    dispatch(handleColumnResize({ columnId: columnIdAsString, width }));
+  };
 
   const handleCanReorderRows = (targetRowId: Id): boolean => {
     return targetRowId !== 'header';
@@ -178,7 +179,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns, columns, s
       rows={rows}
       columns={visibleColumns}
       onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularHolidays)}
-      onColumnResized={handleColumnResize}
+      onColumnResized={onColumnResize}
       onContextMenu={simpleHandleContextMenu}
       stickyTopRows={1}
       stickyLeftColumns={1}

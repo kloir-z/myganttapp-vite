@@ -1,55 +1,45 @@
-// ColumnRow.tsx
 import React, { useState, useEffect } from 'react';
-import { ExtendedColumn } from "../../Table/hooks/useWBSData";
+import { ExtendedColumn } from '../../../reduxStoreAndSlices/baseSettingsSlice';
 
 type ColumnRowProps = {
   column: ExtendedColumn;
   updateColumnName: (columnId: string, newName: string) => void;
-  toggleColumnVisibility: (columnId: string | number) => void;
+  toggleColumnVisibility: (columnId: string) => void;
 };
 
 const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleColumnVisibility }) => {
-  const [localColumnName, setLocalColumnName] = useState(column.columnName);
+  const [localColumnName, setLocalColumnName] = useState(column.columnName ?? '');
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (!isFocused) {
-      setLocalColumnName(column.columnName);
+      setLocalColumnName(column.columnName ?? '');
     }
-  }, [column.columnName, column.columnId, isFocused]);
-
+  }, [column.columnName, isFocused]);
 
   const handleBlur = () => {
-    updateColumnName(column.columnId, localColumnName ?? '');
+    if (localColumnName !== column.columnName) {
+      updateColumnName(column.columnId, localColumnName);
+    }
     setIsFocused(false);
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
+  const handleFocus = () => setIsFocused(true);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      updateColumnName(column.columnId, localColumnName ?? '');
+      handleBlur(); // Enterキーを押した時もhandleBlurを呼び出して更新
     }
   };
 
-  const handleSpanClick = () => {
-    toggleColumnVisibility(column.columnId);
-  };
-
-  if (column.columnId === 'no') {
-    return null;
-  }
-
   return (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }} key={column.columnId}>
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
       <input
         type="checkbox"
         checked={column.visible}
         onChange={() => toggleColumnVisibility(column.columnId)}
       />
-      <span onClick={handleSpanClick} style={{ width: '100px', marginRight: '10px', cursor: 'pointer' }}>
+      <span onClick={() => toggleColumnVisibility(column.columnId)} style={{ width: '100px', marginRight: '10px', cursor: 'pointer' }}>
         {column.columnId.charAt(0).toUpperCase() + column.columnId.slice(1)}:
       </span>
       <input

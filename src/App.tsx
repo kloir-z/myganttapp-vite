@@ -32,7 +32,8 @@ function App() {
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);  
-  const { headerRow, visibleColumns, columns, setColumns, toggleColumnVisibility } = useWBSData();
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);  
+  const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
@@ -193,10 +194,6 @@ function App() {
           <SettingsModal
             show={isSettingsModalOpen}
             onClose={closeSettingsModal}
-            columns={columns}
-            setColumns={setColumns}
-            toggleColumnVisibility={toggleColumnVisibility}
-            // 他の必要なプロパティ
           />
           <TitleSetting />
         </div>
@@ -210,9 +207,6 @@ function App() {
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}
-            columns={columns}
-            setColumns={setColumns}
-            toggleColumnVisibility={toggleColumnVisibility}
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
