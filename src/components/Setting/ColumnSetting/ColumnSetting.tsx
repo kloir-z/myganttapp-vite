@@ -6,7 +6,8 @@ import ColumnRow from './ColumnRow';
 
 const ColumnSetting: React.FC = () => {
   const dispatch = useDispatch();
-  const columns = useSelector((state: RootState) => state.baseSettings.columns);
+  const columns = useSelector((state: RootState) => 
+    state.baseSettings.columns.filter(column => column.columnId !== 'no'));
 
   const updateColumnName = (columnId: string, newName: string) => {
     dispatch(setColumns(

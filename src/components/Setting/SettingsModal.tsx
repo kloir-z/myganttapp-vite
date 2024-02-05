@@ -17,6 +17,8 @@ import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
 import { setDateRange, setFileName, setShowYear } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
+import { Typography, Switch, Box } from '@mui/material';
+
 
 type SettingsModalProps = {
   show: boolean;
@@ -123,7 +125,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     const isChecked = event.target.checked;
     dispatch(setShowYear(isChecked));
   };
-  
 
   const handleClose = () => {
     setFadeStatus('out');
@@ -219,15 +220,20 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             <h3>Regular Holidays</h3>
             <ReguralHolidaySetting />
             
-            <h3>Date Format</h3>
-            <div style={{ marginLeft: '10px' }}>
-              <input
-                type="checkbox"
+            <h3>Date Cell Format</h3>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
+              <Typography component="div" sx={{ marginRight: 1 }}>
+                M/d
+              </Typography>
+              <Switch
                 checked={showYear}
                 onChange={handleShowYearChange}
+                name="showYearSwitch"
               />
-              <span style={{ marginLeft: '10px' }}>{showYear ? 'Y/M/D' : 'M/D'}</span>
-            </div>
+              <Typography component="div" sx={{ marginLeft: 1 }}>
+                y/M/d
+              </Typography>
+            </Box>
           </div>
         </div>
       </ModalContainer>

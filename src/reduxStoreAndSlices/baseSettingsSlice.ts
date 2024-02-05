@@ -87,11 +87,11 @@ const baseSettingsSlice = createSlice({
     },
     toggleColumnVisibility(state, action: PayloadAction<string>) {
       state.columns = state.columns.map(column =>
-        column.columnId === action.payload
+        column.columnId === action.payload && column.columnId !== 'no'
           ? { ...column, visible: !column.visible }
           : column
       );
-    },
+    },    
     handleColumnResize(state, action: PayloadAction<{ columnId: string; width: number }>) {
       const columnIndex = state.columns.findIndex(col => col.columnId === action.payload.columnId);
       if (columnIndex >= 0) {
