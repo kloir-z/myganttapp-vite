@@ -65,7 +65,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
       holidayInput,
       regularHolidaySetting,
       wbsWidth,
-      title
+      title,
+      showYear
     );
   };
 
