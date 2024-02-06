@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow  } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -34,6 +34,8 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const dataArray = Object.values(data);
   const customDateCellTemplate = new CustomDateCellTemplate(showYear);
   const customTextCellTemplate = new CustomTextCellTemplate();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [selectedRanges, setSelectedRanges] = useState<any>();
 
   const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell>[] => {
     return [
@@ -144,15 +146,12 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   }, [dataArray, dispatch]);
 
   const handleColumnsReorder = useCallback((targetColumnId: Id, columnIds: Id[]) => {
-    // Check if 'no' column is in the moving columns
     if (columnIds.includes("no")) {
-      return; // Do not allow reordering if 'no' column is selected
+      return;
     }
-  
     const targetIndex = columns.findIndex(data => data.columnId === targetColumnId);
     const noColumnIndex = columns.findIndex(data => data.columnId === "no");
   
-    // Ensure the target index is not before the 'no' column
     const adjustedTargetIndex = targetIndex <= noColumnIndex ? noColumnIndex + 1 : targetIndex;
   
     const movingColumnsIndexes = columnIds.map(id => columns.findIndex(data => data.columnId === id));
@@ -173,7 +172,70 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const handleCanReorderRows = (targetRowId: Id): boolean => {
     return targetRowId !== 'header';
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelectionChanged = (Ranges: any) => {
+    setSelectedRanges(Ranges)
+  }
+  
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (event.ctrlKey) {
+        switch (event.key) {
+          case 'c':
+            {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const allColumnsSelected = selectedRanges.every((range: any) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const selectedColumnIds = range.columns.map((column: any) => column.columnId);
+                return visibleColumns.every(visibleColumn => selectedColumnIds.includes(visibleColumn.columnId));
+              });
+              if (allColumnsSelected) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const selectedRowIds = selectedRanges.flatMap((range: { rows: any[] }) => range.rows.map((row: any) => row.rowId));
+                await executeCopy(selectedRowIds);
+              }
+            }
+            break;
+          case 'v':
+            try {
+              const text = await navigator.clipboard.readText();
+              const copiedRows = JSON.parse(text);
+              if (Array.isArray(copiedRows) && copiedRows.every(row => typeof row.id === 'string')) {
+                const targetRowId = determineTargetRowId(); 
+                if (targetRowId !== null) {
+                  await handleInsertCopiedRows(dispatch, targetRowId, dataArray, copiedRows);
+                }
+              }
+            } catch (err) {
+              console.error('Failed to read or process clipboard.', err);
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    };
+  
+    const executeCopy = async (selectedRowIds: Id[]) => {
+      await handleCopySelectedRow(dispatch, selectedRowIds, dataArray);
+    };
+  
+    const determineTargetRowId = (): Id | null => {
+      if (selectedRanges.length === 0) {
+        return null;
+      }
+      const firstRange = selectedRanges[0];
+      const targetRowId = firstRange.rows[0].rowId;
+      return targetRowId;
+    };
+  
+    document.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedRanges, visibleColumns, dispatch, dataArray]);
+  
   return (
     <ReactGrid
       rows={rows}
@@ -191,6 +253,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
       canReorderRows={handleCanReorderRows}
       customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate }}
       minColumnWidth={10}
+      onSelectionChanged={handleSelectionChanged}
     />
   );
 };

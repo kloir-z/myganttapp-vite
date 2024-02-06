@@ -14,7 +14,6 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
   const updatedData = { ...data };
   const visibleColumns = columns.filter(column => column.visible);
   const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
-  console.log(changes)
 
   changes.forEach((change) => {
     const rowId = change.rowId.toString();

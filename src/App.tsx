@@ -43,7 +43,7 @@ function App() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const calendarWidth = dateArray.length * 21;
-  
+
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
       const columnWidth = column.width !== undefined ? column.width : 150;
@@ -60,7 +60,7 @@ function App() {
   }, [columns, dispatch, maxWbsWidth, wbsWidth]);
 
   useEffect(() => {
-    const initConfigPath = '/src/testdata/testfile.json';
+    const initConfigPath = '/testdata/testfile.json';
     fetch(initConfigPath)
       .then(response => response.json())
       .then(data => {
