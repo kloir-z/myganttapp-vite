@@ -28,6 +28,11 @@ function App() {
     (state: RootState) => state.wbsData.present.data,
     (prevData, nextData) => isEqual(prevData, nextData)
   );
+  const selectUndoRedo = (state: RootState) => ({
+    undoCount: state.wbsData.past.length,
+    redoCount: state.wbsData.future.length,
+  });
+  const { undoCount, redoCount } = useSelector(selectUndoRedo);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);  
@@ -73,17 +78,25 @@ function App() {
   useEffect(() => {
     setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
   }, [dateRange]);
-  
+
   useEffect(() => {
     const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
       if (sourceRef.current && targetRef.current) {
-        targetRef.current.scrollTop = sourceRef.current.scrollTop;
+        const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
+        const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
+        const scrollTop = Math.min(sourceRef.current.scrollTop, maxScrollTopSource, maxScrollTopTarget);
+        targetRef.current.scrollTop = scrollTop;
+        sourceRef.current.scrollTop = scrollTop;
       }
     };
   
     const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
       if (sourceRef.current && targetRef.current) {
-        targetRef.current.scrollLeft = sourceRef.current.scrollLeft;
+        const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
+        const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
+        const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
+        targetRef.current.scrollLeft = scrollLeft;
+        sourceRef.current.scrollLeft = scrollLeft;
       }
     };
   
@@ -112,6 +125,7 @@ function App() {
       }
     };
   }, []);
+  
 
   const handleResize = useCallback((newWidth: number) => {
     const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
@@ -203,20 +217,20 @@ function App() {
           />
           <TitleSetting />
         </div>
-        <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth + 16}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
+        <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
           <Calendar
             dateArray={dateArray}
           />
           <GridVertical dateArray={dateArray} gridHeight={calculateGridHeight()} />
         </div>
-        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll'}} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll'}} ref={wbsRef}>
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
-        <div style={{position: 'absolute',top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll'}} ref={gridRef}>
+        <div style={{position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll'}} ref={gridRef}>
           {Object.entries(data).map(([id, entry], index) => {
             const topPosition = index * 21;
             if (entry.rowType === 'Chart') {
@@ -271,6 +285,9 @@ function App() {
             }
             return null;
           })}
+        </div>
+        <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
+          <div>Undo: {undoCount}, Redo: {redoCount}</div>
         </div>
       </div>
     </div>

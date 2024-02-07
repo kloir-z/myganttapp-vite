@@ -348,7 +348,7 @@ let lastActionTimestamp = Date.now();
 
 const timeBasedFilter = () => {
   const now = Date.now();
-  if (now - lastActionTimestamp > 2000) {
+  if (now - lastActionTimestamp > 500) {
     lastActionTimestamp = now;
     return true;
   }

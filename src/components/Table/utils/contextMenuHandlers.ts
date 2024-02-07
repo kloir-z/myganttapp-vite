@@ -6,53 +6,37 @@ import { Id } from "@silevis/reactgrid";
 import { Dispatch } from 'redux';
 import { setCopiedRows } from '../../../reduxStoreAndSlices/copiedRowsSlice';
 
-export const handleCopySelectedRow = async (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
+export const handleCopySelectedRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const copiedRows = dataArray.filter(item => selectedRowIds.includes(item.id)).map(item => {
     const copy = { ...item };
     copy.id = '';
     return copy;
   });
   dispatch(setCopiedRows(copiedRows));
-  await navigator.clipboard.writeText(JSON.stringify(copiedRows));
 };
 
-export const handleInsertCopiedRows = async (dispatch: Dispatch, targetRowId: Id, dataArray: WBSData[], copiedRows?: WBSData[]) => {
-  try {
-    const text = await navigator.clipboard.readText();
-    const copiedRows = JSON.parse(text);
-    if (Array.isArray(copiedRows) && copiedRows.every(row => typeof row.id === 'string')) {
-      const targetIndex = dataArray.findIndex(row => row.id === targetRowId);
-      if (targetIndex === -1) {
-        return;
-      }
-      const newDataArray = copiedRows.map(row => ({ ...row, id: '' }));
-      dataArray.splice(targetIndex, 0, ...newDataArray);
-      dispatch(simpleSetData(assignIds(dataArray)));
-    }
-  } catch (err) {
-    if (copiedRows && copiedRows.length === 0) {
-      return;
-    }
-    const targetIndex = dataArray.findIndex(row => row.id === targetRowId);
-    if (targetIndex === -1) {
-      return;
-    }
-    if (copiedRows) {
-      const newDataArray = dataArray.slice();
-      newDataArray.splice(targetIndex, 0, ...copiedRows);
-      dispatch(simpleSetData(assignIds(newDataArray)));
-    }
+export const handleInsertCopiedRows = (dispatch: Dispatch, targetRowId: Id, dataArray: WBSData[], copiedRows: WBSData[]) => {
+  if (copiedRows.length === 0) {
+    return;
   }
+
+  const targetIndex = dataArray.findIndex(row => row.id === targetRowId);
+  if (targetIndex === -1) {
+    return;
+  }
+
+  const newDataArray = dataArray.slice();
+  newDataArray.splice(targetIndex, 0, ...copiedRows);
+  dispatch(simpleSetData(assignIds(newDataArray)));
 };
 
-export const handleCutRows = async(dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
+export const handleCutRows = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const copiedRows = dataArray.filter(item => selectedRowIds.includes(item.id)).map(item => {
     const copy = { ...item };
     copy.id = '';
     return copy;
   });
   dispatch(setCopiedRows(copiedRows));
-  await navigator.clipboard.writeText(JSON.stringify(copiedRows));
   const newDataArray = dataArray.filter(item => 
     !selectedRowIds.includes(item.id));
   dispatch(simpleSetData(assignIds(newDataArray)));
