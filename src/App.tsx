@@ -29,13 +29,13 @@ function App() {
     (prevData, nextData) => isEqual(prevData, nextData)
   );
   const selectUndoRedo = (state: RootState) => ({
-    undoCount: state.wbsData.past.length,
-    redoCount: state.wbsData.future.length,
     pastState: state.wbsData.past,
     presentState: state.wbsData.present,
     futureState: state.wbsData.future
   });
-  const { undoCount, redoCount, pastState, presentState, futureState } = useSelector(selectUndoRedo);
+  const { pastState, presentState, futureState } = useSelector(selectUndoRedo);
+  const [actualUndoCount, setActualUndoCount] = useState(0);
+  const [actualRedoCount, setActualRedoCount] = useState(0);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -217,6 +217,26 @@ function App() {
       }
     };
 
+    const calculateActualUndoRedoCounts = () => {
+      let actualUndoCount = 0;
+      let actualRedoCount = 0;
+
+      for (let i = pastState.length - 1; i >= 0; i--) {
+        if (pastState[i].isFixedData && hasDataChanges(pastState[i], presentState)) {
+          actualUndoCount++;
+        }
+      }
+      for (let i = 0; i < futureState.length; i++) {
+        if (futureState[i].isFixedData && hasDataChanges(futureState[i], presentState)) {
+          actualRedoCount++;
+        }
+      }
+      setActualUndoCount(actualUndoCount);
+      setActualRedoCount(actualRedoCount);
+    };
+
+    calculateActualUndoRedoCounts();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && !isSettingsModalOpen) {
         switch (event.key) {
@@ -330,7 +350,7 @@ function App() {
           })}
         </div>
         <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
-          <div>Undo: {undoCount}, Redo: {redoCount}</div>
+          <div>Undo: {actualUndoCount}, Redo: {actualRedoCount}</div>
         </div>
       </div>
     </div>

@@ -326,6 +326,7 @@ export const wbsDataSlice = createSlice({
       }
     },
     updateEventRow: (state, action: PayloadAction<{ id: string; updatedEventRow: EventRow }>) => {
+      state.isFixedData = false;
       const { id, updatedEventRow } = action.payload;
       if (state.data[id] && state.data[id].rowType === 'Event') {
         state.data[id] = updatedEventRow;
