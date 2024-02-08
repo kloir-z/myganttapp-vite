@@ -2,7 +2,7 @@
 import React, { useState, memo, useEffect, useCallback } from 'react';
 import { EventRow } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow } from '../../reduxStoreAndSlices/store';
+import { updateEventRow, setIsFixedData } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { ChartBar } from './ChartBar';
@@ -18,10 +18,14 @@ interface EventRowProps {
 
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
-  const chartBarColor = useSelector((state: RootState) => {
+  const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
+  });
+  const actualChartBarColor = useSelector((state: RootState) => {
+    const colorInfo = state.color.colors.find(c => c.id === 999);
+    return colorInfo ? colorInfo.color : '#0000003d';
   });
   const [localEvents, setLocalEvents] = useState(entry.eventData.map(event => ({
     ...event,
@@ -202,13 +206,14 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [debouncedSyncToStore]);
 
   const handleMouseUp = () => {
+    syncToStore();
     setIsEditing(false);
     setIsBarDragging(false);
     setIsBarEndDragging(false);
     setIsBarStartDragging(false);
     setInitialMouseX(null);
-    syncToStore();
     setCanDrag(true);
+    dispatch(setIsFixedData(true))
   };
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
@@ -224,8 +229,6 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (contextMenu !== null) {
       setLocalEvents(prevEvents => {
         const updatedEvents = prevEvents.filter((_, idx) => idx !== contextMenu.index);
-
-        // Redux storeを更新
         const updatedEventData = updatedEvents.map(event => ({
           ...event,
           startDate: event.startDate ? formatDate(event.startDate) : "",
@@ -236,7 +239,6 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           eventData: updatedEventData
         };
         dispatch(updateEventRow({ id: entry.id, updatedEventRow }));
-
         return updatedEvents;
       });
       handleCloseContextMenu();
@@ -261,7 +263,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           isActual={!event.isPlanned}
           entryId={entry.id}
           eventIndex={index}
-          chartBarColor={chartBarColor}
+          chartBarColor={event.isPlanned ? plannedChartBarColor : actualChartBarColor}
           onBarMouseDown={(e) => handleBarMouseDown(e, index)}
           onBarEndMouseDown={(e) => handleBarEndMouseDown(e, index)}
           onBarStartMouseDown={(e) => handleBarStartMouseDown(e, index)}

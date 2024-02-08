@@ -12,7 +12,8 @@ const initialState: {
     [id: string]: WBSData
   },
   holidays: string[],
-  regularHolidaySetting: RegularHolidaySetting[]
+  regularHolidaySetting: RegularHolidaySetting[],
+  isFixedData: boolean
 } = {
   data: {},
   holidays: [],
@@ -20,7 +21,8 @@ const initialState: {
     { id: 1, color: '#d9e6ff', days: [6] },
     { id: 2, color: '#ffdcdc', days: [0] },
     { id: 3, color: '#00000010', days: [] },
-  ]
+  ],
+  isFixedData: true
 };
 
 const updateDependentRows = (
@@ -227,6 +229,7 @@ export const wbsDataSlice = createSlice({
       state.data = updatedData;
     },
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
+      state.isFixedData = false;
       const { id, startDate } = action.payload;
       const regularHolidays = Array.from(new Set(state.regularHolidaySetting.flatMap(setting => setting.days)));
       if (state.data[id] && state.data[id].rowType === 'Chart') {
@@ -240,6 +243,7 @@ export const wbsDataSlice = createSlice({
       }
     },
     setPlannedEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
+      state.isFixedData = false;
       const { id, endDate } = action.payload;
       const regularHolidays = Array.from(new Set(state.regularHolidaySetting.flatMap(setting => setting.days)));
       if (state.data[id] && state.data[id].rowType === 'Chart') {
@@ -254,6 +258,7 @@ export const wbsDataSlice = createSlice({
       }
     },
     setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+      state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
       const regularHolidays = Array.from(new Set(state.regularHolidaySetting.flatMap(setting => setting.days)));
       if (state.data[id] && state.data[id].rowType === 'Chart') {
@@ -270,18 +275,21 @@ export const wbsDataSlice = createSlice({
       }
     },
     setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
+      state.isFixedData = false;
       const { id, startDate } = action.payload;
       if (state.data[id] && state.data[id].rowType === 'Chart') {
         (state.data[id] as ChartRow).actualStartDate = startDate;
       }
     },
     setActualEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
+      state.isFixedData = false;
       const { id, endDate } = action.payload;
       if (state.data[id] && state.data[id].rowType === 'Chart') {
         (state.data[id] as ChartRow).actualEndDate = endDate;
       }
     },
     setActualStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+      state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
       if (state.data[id] && state.data[id].rowType === 'Chart') {
         const chartRow = state.data[id] as ChartRow;
@@ -328,6 +336,9 @@ export const wbsDataSlice = createSlice({
       state.regularHolidaySetting = regularHolidaySetting;
       resetEndDate(state)
     },
+    setIsFixedData: (state, action: PayloadAction<boolean>) => {
+      state.isFixedData = action.payload
+    }
   },
 });
 
@@ -344,26 +355,12 @@ export const {
   setEventDisplayName,
   updateEventRow,
   updateRegularHolidaySetting,
+  setIsFixedData,
 } = wbsDataSlice.actions;
-
-let lastActionTimestamp = Date.now();
-
-const timeBasedFilter = () => {
-  const now = Date.now();
-  if (now - lastActionTimestamp > 500) {
-    lastActionTimestamp = now;
-    return true;
-  }
-  return false;
-};
-
-const undoableOptions = {
-  filter: timeBasedFilter
-};
 
 export const store = configureStore({
   reducer: {
-    wbsData: undoable(wbsDataSlice.reducer, undoableOptions),
+    wbsData: undoable(wbsDataSlice.reducer),
     copiedRows: copiedRowsReducer,
     color: colorReducer,
     regularHolidays: regularHolidaysReducer,

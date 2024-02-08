@@ -31,8 +31,11 @@ function App() {
   const selectUndoRedo = (state: RootState) => ({
     undoCount: state.wbsData.past.length,
     redoCount: state.wbsData.future.length,
+    pastState: state.wbsData.past,
+    presentState: state.wbsData.present,
+    futureState: state.wbsData.future
   });
-  const { undoCount, redoCount } = useSelector(selectUndoRedo);
+  const { undoCount, redoCount, pastState, presentState, futureState } = useSelector(selectUndoRedo);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -173,17 +176,57 @@ function App() {
     }
   }, [handleMouseDown, handleMouseMove, handleMouseUp]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function hasDataChanges(prev: any, next: any): boolean {
+    const isDataChanged = JSON.stringify(prev.data) !== JSON.stringify(next.data);
+    return isDataChanged;
+  }
+
   useEffect(() => {
+    const handleCustomUndo = () => {
+      const pastLength = pastState.length;
+      let undoIndex = -1;
+      for (let i = pastLength - 1; i >= 0; i--) {
+        if (pastState[i].isFixedData && hasDataChanges(pastState[i], presentState)) {
+          undoIndex = i;
+          break;
+        }
+      }
+      if (undoIndex !== -1) {
+        const undoSteps = pastLength - undoIndex;
+        for (let i = 0; i < undoSteps; i++) {
+          dispatch(ActionCreators.undo());
+        }
+      }
+    };
+
+    const handleCustomRedo = () => {
+      const futureLength = futureState.length;
+      let redoIndex = -1;
+      for (let i = 0; i < futureLength; i++) {
+        if (futureState[i].isFixedData && hasDataChanges(futureState[i], presentState)) {
+          redoIndex = i;
+          break;
+        }
+      }
+      if (redoIndex !== -1) {
+        const redoSteps = redoIndex + 1;
+        for (let i = 0; i < redoSteps; i++) {
+          dispatch(ActionCreators.redo());
+        }
+      }
+    };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && !isSettingsModalOpen) {
         switch (event.key) {
           case 'z':
             event.preventDefault();
-            dispatch(ActionCreators.undo());
+            handleCustomUndo();
             break;
           case 'y':
             event.preventDefault();
-            dispatch(ActionCreators.redo());
+            handleCustomRedo();
             break;
           default:
             break;
@@ -196,7 +239,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [dispatch, isSettingsModalOpen]);
+  }, [dispatch, futureState, isSettingsModalOpen, pastState, presentState]);
 
   const openSettingsModal = () => {
     setIsSettingsModalOpen(true);

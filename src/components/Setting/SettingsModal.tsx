@@ -19,7 +19,6 @@ import { setDateRange, setFileName, setShowYear } from "../../reduxStoreAndSlice
 import { isEqual } from 'lodash';
 import { Typography, Switch, Box } from '@mui/material';
 
-
 type SettingsModalProps = {
   show: boolean;
   onClose: () => void;

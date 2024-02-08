@@ -1,7 +1,7 @@
 import React, { useState, memo, useEffect, useCallback } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate } from '../../reduxStoreAndSlices/store';
+import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, setIsFixedData } from '../../reduxStoreAndSlices/store';
 import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { addPlannedDays } from './utils/CalendarUtil';
@@ -243,13 +243,14 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   }, [debouncedSyncToStore]);
 
   const handleMouseUp = () => {
+    syncToStore();
     setIsEditing(false);
     setIsBarDragging(null);
     setIsBarEndDragging(null);
     setIsBarStartDragging(null);
     setInitialMouseX(null);
-    syncToStore();
     setCanDrag(true)
+    dispatch(setIsFixedData(true))
   };
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
