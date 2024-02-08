@@ -1,7 +1,7 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Calendar from './components/Chart/Calendar';
-import { ChartRow, EventRow  } from './types/DataTypes';
+import { ChartRow, EventRow } from './types/DataTypes';
 import { GanttRow } from './styles/GanttStyles';
 import WBSInfo from './components/Table/WBSInfo';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
@@ -22,7 +22,7 @@ import TitleSetting from './components/Setting/TitleSetting';
 import { isEqual } from 'lodash';
 import { handleImport } from './components/Setting/utils/settingHelpers';
 
-function App() {  
+function App() {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.wbsData.present.data,
@@ -35,8 +35,8 @@ function App() {
   const { undoCount, redoCount } = useSelector(selectUndoRedo);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
-  const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);  
-  const columns = useSelector((state: RootState) => state.baseSettings.columns);  
+  const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
+  const columns = useSelector((state: RootState) => state.baseSettings.columns);
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
@@ -56,7 +56,7 @@ function App() {
     }, 0);
     if (columns.length > 0) {
       const widthDifference = Math.abs(maxWbsWidth - wbsWidth);
-  
+
       if (wbsWidth > totalWidth || widthDifference <= 20) {
         dispatch(setWbsWidth(totalWidth));
       }
@@ -74,7 +74,7 @@ function App() {
       })
       .catch(error => console.error("Failed to load initialization file:", error));
   }, [dispatch]);
-  
+
   useEffect(() => {
     setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
   }, [dateRange]);
@@ -89,7 +89,7 @@ function App() {
         sourceRef.current.scrollTop = scrollTop;
       }
     };
-  
+
     const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
       if (sourceRef.current && targetRef.current) {
         const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
@@ -99,21 +99,21 @@ function App() {
         sourceRef.current.scrollLeft = scrollLeft;
       }
     };
-  
+
     const wbsElement = wbsRef.current;
     const calendarElement = calendarRef.current;
     const gridElement = gridRef.current;
-  
+
     if (wbsElement && gridElement) {
       wbsElement.addEventListener('scroll', () => handleVerticalScroll(wbsRef, gridRef));
       gridElement.addEventListener('scroll', () => handleVerticalScroll(gridRef, wbsRef));
     }
-  
+
     if (calendarElement && gridElement) {
       calendarElement.addEventListener('scroll', () => handleHorizontalScroll(calendarRef, gridRef));
       gridElement.addEventListener('scroll', () => handleHorizontalScroll(gridRef, calendarRef));
     }
-  
+
     return () => {
       if (wbsElement && gridElement) {
         wbsElement.removeEventListener('scroll', () => handleVerticalScroll(wbsRef, gridRef));
@@ -125,7 +125,7 @@ function App() {
       }
     };
   }, []);
-  
+
 
   const handleResize = useCallback((newWidth: number) => {
     const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
@@ -207,9 +207,9 @@ function App() {
   };
 
   return (
-    <div style={{position: 'fixed'}}>
-      <div style={{position: 'relative'}}>
-        <div style={{position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden'}} ref={calendarRef}>
+    <div style={{ position: 'fixed' }}>
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden' }} ref={calendarRef}>
           <SettingButton onClick={openSettingsModal} />
           <SettingsModal
             show={isSettingsModalOpen}
@@ -217,20 +217,20 @@ function App() {
           />
           <TitleSetting />
         </div>
-        <div style={{position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden'}} ref={calendarRef}>
+        <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden' }} ref={calendarRef}>
           <Calendar
             dateArray={dateArray}
           />
           <GridVertical dateArray={dateArray} gridHeight={calculateGridHeight()} />
         </div>
-        <div className="hiddenScrollbar" style={{position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll'}} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll' }} ref={wbsRef}>
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
-        <div style={{position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll'}} ref={gridRef}>
+        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll' }} ref={gridRef}>
           {Object.entries(data).map(([id, entry], index) => {
             const topPosition = index * 21;
             if (entry.rowType === 'Chart') {
@@ -261,7 +261,7 @@ function App() {
                     top: `${topPosition}px`,
                   }}
                 >
-                  <GanttRow key={id} style={{ backgroundColor: '#ddedff', borderBottom: 'solid 1px #e8e8e8', width: `${calendarWidth}px`}}/>
+                  <GanttRow key={id} style={{ backgroundColor: '#ddedff', borderBottom: 'solid 1px #e8e8e8', width: `${calendarWidth}px` }} />
                 </div>
               );
             } else if (entry.rowType === 'Event') {
@@ -274,12 +274,12 @@ function App() {
                     width: `${calendarWidth}px`
                   }}
                 >
-                <EventRowComponent
-                  entry={entry as EventRow}
-                  dateArray={dateArray}
-                  gridRef={gridRef}
-                  setCanDrag={setCanDrag}
-                />
+                  <EventRowComponent
+                    entry={entry as EventRow}
+                    dateArray={dateArray}
+                    gridRef={gridRef}
+                    setCanDrag={setCanDrag}
+                  />
                 </GanttRow>
               );
             }

@@ -15,7 +15,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
 
   return (
-    <GanttRow style={{height: '0px', borderBottom: 'none'}}>
+    <GanttRow style={{ height: '0px', borderBottom: 'none' }}>
       {dateArray.map((date, index) => {
         let chartBarColor = '';
         const dayOfWeek = date.getDay();

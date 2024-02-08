@@ -1,6 +1,6 @@
 // WBSInfo.tsx
 import React, { useCallback } from 'react';
-import { WBSData, ChartRow, SeparatorRow, EventRow  } from '../../types/DataTypes';
+import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
@@ -45,7 +45,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
           case 'Separator':
             return createSeparatorRow(item as SeparatorRow, visibleColumns.length);
           case 'Event':
-            return createEventRow(item as EventRow, visibleColumns);  
+            return createEventRow(item as EventRow, visibleColumns);
           default:
             return { rowId: 'empty', height: 21, cells: [{ type: "customText", text: '' } as CustomTextCell], reorderable: true };
         }
@@ -58,18 +58,18 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const getSelectedIdsFromRanges = useCallback((selectedRanges: Array<Array<CellLocation>>) => {
     const selectedRowIdsFromRanges = new Set<Id>();
     const selectedColIdsFromRanges = new Set<Id>();
-  
+
     selectedRanges.flat().forEach(({ rowId, columnId }) => {
       selectedRowIdsFromRanges.add(rowId);
       selectedColIdsFromRanges.add(columnId);
     });
-  
-    return { 
+
+    return {
       selectedRowIdsFromRanges: Array.from(selectedRowIdsFromRanges),
       selectedColIdsFromRanges: Array.from(selectedColIdsFromRanges)
     };
   }, []);
-  
+
   const simpleHandleContextMenu = useCallback((
     _selectedRowIds: Id[],
     _selectedColIds: Id[],
@@ -78,7 +78,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     selectedRanges: Array<CellLocation[]>
   ): MenuOption[] => {
     const { selectedRowIdsFromRanges, selectedColIdsFromRanges } = getSelectedIdsFromRanges(selectedRanges);
-  
+
     menuOptions.push(
       {
         id: "copyRow",
@@ -132,14 +132,14 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     });
     return menuOptions;
   }, [getSelectedIdsFromRanges, columns, dispatch, dataArray, copiedRows]);
-  
+
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
     const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
     const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
 
     const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
-  
+
     dispatch(simpleSetData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 
@@ -147,19 +147,19 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     if (columnIds.includes("no")) {
       return;
     }
-  
+
     const targetIndex = columns.findIndex(data => data.columnId === targetColumnId);
     const noColumnIndex = columns.findIndex(data => data.columnId === "no");
-  
+
     const adjustedTargetIndex = targetIndex <= noColumnIndex ? noColumnIndex + 1 : targetIndex;
-  
+
     const movingColumnsIndexes = columnIds.map(id => columns.findIndex(data => data.columnId === id));
     const sortedMovingColumnsIndexes = [...movingColumnsIndexes].sort((a, b) => a - b);
-  
+
     const tempColumns = columns.map(column => ({ ...column, id: column.columnId }));
     const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, adjustedTargetIndex);
     const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
-    
+
     dispatch(setColumns(reorderedColumns));
   }, [columns, dispatch]);
 

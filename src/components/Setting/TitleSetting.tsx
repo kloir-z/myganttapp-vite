@@ -67,7 +67,7 @@ const TitleSetting: React.FC = () => {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLocal(e.target.value);
-  },[]);
+  }, []);
 
   const handleFocus = () => {
     setIsEditing(true);
@@ -84,7 +84,7 @@ const TitleSetting: React.FC = () => {
   }, [title, placeholder]);
 
   useEffect(() => {
-    if (!isEditing) {setTitleLocal(globalTitle)}
+    if (!isEditing) { setTitleLocal(globalTitle) }
   }, [globalTitle, isEditing]);
 
   const syncToStore = useCallback(() => {
@@ -92,9 +92,9 @@ const TitleSetting: React.FC = () => {
       dispatch(setTitle(title));
     }
   }, [isEditing, dispatch, title]);
-  
+
   const debouncedSyncToStore = debounce(syncToStore, 100);
-  
+
   useEffect(() => {
     debouncedSyncToStore();
     return () => debouncedSyncToStore.cancel();

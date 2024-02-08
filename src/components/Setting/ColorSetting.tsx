@@ -30,7 +30,7 @@ const ColorSetting: React.FC = () => {
   return (
     <div style={{ marginLeft: '10px' }}>
       {colors.map(colorInfo => (
-        <div key={colorInfo.id} style={{display: 'flex', flexDirection: 'row'}}>
+        <div key={colorInfo.id} style={{ display: 'flex', flexDirection: 'row' }}>
           <div
             style={{
               width: '50px',
@@ -57,20 +57,20 @@ const ColorSetting: React.FC = () => {
               onClick={() => handleColorClick(colorInfo.id)}
             >
             </div>
-            { displayColorPicker[colorInfo.id] ? (
+            {displayColorPicker[colorInfo.id] ? (
               <div style={{ position: 'absolute', left: '63px', zIndex: '9999' }}>
-                <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(colorInfo.id)}/>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <ChromePicker
-                      color={colorInfo.color}
-                      onChange={(color: ColorResult) => {
-                        const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-                        handleColorChange(colorInfo.id, rgbaColor);
-                      }}
-                    />
-                  </div>
+                <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(colorInfo.id)} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <ChromePicker
+                    color={colorInfo.color}
+                    onChange={(color: ColorResult) => {
+                      const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+                      handleColorChange(colorInfo.id, rgbaColor);
+                    }}
+                  />
                 </div>
-            ) : null }
+              </div>
+            ) : null}
           </div>
           {colorInfo.id === 999 ? (
             <span style={{ margin: 'auto 0', marginLeft: '10px' }}>Actual Chart Color</span>
@@ -79,7 +79,7 @@ const ColorSetting: React.FC = () => {
               type="text"
               value={colorInfo.alias}
               onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
-              style={{height: '20px', margin: '2px'}}
+              style={{ height: '20px', margin: '2px' }}
             />
           )}
         </div>

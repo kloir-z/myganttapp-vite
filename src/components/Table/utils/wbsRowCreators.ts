@@ -5,11 +5,11 @@ import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from './CustomTextCell';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fillEmptyCells = (cells: (NumberCell | CheckboxCell |  CustomTextCell | CustomDateCell)[], columnCount: number, style?: any) => {
+const fillEmptyCells = (cells: (NumberCell | CheckboxCell | CustomTextCell | CustomDateCell)[], columnCount: number, style?: any) => {
   while (cells.length < columnCount) {
     const emptyCell: CustomTextCell = { type: "customText", text: "", value: NaN, style };
     cells.push(emptyCell);
-  } 
+  }
 };
 
 export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
@@ -25,7 +25,7 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
       return { type: "customDate", text: cellValue, value: NaN } as CustomDateCell;
     }
     else if (columnId === "no") {
-      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)'}} as NumberCell;
+      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell;
     }
     else if (columnId === "isIncludeHolidays") {
       if (cellValue === '') {
@@ -50,13 +50,13 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
     }
     const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomDateCell;
+      return { type: "customDate", text: cellValue, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomDateCell;
     }
     else if (columnId === "no") {
-      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)'}} as NumberCell;
+      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell;
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)'}} as CustomTextCell;
+      return { type: "customText", text: cellValue as string, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomTextCell;
     }
   });
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };
@@ -64,7 +64,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
 
 export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: number): Row<DefaultCellTypes | CustomTextCell> => {
   const rowCells = [
-    { type: "number", value: separatorRow.no, isEditing: false, style: { background: 'rgba(128, 128, 128, 0.1)'} } as NumberCell,
+    { type: "number", value: separatorRow.no, isEditing: false, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell,
     { type: "customText", text: separatorRow.displayName, value: NaN, colspan: 14, style: { background: '#ddedff' } } as CustomTextCell
   ];
   fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });

@@ -48,25 +48,25 @@ export function standardizeShortDateFormat(dateStr: string) {
     'yy/MM/dd', 'yy-MM-dd', 'M/d/yy', 'd/M/yy'
   ];
   let result = dateStr;
-  
+
   function getCountryCode(locale: string) {
     return locale.includes('-') ? locale.split('-')[1].toLowerCase() : locale.toLowerCase();
   }
-  
+
   const browserLocale = navigator.language || 'ja-JP';
   const countryCode = getCountryCode(browserLocale);
-  
-  const ddMMYYYYCountries = ['fr', 'de', 'it', 'es', 'pt', 'ru', 
-                             'br', 'ar', 'mx', 'pe', 'za', 'ng', 
-                             'ke', 'in', 'th', 'id', 'au', 'nz'];
-  
+
+  const ddMMYYYYCountries = ['fr', 'de', 'it', 'es', 'pt', 'ru',
+    'br', 'ar', 'mx', 'pe', 'za', 'ng',
+    'ke', 'in', 'th', 'id', 'au', 'nz'];
+
   let dateFormat;
   if (ddMMYYYYCountries.includes(countryCode)) {
     dateFormat = 'd/M';
   } else {
     dateFormat = 'M/d';
   }
-  
+
   for (const fmt of formats) {
     try {
       let parsedDate = parse(dateStr, fmt, new Date());

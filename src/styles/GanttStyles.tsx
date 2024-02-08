@@ -47,9 +47,9 @@ export const Cell = styled.div<CellProps>`
   &:hover {
     border: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid transparent')};
     border-left: ${props => {
-      if (props.$isMonthStart) return '1.2px solid #00000065';
-      return (props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016';
-    }};
+    if (props.$isMonthStart) return '1.2px solid #00000065';
+    return (props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016';
+  }};
   }
 `;
 

@@ -16,7 +16,7 @@ const ChartBarContextMenu: React.FC<ChartBarContextMenuProps> = ({ x, y, onClose
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         onClose();
       }
-    };  
+    };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {

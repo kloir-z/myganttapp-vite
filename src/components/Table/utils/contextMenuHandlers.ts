@@ -37,14 +37,14 @@ export const handleCutRows = (dispatch: Dispatch, selectedRowIds: Id[], dataArra
     return copy;
   });
   dispatch(setCopiedRows(copiedRows));
-  const newDataArray = dataArray.filter(item => 
+  const newDataArray = dataArray.filter(item =>
     !selectedRowIds.includes(item.id));
   dispatch(simpleSetData(assignIds(newDataArray)));
 };
 
 export const handleAddChartRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const newDataArray = dataArray.slice();
-  const minIndex = Math.min(...selectedRowIds.map(id => 
+  const minIndex = Math.min(...selectedRowIds.map(id =>
     newDataArray.findIndex(item => item.id === id)));
 
   for (let i = 0; i < selectedRowIds.length; i++) {
@@ -75,7 +75,7 @@ export const handleAddChartRow = (dispatch: Dispatch, selectedRowIds: Id[], data
 
 export const handleAddSeparatorRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const newDataArray = dataArray.slice();
-  const minIndex = Math.min(...selectedRowIds.map(id => 
+  const minIndex = Math.min(...selectedRowIds.map(id =>
     newDataArray.findIndex(item => item.id === id)));
 
   for (let i = 0; i < selectedRowIds.length; i++) {
@@ -93,7 +93,7 @@ export const handleAddSeparatorRow = (dispatch: Dispatch, selectedRowIds: Id[], 
 
 export const handleAddEventRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
   const newDataArray = dataArray.slice();
-  const minIndex = Math.min(...selectedRowIds.map(id => 
+  const minIndex = Math.min(...selectedRowIds.map(id =>
     newDataArray.findIndex(item => item.id === id)));
 
   for (let i = 0; i < selectedRowIds.length; i++) {

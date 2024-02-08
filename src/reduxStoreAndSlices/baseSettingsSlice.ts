@@ -90,7 +90,7 @@ const baseSettingsSlice = createSlice({
           ? { ...column, visible: !column.visible }
           : column
       );
-    },    
+    },
     handleColumnResize(state, action: PayloadAction<{ columnId: string; width: number }>) {
       const columnIndex = state.columns.findIndex(col => col.columnId === action.payload.columnId);
       if (columnIndex >= 0) {

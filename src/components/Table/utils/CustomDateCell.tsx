@@ -48,13 +48,13 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
         if (isAlphaNumericKey(e.keyCode) || (isNavigationKey(e.keyCode))) e.stopPropagation();
       }}
       className="customdatepicker"
-      style={{position: 'absolute',top: '-2px', left: '-2px'}}
+      style={{ position: 'absolute', top: '-2px', left: '-2px' }}
     >
-        <LocalizationProvider
-          dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
-          dateAdapter={AdapterDayjs}
-          adapterLocale={locale}
-        >
+      <LocalizationProvider
+        dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
+        dateAdapter={AdapterDayjs}
+        adapterLocale={locale}
+      >
         <DatePicker
           inputRef={datePickerInputRef}
           open={open}
@@ -76,7 +76,7 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
             },
             '& .MuiInputBase-input': {
               zIndex: '9',
-              height:'18px',
+              height: '18px',
               fontSize: '0.8rem',
               padding: '2px 4px',
               width: '70px',
@@ -99,7 +99,7 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
 export interface CustomDateCell extends Cell {
   type: 'customDate';
   text: string;
-  shortDate: string; 
+  shortDate: string;
   value: number;
 }
 
@@ -147,5 +147,5 @@ export class CustomDateCellTemplate implements CellTemplate<CustomDateCell> {
       );
     }
     return <span>{this.showYear ? cell.text : cell.shortDate}</span>;
-  }  
+  }
 }

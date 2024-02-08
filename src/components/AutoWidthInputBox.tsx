@@ -53,7 +53,7 @@ const StyledInput = styled.input`
 `;
 
 interface AutoWidthInputBoxProps {
-  entryId : string;
+  entryId: string;
   eventIndex?: number;
 }
 
@@ -69,7 +69,8 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
         return eventRow.eventData[eventIndex].eachDisplayName;
       } else {
         return "";
-      }    }
+      }
+    }
     return rowData?.displayName;
   });
   const dispatch = useDispatch();
@@ -97,7 +98,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
   };
 
   useEffect(() => {
-    if (!isEditing) {setLocalDisplayName(storeDisplayName)}
+    if (!isEditing) { setLocalDisplayName(storeDisplayName) }
   }, [storeDisplayName, isEditing]);
 
   const syncToStore = useCallback(() => {
@@ -109,9 +110,9 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
       }
     }
   }, [entryId, eventIndex, localDisplayName, dispatch, isEditing]);
-  
+
   const debouncedSyncToStore = debounce(syncToStore, 100);
-  
+
   useEffect(() => {
     debouncedSyncToStore();
     return () => debouncedSyncToStore.cancel();

@@ -8,7 +8,7 @@ import { CustomTextCell } from "./CustomTextCell";
 import { ExtendedColumn } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { calculatePlannedDays, addPlannedDays, toLocalISOString } from "../../Chart/utils/CalendarUtil";
 
-type AllCellTypes  = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;  
+type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;
 
 export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[], regularHolidays: number[]) => {
   const updatedData = { ...data };
@@ -21,7 +21,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
 
     if (rowData && rowData.rowType === 'Separator' && change.columnId === secondVisibleColumnId) {
       const newCell = change.newCell;
-      
+
       if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
@@ -31,11 +31,11 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       }
     }
-    
+
     if (rowData && rowData.rowType === 'Event') {
-      const fieldName = change.columnId as keyof EventRow; 
+      const fieldName = change.columnId as keyof EventRow;
       const newCell = change.newCell;
-    
+
       if (newCell.type === 'customDate') {
         const customDateCell = newCell as CustomDateCell;
         updatedData[rowId] = {
@@ -52,10 +52,10 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     }
 
     if (rowData && rowData.rowType === 'Chart') {
-      const chartRow =  rowData as ChartRow
-      const fieldName = change.columnId as keyof ChartRow; 
+      const chartRow = rowData as ChartRow
+      const fieldName = change.columnId as keyof ChartRow;
       const newCell = change.newCell;
-    
+
       if (fieldName === "actualStartDate" || fieldName === "actualEndDate") {
         const customDateCell = newCell as CustomDateCell;
         updatedData[rowId] = {
@@ -104,7 +104,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
           plannedEndDate: toLocalISOString(addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularHolidays)),
         };
       }
-    }    
+    }
   });
 
   dispatch(simpleSetData(updatedData));

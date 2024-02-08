@@ -1,15 +1,15 @@
 .reactgrid {
   font-size: 0.8rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .rg-celleditor input {
   font-size: 0.8rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   border: none;
 }
 
@@ -23,7 +23,7 @@
 .reactgrid-content .rg-pane .rg-cell.rg-checkbox-cell label span:after {
   left: 4px;
   top: 1px;
-  width:2px;
-  height:6px;
+  width: 2px;
+  height: 6px;
   border-width: 0 2px 2px 0;
 }

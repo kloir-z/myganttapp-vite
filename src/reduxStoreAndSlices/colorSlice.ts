@@ -2,10 +2,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ColorInfo {
-    id: number;
-    alias: string;
-    color: string;
-  }
+  id: number;
+  alias: string;
+  color: string;
+}
 
 interface ColorState {
   colors: ColorInfo[];
@@ -41,7 +41,7 @@ const colorSlice = createSlice({
       if (index !== -1) {
         state.colors[index].alias = action.payload.alias;
       }
-    },  
+    },
     updateAllColors: (state, action: PayloadAction<ColorInfo[]>) => {
       state.colors = action.payload;
     },

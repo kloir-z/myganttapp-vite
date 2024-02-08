@@ -21,9 +21,9 @@ const ReguralHolidaySetting: React.FC = () => {
     setDisplayColorPicker({ ...displayColorPicker, [id]: false });
     handleApplyChanges();
   };
-  
+
   const handleApplyChanges = useCallback(() => {
-      dispatch(updateRegularHolidaySetting(localRegularHolidaySettings));
+    dispatch(updateRegularHolidaySetting(localRegularHolidaySettings));
   }, [dispatch, localRegularHolidaySettings]);
 
   const handleColorChange = useCallback((id: number, color: string) => {
@@ -51,7 +51,7 @@ const ReguralHolidaySetting: React.FC = () => {
   return (
     <div style={{ marginLeft: '10px' }}>
       {localRegularHolidaySettings.map(setting => (
-        <div key={setting.id} style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: '10px'}}>
+        <div key={setting.id} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: '10px' }}>
           <div
             style={{
               width: '50px',
@@ -78,20 +78,20 @@ const ReguralHolidaySetting: React.FC = () => {
               onClick={() => handleColorClick(setting.id)}
             >
             </div>
-            { displayColorPicker[setting.id] ? (
+            {displayColorPicker[setting.id] ? (
               <div style={{ position: 'absolute', left: '63px', zIndex: '9999' }}>
-                <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(setting.id)}/>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <ChromePicker
-                      color={setting.color}
-                      onChange={(color: ColorResult) => {
-                        const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-                        handleColorChange(setting.id, rgbaColor);
-                      }}
-                    />
-                  </div>
+                <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(setting.id)} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <ChromePicker
+                    color={setting.color}
+                    onChange={(color: ColorResult) => {
+                      const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
+                      handleColorChange(setting.id, rgbaColor);
+                    }}
+                  />
                 </div>
-            ) : null }
+              </div>
+            ) : null}
           </div>
           <div style={{ display: 'flex', justifyContent: 'start' }}>
             {daysOfWeek.map((day, index) => (

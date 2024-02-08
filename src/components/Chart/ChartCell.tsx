@@ -4,13 +4,13 @@ import { Cell } from '../../styles/GanttStyles';
 import AutoWidthInputBox from '../AutoWidthInputBox';
 
 interface MemoedChartCellProps {
-  entryId? : string;
-  eventIndex? : number;
+  entryId?: string;
+  eventIndex?: number;
   type?: string;
   isPlanned?: boolean;
   isActual?: boolean;
   chartBarColor?: string;
-  width?:number;
+  width?: number;
 }
 
 const MemoedChartCell: React.FC<MemoedChartCellProps> = ({
@@ -29,10 +29,10 @@ const MemoedChartCell: React.FC<MemoedChartCellProps> = ({
       $isActual={isActual}
       $chartBarColor={chartBarColor}
       $width={width}
-      style={{position: 'relative'}}
+      style={{ position: 'relative' }}
     >
       {(isPlanned && entryId) && (
-        <AutoWidthInputBox 
+        <AutoWidthInputBox
           entryId={entryId}
           eventIndex={eventIndex}
         />

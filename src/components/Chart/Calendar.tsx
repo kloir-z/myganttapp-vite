@@ -24,18 +24,18 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: `${calendarWidth}px` }}>
-      <GanttRow style={{ borderBottom: 'none', background: 'none'}}>
+      <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
         {dateArray.map((date, index) => {
           const month = date.getMonth();
           if (month !== previousMonth || index === 0) {
             previousMonth = month;
             const left = 21 * index;
-            const displayDate = dateFormat === 'YYYY/MM' ? 
-            `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` : 
-            `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
+            const displayDate = dateFormat === 'YYYY/MM' ?
+              `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
+              `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
             return (
-              <Cell 
-                key={index} 
+              <Cell
+                key={index}
                 data-index={index}
                 $isMonthStart={true}
                 style={{
@@ -50,7 +50,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           return null;
         })}
       </GanttRow>
-      <GanttRow style={{ borderBottom: 'none', background: 'none'}}>
+      <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
         {dateArray.map((date, index) => {
           const left = 21 * index;
           let chartBarColor = '';

@@ -7,8 +7,10 @@ import regularHolidaysReducer from './regularHolidaysSlice';
 import undoable from 'redux-undo';
 import baseSettingsReducer from './baseSettingsSlice';
 
-const initialState: { data: {
-  [id: string]: WBSData },
+const initialState: {
+  data: {
+    [id: string]: WBSData
+  },
   holidays: string[],
   regularHolidaySetting: RegularHolidaySetting[]
 } = {
@@ -22,7 +24,7 @@ const initialState: { data: {
 };
 
 const updateDependentRows = (
-  state: { data: { [id: string]: WBSData }, holidays: string[], regularHolidaySetting: RegularHolidaySetting[]},
+  state: { data: { [id: string]: WBSData }, holidays: string[], regularHolidaySetting: RegularHolidaySetting[] },
   currentId: string,
   newEndDate: Date,
   visited = new Set<string>()
@@ -54,7 +56,7 @@ const updateDependentRows = (
               offsetDays = 1;
             }
             const includeStartDay = false
-            newStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays); 
+            newStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
             break;
           }
           case 'sameas': {
@@ -258,7 +260,7 @@ export const wbsDataSlice = createSlice({
         const chartRow = state.data[id] as ChartRow;
         chartRow.plannedStartDate = startDate;
         chartRow.plannedEndDate = endDate;
-        
+
         if (startDate && endDate) {
           const newStartDate = new Date(startDate);
           const newEndDate = new Date(endDate);
@@ -286,7 +288,7 @@ export const wbsDataSlice = createSlice({
         chartRow.actualStartDate = startDate;
         chartRow.actualEndDate = endDate;
       }
-    },    
+    },
     setDisplayName: (state, action: PayloadAction<{ id: string; displayName: string }>) => {
       const { id, displayName } = action.payload;
       if (state.data[id]) {
@@ -296,10 +298,10 @@ export const wbsDataSlice = createSlice({
     setHolidays: (state, action: PayloadAction<string[]>) => {
       const newHolidays = action.payload;
       const oldHolidays = Array.from(state.holidays);
-    
+
       const addedHolidays = newHolidays.filter(h => !oldHolidays.includes(h));
       const removedHolidays = oldHolidays.filter(h => !newHolidays.includes(h));
-    
+
       const affectedHolidays = [...addedHolidays, ...removedHolidays];
       state.holidays = newHolidays;
 
@@ -331,10 +333,10 @@ export const wbsDataSlice = createSlice({
 
 export const {
   simpleSetData,
-  setPlannedStartDate, 
+  setPlannedStartDate,
   setPlannedEndDate,
   setPlannedStartAndEndDate,
-  setActualStartDate, 
+  setActualStartDate,
   setActualEndDate,
   setActualStartAndEndDate,
   setDisplayName,
@@ -363,7 +365,7 @@ export const store = configureStore({
   reducer: {
     wbsData: undoable(wbsDataSlice.reducer, undoableOptions),
     copiedRows: copiedRowsReducer,
-    color: colorReducer,  
+    color: colorReducer,
     regularHolidays: regularHolidaysReducer,
     baseSettings: baseSettingsReducer,
   },

@@ -13,7 +13,7 @@ export interface CustomTextCell extends Cell {
 
 export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
   private wasEscKeyPressed = false;
-  
+
   getCompatibleCell(uncertainCell: Uncertain<CustomTextCell>): Compatible<CustomTextCell> {
     const text = uncertainCell.text || '';
     const value = text.length;
@@ -36,7 +36,7 @@ export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
     }
     return { cell, enableEditMode: false };
   }
-  
+
   update(cell: Compatible<CustomTextCell>, cellToMerge: UncertainCompatible<CustomTextCell>): Compatible<CustomTextCell> {
     return this.getCompatibleCell({ ...cell, text: cellToMerge.text });
   }
@@ -47,7 +47,7 @@ export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
     onCellChanged: (cell: Compatible<CustomTextCell>, commit: boolean) => void
   ): React.ReactNode {
     if (isInEditMode) {
-      const columnWidth = cell.columnWidth ? cell.columnWidth - 21 : 80; 
+      const columnWidth = cell.columnWidth ? cell.columnWidth - 21 : 80;
       const inputStyle = {
         minWidth: `${columnWidth}px`,
       };
@@ -70,7 +70,7 @@ export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
             onChange={e => {
               const value = e.currentTarget.value;
               onCellChanged(this.getCompatibleCell({ ...cell, text: value }), false);
-              
+
               const dummyElement = e.currentTarget.previousSibling as HTMLElement;
               if (dummyElement) {
                 dummyElement.textContent = value;

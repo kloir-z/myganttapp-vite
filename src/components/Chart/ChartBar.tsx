@@ -10,10 +10,10 @@ interface ChartBarProps {
   entryId: string;
   eventIndex?: number;
   chartBarColor: string;
-  onBarMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
-  onBarEndMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
-  onBarStartMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; 
-  onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void; 
+  onBarMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onBarEndMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onBarStartMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const getStartOfDay = (date: Date) => {
@@ -38,7 +38,7 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
   let endIndex = dateArray.findIndex(date => date > endOfDay);
   startIndex = startIndex === -1 ? 0 : startIndex;
   endIndex = endIndex === -1 ? dateArray.length - 1 : endIndex - 1;
-  
+
   if (endIndex < startIndex) {
     return null;
   }
@@ -50,11 +50,11 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
     return (
       <>
         <div
-          style={{position: 'absolute', left: `${leftPosition - 8}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
+          style={{ position: 'absolute', left: `${leftPosition - 8}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarStartMouseDown }}
         ></div>
         <div
-          style={{position: 'absolute', left: `${leftPosition}px`, width: `${width}px`}}
+          style={{ position: 'absolute', left: `${leftPosition}px`, width: `${width}px` }}
           {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
         >
           <ChartCell
@@ -67,7 +67,7 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
           />
         </div>
         <div
-          style={{position: 'absolute', left: `${leftPosition + width}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
+          style={{ position: 'absolute', left: `${leftPosition + width}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarEndMouseDown }}
         ></div>
       </>
