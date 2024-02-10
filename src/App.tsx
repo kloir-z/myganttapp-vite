@@ -1,11 +1,11 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Calendar from './components/Chart/Calendar';
-import { ChartRow, EventRow } from './types/DataTypes';
-import { GanttRow } from './styles/GanttStyles';
+import { ChartRow, EventRow, SeparatorRow } from './types/DataTypes';
 import WBSInfo from './components/Table/WBSInfo';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
 import EventRowComponent from './components/Chart/EventRowComponent';
+import SeparatorRowComponent from './components/Chart/SeparatorRowComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
@@ -47,10 +47,10 @@ function App() {
   const [canDrag, setCanDrag] = useState(true);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
+  const [separatorX, setSeparatorX] = useState(0);
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const calendarWidth = dateArray.length * 21;
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -100,6 +100,7 @@ function App() {
         const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
         targetRef.current.scrollLeft = scrollLeft;
         sourceRef.current.scrollLeft = scrollLeft;
+        setSeparatorX(scrollLeft);
       }
     };
 
@@ -294,56 +295,32 @@ function App() {
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll' }} ref={gridRef}>
-          {Object.entries(data).map(([id, entry], index) => {
-            const topPosition = index * 21;
+          {Object.entries(data).map(([, entry]) => {
             if (entry.rowType === 'Chart') {
               return (
-                <GanttRow
-                  key={id}
-                  style={{
-                    position: 'absolute',
-                    top: `${topPosition}px`,
-                    width: `${calendarWidth}px`
-                  }}
-                >
-                  <ChartRowComponent
-                    entry={entry as ChartRow}
-                    dateArray={dateArray}
-                    gridRef={gridRef}
-                    setCanDrag={setCanDrag}
-                  />
-                </GanttRow>
+                <ChartRowComponent
+                  entry={entry as ChartRow}
+                  dateArray={dateArray}
+                  gridRef={gridRef}
+                  setCanDrag={setCanDrag}
+                />
               );
             } else if (entry.rowType === 'Separator') {
               return (
-                <div
-                  key={id}
-                  style={{
-                    backgroundColor: '#ddedff',
-                    position: 'absolute',
-                    top: `${topPosition}px`,
-                  }}
-                >
-                  <GanttRow key={id} style={{ backgroundColor: '#ddedff', borderBottom: 'solid 1px #e8e8e8', width: `${calendarWidth}px` }} />
-                </div>
+                <SeparatorRowComponent
+                  entry={entry as SeparatorRow}
+                  separatorX={separatorX}
+                  wbsWidth={wbsWidth}
+                />
               );
             } else if (entry.rowType === 'Event') {
               return (
-                <GanttRow
-                  key={id}
-                  style={{
-                    position: 'absolute',
-                    top: `${topPosition}px`,
-                    width: `${calendarWidth}px`
-                  }}
-                >
-                  <EventRowComponent
-                    entry={entry as EventRow}
-                    dateArray={dateArray}
-                    gridRef={gridRef}
-                    setCanDrag={setCanDrag}
-                  />
-                </GanttRow>
+                <EventRowComponent
+                  entry={entry as EventRow}
+                  dateArray={dateArray}
+                  gridRef={gridRef}
+                  setCanDrag={setCanDrag}
+                />
               );
             }
             return null;

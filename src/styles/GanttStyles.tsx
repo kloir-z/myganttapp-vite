@@ -11,6 +11,7 @@ export const GanttRow = styled.div`
   position: relative;
   user-select: none;
   align-items: start;
+  font-size: 0.8em;
 `;
 
 interface CellProps {

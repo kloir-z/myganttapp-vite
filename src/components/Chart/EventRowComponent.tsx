@@ -8,6 +8,7 @@ import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
+import { GanttRow } from '../../styles/GanttStyles';
 
 interface EventRowProps {
   entry: EventRow;
@@ -18,6 +19,8 @@ interface EventRowProps {
 
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
+  const topPosition = (entry.no - 1) * 21;
+  const calendarWidth = dateArray.length * 21;
   const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
@@ -71,8 +74,6 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
   };
-
-  const calendarWidth = dateArray.length * 21;
 
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / 21);
@@ -246,7 +247,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [contextMenu, handleCloseContextMenu, dispatch, entry]);
 
   return (
-    <div style={{ position: 'absolute', height: '21px', width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
+    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, height: '21px', width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
       {(isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) && (
         <div
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 12px)', zIndex: 9999, cursor: 'pointer' }}
@@ -278,7 +279,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           onDelete={handleDeleteBar}
         />
       )}
-    </div>
+    </GanttRow>
   );
 });
 
