@@ -1,7 +1,11 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Calendar from './components/Chart/Calendar';
+import { ChartRow, EventRow } from './types/DataTypes';
+import { GanttRow } from './styles/GanttStyles';
 import WBSInfo from './components/Table/WBSInfo';
+import ChartRowComponent from './components/Chart/ChartRowComponent';
+import EventRowComponent from './components/Chart/EventRowComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
@@ -17,8 +21,6 @@ import { ActionCreators } from 'redux-undo';
 import TitleSetting from './components/Setting/TitleSetting';
 import { isEqual } from 'lodash';
 import { handleImport } from './components/Setting/utils/settingHelpers';
-import { FixedSizeList as List } from 'react-window';
-import GanttRow from './components/Chart/GanttRow';
 
 function App() {
   const dispatch = useDispatch();
@@ -267,32 +269,6 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
-  const dataArray = Object.values(data);
-
-
-  const [listHeight, setListHeight] = useState(0);
-  const [listWidth, setListWidth] = useState(0);
-
-  useEffect(() => {
-    const resizeListener = () => {
-      // ここで親要素のサイズを基にlistHeightとlistWidthを計算
-      if (gridRef.current) {
-        const rect = gridRef.current.getBoundingClientRect();
-        setListHeight(window.innerHeight - rect.top);
-        setListWidth(rect.width);
-      }
-    };
-
-    // 初期値として一度実行
-    resizeListener();
-
-    // ウィンドウのリサイズイベントにリスナーを登録
-    window.addEventListener('resize', resizeListener);
-
-    // クリーンアップ関数
-    return () => window.removeEventListener('resize', resizeListener);
-  }, []);
-
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
@@ -317,24 +293,61 @@ function App() {
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
-        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'hidden' }} ref={gridRef}>
-          <List
-            height={listHeight}
-            itemCount={dataArray.length}
-            itemSize={21}
-            width={listWidth} 
-          >
-            {({ index }) => (
-              <GanttRow
-                data={dataArray}
-                dateArray={dateArray}
-                gridRef={gridRef}
-                setCanDrag={setCanDrag}
-                calendarWidth={calendarWidth}
-                index={index}
-              />
-            )}
-          </List>
+        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll' }} ref={gridRef}>
+          {Object.entries(data).map(([id, entry], index) => {
+            const topPosition = index * 21;
+            if (entry.rowType === 'Chart') {
+              return (
+                <GanttRow
+                  key={id}
+                  style={{
+                    position: 'absolute',
+                    top: `${topPosition}px`,
+                    width: `${calendarWidth}px`
+                  }}
+                >
+                  <ChartRowComponent
+                    entry={entry as ChartRow}
+                    dateArray={dateArray}
+                    gridRef={gridRef}
+                    setCanDrag={setCanDrag}
+                  />
+                </GanttRow>
+              );
+            } else if (entry.rowType === 'Separator') {
+              return (
+                <div
+                  key={id}
+                  style={{
+                    backgroundColor: '#ddedff',
+                    position: 'absolute',
+                    top: `${topPosition}px`,
+                  }}
+                >
+                  <GanttRow key={id} style={{ backgroundColor: '#ddedff', borderBottom: 'solid 1px #e8e8e8', width: `${calendarWidth}px` }} />
+                </div>
+              );
+            } else if (entry.rowType === 'Event') {
+              return (
+                <GanttRow
+                  key={id}
+                  style={{
+                    position: 'absolute',
+                    top: `${topPosition}px`,
+                    width: `${calendarWidth}px`
+                  }}
+                >
+                  <EventRowComponent
+                    entry={entry as EventRow}
+                    dateArray={dateArray}
+                    gridRef={gridRef}
+                    setCanDrag={setCanDrag}
+                  />
+                </GanttRow>
+              );
+            }
+            return null;
+          })}
         </div>
         <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
           <div>Undo: {actualUndoCount}, Redo: {actualRedoCount}</div>

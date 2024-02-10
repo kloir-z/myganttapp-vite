@@ -9,7 +9,6 @@ import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import ChartBarContextMenu from './ChartBarContextMenu';
-import { GanttRow } from '../../styles/GanttStyles';
 
 interface ChartRowProps {
   entry: ChartRow;
@@ -20,7 +19,6 @@ interface ChartRowProps {
 
 const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
-  const topPosition = (entry.no - 1) * 21;
   const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
@@ -284,8 +282,9 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     }
   }, [contextMenu, dispatch, entry.id, handleCloseContextMenu]);
 
+
   return (
-    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, height: '21px', width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
+    <div style={{ position: 'absolute', height: '21px', width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
       {(isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) && (
         <div
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 12px)', zIndex: 9999, cursor: 'pointer' }}
@@ -329,7 +328,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           onDelete={handleDeleteBar}
         />
       )}
-    </GanttRow>
+    </div>
   );
 });
 
