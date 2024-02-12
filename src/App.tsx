@@ -282,7 +282,7 @@ function App() {
           />
           <TitleSetting />
         </div>
-        <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden' }} ref={calendarRef}>
+        <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden', borderLeft: '1px solid #00000066' }} ref={calendarRef}>
           <Calendar
             dateArray={dateArray}
           />
@@ -295,7 +295,7 @@ function App() {
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
-        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll' }} ref={gridRef}>
+        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent' }} ref={gridRef}>
           {Object.entries(data).map(([, entry]) => {
             if (entry.rowType === 'Chart') {
               return (

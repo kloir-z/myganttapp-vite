@@ -21,6 +21,7 @@ interface CellProps {
   $chartBarColor?: string;
   $width?: number;
   $isMonthStart?: boolean;
+  $isFirstDate?: boolean;
 }
 
 export const Cell = styled.div<CellProps>`
@@ -31,13 +32,9 @@ export const Cell = styled.div<CellProps>`
   height: 21px;
   border: 1px solid transparent;
   border-left: ${props => {
-    if (props.$isMonthStart) return '1px solid #00000055';
     return (props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000010';
   }};
   background-color: ${props => {
-    if (props.$type === 'vertical') {
-      return props.$chartBarColor ? props.$chartBarColor : '#ffffff';
-    }
     if (props.$isPlanned) {
       return props.$chartBarColor ? props.$chartBarColor : '#76ff7051';
     }
@@ -48,10 +45,28 @@ export const Cell = styled.div<CellProps>`
   &:hover {
     border: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid transparent')};
     border-left: ${props => {
-    if (props.$isMonthStart) return '1.2px solid #00000065';
     return (props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016';
   }};
   }
+`;
+
+export const CalendarCell = styled.div<CellProps>`
+  box-sizing: border-box;
+  font-size: 0.8rem;
+  text-align: center;
+  width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
+  height: 21px;
+  border: 1px solid transparent;
+  border-left: ${props => {
+    if (props.$isFirstDate) return 'none';
+    if (props.$isMonthStart) return '1px solid #00000055';
+    return '1px solid #00000010';
+  }};
+  background-color: ${props => {
+    if (props.$type === 'vertical') {
+      return props.$chartBarColor ? props.$chartBarColor : '#ffffff';
+    }
+  }};
 `;
 
 const createFadeAnimation = (fromOpacity: number, toOpacity: number) => keyframes`

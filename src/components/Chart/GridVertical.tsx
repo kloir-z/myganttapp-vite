@@ -1,7 +1,7 @@
 // GridVertial.tsx
 import React, { memo } from 'react';
 import { isHoliday } from './utils/CalendarUtil';
-import { GanttRow, Cell } from '../../styles/GanttStyles';
+import { GanttRow, CalendarCell } from '../../styles/GanttStyles';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 
@@ -20,6 +20,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         let chartBarColor = '';
         const dayOfWeek = date.getDay();
         const isMonthStart = date.getDate() === 1;
+        const isFirstDate = index === 0; 
 
         const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
         if (setting) {
@@ -30,11 +31,12 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const left = 21 * index;
 
         return (
-          <Cell
+          <CalendarCell
             key={index}
             data-index={index}
             $type='vertical'
             $isMonthStart={isMonthStart}
+            $isFirstDate={isFirstDate}
             $chartBarColor={chartBarColor}
             style={{
               position: 'absolute',
