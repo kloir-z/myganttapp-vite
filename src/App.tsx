@@ -51,6 +51,7 @@ function App() {
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const calendarWidth = dateArray.length * 21;
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -309,6 +310,7 @@ function App() {
               return (
                 <SeparatorRowComponent
                   entry={entry as SeparatorRow}
+                  calendarWidth={calendarWidth}
                   separatorX={separatorX}
                   wbsWidth={wbsWidth}
                 />
