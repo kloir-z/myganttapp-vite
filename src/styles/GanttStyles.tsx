@@ -54,6 +54,7 @@ export const CalendarCell = styled.div<CellProps>`
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
+  padding: ${props => (props.$isMonthStart ? '0px 5px' : '0px')}; ;
   width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
   height: 21px;
   border: 1px solid transparent;
