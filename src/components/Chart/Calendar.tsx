@@ -30,7 +30,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           if (month !== previousMonth || index === 0) {
             previousMonth = month;
             const left = 21 * index;
-            const isFirstDate = index === 0; 
+            const isFirstDate = index === 0;
             const displayDate = dateFormat === 'YYYY/MM' ?
               `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
               `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
@@ -58,7 +58,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           let chartBarColor = '';
           const dayOfWeek = date.getDay();
           const isMonthStart = date.getDate() === 1;
-          const isFirstDate = index === 0; 
+          const isFirstDate = index === 0;
           const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
           if (setting) {
             chartBarColor = setting.color;

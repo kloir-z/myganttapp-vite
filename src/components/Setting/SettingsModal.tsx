@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, memo } from "react";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../reduxStoreAndSlices/store';
+import { RootState, setShowYear } from '../../reduxStoreAndSlices/store';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -15,7 +15,7 @@ import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
-import { setDateRange, setFileName, setShowYear } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { setDateRange, setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
 import { Typography, Switch, Box } from '@mui/material';
 
@@ -41,8 +41,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const title = useSelector((state: RootState) => state.baseSettings.title);
-  const showYear = useSelector((state: RootState) => state.baseSettings.showYear);
-  const columns = useSelector((state: RootState) => state.baseSettings.columns);
+  const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
+  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;

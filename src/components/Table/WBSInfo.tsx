@@ -7,11 +7,10 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData } from '../../reduxStoreAndSlices/store';
+import { RootState, simpleSetData, ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
-import { ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns } from '../../reduxStoreAndSlices/baseSettingsSlice';
 import { isEqual } from 'lodash';
 
 type WBSInfoProps = {
@@ -29,8 +28,8 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
-  const showYear = useSelector((state: RootState) => state.baseSettings.showYear);
-  const columns = useSelector((state: RootState) => state.baseSettings.columns);
+  const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
+  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
   const dataArray = Object.values(data);
   const customDateCellTemplate = new CustomDateCellTemplate(showYear);
   const customTextCellTemplate = new CustomTextCellTemplate();

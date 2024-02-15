@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ExtendedColumn } from '../../../reduxStoreAndSlices/baseSettingsSlice';
+import { ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 
 type ColumnRowProps = {
   column: ExtendedColumn;

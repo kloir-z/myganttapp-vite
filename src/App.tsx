@@ -39,7 +39,7 @@ function App() {
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
-  const columns = useSelector((state: RootState) => state.baseSettings.columns);
+  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
@@ -181,7 +181,8 @@ function App() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function hasDataChanges(prev: any, next: any): boolean {
     const isDataChanged = JSON.stringify(prev.data) !== JSON.stringify(next.data);
-    return isDataChanged;
+    const isColumnsChanged = JSON.stringify(prev.columns) !== JSON.stringify(next.columns);
+    return isDataChanged || isColumnsChanged;
   }
 
   useEffect(() => {

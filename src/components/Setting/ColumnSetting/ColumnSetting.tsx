@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../reduxStoreAndSlices/store';
-import { setColumns, toggleColumnVisibility } from '../../../reduxStoreAndSlices/baseSettingsSlice';
+import { setColumns, toggleColumnVisibility } from '../../../reduxStoreAndSlices/store';
 import ColumnRow from './ColumnRow';
 
 const ColumnSetting: React.FC = () => {
   const dispatch = useDispatch();
-  const allColumns = useSelector((state: RootState) => state.baseSettings.columns);
+  const allColumns = useSelector((state: RootState) => state.wbsData.present.columns);
   const filteredColumns = allColumns.filter(column => column.columnId !== 'no');
 
   const updateColumnName = (columnId: string, newName: string) => {

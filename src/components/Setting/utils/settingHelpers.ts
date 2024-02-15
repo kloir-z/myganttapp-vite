@@ -1,10 +1,10 @@
-import { ExtendedColumn } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { ExtendedColumn, setColumns, setShowYear } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
 import { WBSData, RegularHolidaySetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
-import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setColumns, setShowYear } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 
 export const handleExport = (
   colors: ColorInfo[],
