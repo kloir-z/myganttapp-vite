@@ -22,14 +22,13 @@ interface CellProps {
   $width?: number;
   $isMonthStart?: boolean;
   $isFirstDate?: boolean;
-  $cellWidth?: number;
+  $borderLeft?: boolean;
 }
 
 export const Cell = styled.div<CellProps>`
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  width: ${props => (props.$cellWidth ? `${props.$cellWidth + 0.1}px` : '21.1px')};
   width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
   height: 21px;
   border: 1px solid transparent;
@@ -56,14 +55,13 @@ export const CalendarCell = styled.div<CellProps>`
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  width: ${props => (props.$cellWidth ? `${props.$cellWidth + 0.1}px` : '21.1px')};
-  width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
   height: 21px;
   border: 1px solid transparent;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
     if (props.$isMonthStart) return '1px solid #00000055';
-    return '1px solid #00000010';
+    if (props.$borderLeft) return '1px solid #00000010';
+    return 'none';
   }};
   background-color: ${props => {
     if (props.$type === 'vertical') {

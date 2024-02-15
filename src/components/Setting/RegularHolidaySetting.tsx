@@ -108,7 +108,9 @@ const ReguralHolidaySetting: React.FC = () => {
           </div>
         </div>
       ))}
-      <button onClick={handleApplyChanges} style={{ marginTop: '20px' }}>Apply</button>
+      <div style={{ display: 'flex', justifyContent: 'end' }}>
+        <button onClick={handleApplyChanges}>Apply</button>
+      </div>
     </div>
   );
 };

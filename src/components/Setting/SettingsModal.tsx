@@ -15,9 +15,9 @@ import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
-import { setDateRange, setFileName, setCellWidth} from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { setDateRange, setFileName, setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
-import { Typography, Switch, Box,Button,Slider } from '@mui/material';
+import { Switch, Box, Slider } from '@mui/material';
 
 type SettingsModalProps = {
   show: boolean;
@@ -56,12 +56,13 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   } else {
     locale = 'en';
   }
-  const handleSliderChange = (event, newValue) => {
+  const handleSliderChange = (_: Event, value: number | number[]) => {
+    const newValue = Array.isArray(value) ? value[0] : value;
     setSliderValue(newValue);
   };
 
   const applySettings = () => {
-    dispatch(setCellWidth(sliderValue)); // スライダーで選択された値を適用
+    dispatch(setCellWidth(sliderValue));
   };
 
   const handleExportClick = () => {
@@ -209,10 +210,12 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
               <h3>Column (Visiblity & Name)</h3>
               <ColumnSetting />
             </div>
+            
             <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
               <h3>Holidays</h3>
               <HolidaySetting />
             </div>
+
             <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
               <h3>Export File(.json)</h3>
               <div style={{ marginLeft: '10px' }}>
@@ -224,6 +227,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                 />
                 <button onClick={handleExportClick}>Export</button>
               </div>
+
               <h3>Import File(.json)</h3>
               <div style={{ marginLeft: '10px' }}>
                 <button onClick={() => fileInputRef.current?.click()}>Import</button>
@@ -234,37 +238,31 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 
               <h3>Date Cell Format</h3>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
-                <Typography component="div" sx={{ marginRight: 1 }}>
-                  M/d
-                </Typography>
+                <label>M/d</label>
                 <Switch
                   checked={showYear}
                   onChange={handleShowYearChange}
                   name="showYearSwitch"
                 />
-                <Typography component="div" sx={{ marginLeft: 1 }}>
-                  y/M/d
-                </Typography>
+                <label>y/M/d</label>
               </Box>
-              
-            <Box sx={{ marginTop: 2, marginLeft: 2 }}>
-              <Typography id="cell-width-slider" gutterBottom>
-                Cell Width
-              </Typography>
-              <Slider
-                aria-labelledby="cell-width-slider"
-                value={sliderValue}
-                onChange={handleSliderChange}
-                step={0.5}
-                marks
-                min={3}
-                max={21}
-                valueLabelDisplay="auto"
-              />
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', margin: 2 }}>
-              <Button variant="contained" onClick={applySettings}>Apply</Button>
-            </Box>
+
+              <h3>Cell Width</h3>
+              <div style={{ marginLeft: '10px' }}>
+                <Slider
+                  aria-labelledby="cell-width-slider"
+                  value={sliderValue}
+                  onChange={handleSliderChange}
+                  step={0.5}
+                  marks
+                  min={3}
+                  max={21}
+                  valueLabelDisplay="auto"
+                />
+                <div style={{ display: 'flex', justifyContent: 'end' }}>
+                  <button onClick={applySettings}>Apply</button>
+                </div>
+              </div>
             </div>
           </div>
         </ModalContainer>
