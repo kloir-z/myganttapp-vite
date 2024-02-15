@@ -13,7 +13,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   let previousMonth = dateArray[0].getMonth();
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
-  const calendarWidth = dateArray.length * 21;
+  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const browserLocale = navigator.language.split('-')[0];
   let dateFormat: string;
   if (["ja", "zh", "ko", "hu"].includes(browserLocale)) {
@@ -29,7 +30,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           const month = date.getMonth();
           if (month !== previousMonth || index === 0) {
             previousMonth = month;
-            const left = 21 * index;
+            const left = cellWidth * index;
             const isFirstDate = index === 0;
             const displayDate = dateFormat === 'YYYY/MM' ?
               `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
@@ -42,6 +43,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 $isFirstDate={isFirstDate}
                 style={{
                   position: 'absolute',
+                  padding: '0px 5px',
                   left: `${left}px`
                 }}
               >
@@ -54,7 +56,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
       </GanttRow>
       <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
         {dateArray.map((date, index) => {
-          const left = 21 * index;
+          const left = cellWidth * index;
           let chartBarColor = '';
           const dayOfWeek = date.getDay();
           const isMonthStart = date.getDate() === 1;
@@ -78,6 +80,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 position: 'absolute',
                 left: `${left}px`,
                 height: '21px',
+                width: `${cellWidth}px`,
                 borderTop: '1px solid #00000016',
                 borderBottom: '1px solid #00000016',
               }}

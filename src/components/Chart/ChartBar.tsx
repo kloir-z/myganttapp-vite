@@ -1,6 +1,8 @@
 // ChartBar.tsx
 import React from 'react';
 import { ChartCell } from './ChartCell';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../reduxStoreAndSlices/store';
 
 interface ChartBarProps {
   startDate: Date | null;
@@ -21,6 +23,7 @@ const getStartOfDay = (date: Date) => {
 };
 
 const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   if (!startDate || !endDate) {
     return null;
   }
@@ -44,8 +47,8 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
   }
 
   if (startIndex !== -1 && endIndex !== -1) {
-    const width = ((endIndex - startIndex + 1) * 21) + 0.1;
-    const leftPosition = startIndex * 21;
+    const width = ((endIndex - startIndex + 1) * cellWidth) + 0.1;
+    const leftPosition = startIndex * cellWidth;
 
     return (
       <>

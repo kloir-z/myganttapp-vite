@@ -19,8 +19,9 @@ interface EventRowProps {
 
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
+  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const topPosition = (entry.no - 1) * 21;
-  const calendarWidth = dateArray.length * 21;
   const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
@@ -76,14 +77,14 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   };
 
   const calculateDateFromX = useCallback((x: number) => {
-    const dateIndex = Math.floor(x / 21);
+    const dateIndex = Math.floor(x / cellWidth);
     if (dateIndex < 0) {
       return adjustToLocalMidnight(dateArray[0]);
     } else if (dateIndex >= dateArray.length) {
       return adjustToLocalMidnight(dateArray[dateArray.length - 1]);
     }
     return adjustToLocalMidnight(dateArray[dateIndex]);
-  }, [dateArray]);
+  }, [cellWidth, dateArray]);
 
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setCanDrag(false);
@@ -110,7 +111,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
       const currentMouseX = event.clientX;
       const deltaX = currentMouseX - initialMouseX;
-      const gridSteps = Math.floor(deltaX / 21);
+      const gridSteps = Math.floor(deltaX / cellWidth);
 
       setLocalEvents((prevEvents) => {
         return prevEvents.map((event, index) => {
@@ -170,7 +171,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         });
       });
     }
-  }, [isBarDragging, isBarEndDragging, isBarStartDragging, initialMouseX, activeEventIndex, isEditing, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
+  }, [isBarDragging, isBarEndDragging, isBarStartDragging, initialMouseX, activeEventIndex, isEditing, cellWidth, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
 
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {

@@ -51,7 +51,6 @@ function App() {
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const calendarWidth = dateArray.length * 21;
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -139,8 +138,8 @@ function App() {
 
   const calculateGridHeight = () => {
     const rowCount = Object.keys(data).length;
-    const maxGridHeight = `calc(100vh - 41px)`;
-    const dynamicGridHeight = `${rowCount * 21}px`;
+    const maxGridHeight = window.innerHeight - 41;
+    const dynamicGridHeight = rowCount * 21;
     return rowCount * 21 < window.innerHeight - 41 ? dynamicGridHeight : maxGridHeight;
   };
 
@@ -311,7 +310,6 @@ function App() {
               return (
                 <SeparatorRowComponent
                   entry={entry as SeparatorRow}
-                  calendarWidth={calendarWidth}
                   separatorX={separatorX}
                   wbsWidth={wbsWidth}
                 />

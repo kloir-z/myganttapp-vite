@@ -7,12 +7,13 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 
 interface CalendarProps {
   dateArray: Date[];
-  gridHeight: string;
+  gridHeight: number;
 }
 
 const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) => {
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
 
   return (
     <GanttRow style={{ height: '0px', borderBottom: 'none' }}>
@@ -28,7 +29,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         } else if (isHoliday(date, holidays)) {
           chartBarColor = regularHolidaySetting[1].color;
         }
-        const left = 21 * index;
+        const left = cellWidth * index;
 
         return (
           <CalendarCell
@@ -42,7 +43,8 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
               position: 'absolute',
               top: '0px',
               left: `${left}px`,
-              height: gridHeight,
+              height: `${gridHeight}px`,
+              width: `${cellWidth}px`,
             }}
           />
         );

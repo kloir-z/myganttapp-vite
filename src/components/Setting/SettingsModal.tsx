@@ -15,9 +15,9 @@ import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import { handleImport, handleExport } from "./utils/settingHelpers";
-import { setDateRange, setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { setDateRange, setFileName, setCellWidth} from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
-import { Typography, Switch, Box } from '@mui/material';
+import { Typography, Switch, Box,Button,Slider } from '@mui/material';
 
 type SettingsModalProps = {
   show: boolean;
@@ -40,9 +40,12 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
+  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const title = useSelector((state: RootState) => state.baseSettings.title);
   const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const [sliderValue, setSliderValue] = useState(10);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -53,6 +56,13 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   } else {
     locale = 'en';
   }
+  const handleSliderChange = (event, newValue) => {
+    setSliderValue(newValue);
+  };
+
+  const applySettings = () => {
+    dispatch(setCellWidth(sliderValue)); // スライダーで選択された値を適用
+  };
 
   const handleExportClick = () => {
     handleExport(
@@ -64,6 +74,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
       holidayInput,
       regularHolidaySetting,
       wbsWidth,
+      calendarWidth,
+      cellWidth,
       title,
       showYear
     );
@@ -234,6 +246,25 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                   y/M/d
                 </Typography>
               </Box>
+              
+            <Box sx={{ marginTop: 2, marginLeft: 2 }}>
+              <Typography id="cell-width-slider" gutterBottom>
+                Cell Width
+              </Typography>
+              <Slider
+                aria-labelledby="cell-width-slider"
+                value={sliderValue}
+                onChange={handleSliderChange}
+                step={0.5}
+                marks
+                min={3}
+                max={21}
+                valueLabelDisplay="auto"
+              />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', margin: 2 }}>
+              <Button variant="contained" onClick={applySettings}>Apply</Button>
+            </Box>
             </div>
           </div>
         </ModalContainer>

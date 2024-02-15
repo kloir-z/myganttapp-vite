@@ -21,7 +21,8 @@ interface ChartRowProps {
 const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
   const topPosition = (entry.no - 1) * 21;
-  const calendarWidth = dateArray.length * 21;
+  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const plannedChartBarColor = useSelector((state: RootState) => {
     if (entry.color === '') { return '#76ff7051' }
     const colorInfo = state.color.colors.find(c => c.alias === entry.color);
@@ -89,14 +90,14 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   };
 
   const calculateDateFromX = useCallback((x: number) => {
-    const dateIndex = Math.floor(x / 21);
+    const dateIndex = Math.floor(x / cellWidth);
     if (dateIndex < 0) {
       return adjustToLocalMidnight(dateArray[0]);
     } else if (dateIndex >= dateArray.length) {
       return adjustToLocalMidnight(dateArray[dateArray.length - 1]);
     }
     return adjustToLocalMidnight(dateArray[dateIndex]);
-  }, [dateArray]);
+  }, [cellWidth, dateArray]);
 
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setCanDrag(false);
@@ -118,7 +119,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     if (isBarDragging && initialMouseX !== null && originalStartDate && originalEndDate) {
       const currentMouseX = event.clientX;
       const deltaX = currentMouseX - initialMouseX;
-      const gridSteps = Math.floor(deltaX / 21);
+      const gridSteps = Math.floor(deltaX / cellWidth);
 
       const newStartDate = new Date(originalStartDate.getTime());
       newStartDate.setDate(newStartDate.getDate() + gridSteps);
@@ -135,7 +136,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     } else if (isBarEndDragging && initialMouseX !== null && originalEndDate) {
       const currentMouseX = event.clientX;
       const deltaX = currentMouseX - initialMouseX;
-      const gridSteps = Math.floor(deltaX / 21);
+      const gridSteps = Math.floor(deltaX / cellWidth);
 
       const newEndDate = new Date(originalEndDate.getTime());
       newEndDate.setDate(newEndDate.getDate() + gridSteps);
@@ -156,7 +157,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     } else if (isBarStartDragging && initialMouseX !== null && originalStartDate) {
       const currentMouseX = event.clientX;
       const deltaX = currentMouseX - initialMouseX;
-      const gridSteps = Math.floor(deltaX / 21);
+      const gridSteps = Math.floor(deltaX / cellWidth);
 
       const newStartDate = new Date(originalStartDate.getTime());
       newStartDate.setDate(newStartDate.getDate() + gridSteps);
@@ -191,7 +192,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
       }
     }
-  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, plannedDays, holidays, isIncludeHolidays, regularHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
+  }, [isBarDragging, initialMouseX, originalStartDate, originalEndDate, isBarEndDragging, isBarStartDragging, isEditing, cellWidth, plannedDays, holidays, isIncludeHolidays, regularHolidays, localPlannedStartDate, localActualStartDate, localPlannedEndDate, localActualEndDate, gridRef, currentDate, calculateDateFromX, isShiftKeyDown]);
 
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {

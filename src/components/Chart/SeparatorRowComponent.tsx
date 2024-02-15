@@ -1,15 +1,17 @@
 import React, { memo } from 'react';
 import { SeparatorRow } from '../../types/DataTypes';
 import { GanttRow } from '../../styles/GanttStyles';
+import { RootState } from '../../reduxStoreAndSlices/store';
+import { useSelector } from 'react-redux';
 
 interface SeparatorRowProps {
   entry: SeparatorRow;
-  calendarWidth: number;
   separatorX: number;
   wbsWidth: number;
 }
 
-const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, calendarWidth, separatorX }) => {
+const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, separatorX }) => {
+  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const topPosition = (entry.no - 1) * 21;
 
   return (
