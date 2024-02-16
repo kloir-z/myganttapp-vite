@@ -26,6 +26,7 @@ const initialState: ColorState = {
     { id: 999, alias: '', color: '#0000003d' }
   ],
 };
+
 const colorSlice = createSlice({
   name: 'color',
   initialState,
@@ -45,8 +46,11 @@ const colorSlice = createSlice({
     updateAllColors: (state, action: PayloadAction<ColorInfo[]>) => {
       state.colors = action.payload;
     },
+    resetColor(state) {
+      Object.assign(state, initialState)
+    },
   },
 });
 
-export const { updateColor, updateAlias, updateAllColors } = colorSlice.actions;
+export const { updateColor, updateAlias, updateAllColors, resetColor } = colorSlice.actions;
 export default colorSlice.reducer;

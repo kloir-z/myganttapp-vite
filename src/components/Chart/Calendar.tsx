@@ -81,7 +81,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 }
               }
               else if (/^rgba/.test(color)) {
-                return color.replace(/[\d.]+\)$/g, '0.3)');
+                return color.replace(/[\d.]+\)$/g, '0.5)');
               }
             }
             return color;
@@ -91,7 +91,6 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           } else if (isHoliday(date, holidays)) {
             chartBarColor = adjustColorOpacity(regularHolidaySetting[1].color, cellWidth);
           }
-
           const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
           const firstDayOfWeek = firstDayOfMonth.getDay();
           const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);

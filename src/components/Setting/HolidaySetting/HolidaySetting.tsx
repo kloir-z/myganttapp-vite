@@ -4,12 +4,13 @@ import { updateHolidays } from "../utils/settingHelpers";
 import { setHolidayInput } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from "../../../reduxStoreAndSlices/store";
+import { setHolidays } from "../../../reduxStoreAndSlices/store";
 
 const HolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const handleBlur = () => {
-    updateHolidays(holidayInput, dispatch);
+    dispatch(setHolidays(updateHolidays(holidayInput)))
   };
 
   return (

@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { generateDates } from '../components/Chart/utils/CalendarUtil';
+import { initialHolidayInput } from './initialHolidays';
+import { subWeeks, addMonths, format } from 'date-fns';
 
 interface BaseSettingsState {
   wbsWidth: number;
@@ -15,16 +17,20 @@ interface BaseSettingsState {
   title: string;
 }
 
+const now = new Date();
+const startDate = subWeeks(now, 2);
+const endDate = addMonths(startDate, 6);
+
 const initialState: BaseSettingsState = {
-  wbsWidth: 550,
-  maxWbsWidth: 1500,
-  calendarWidth: 100,
-  cellWidth: 15,
+  wbsWidth: 690,
+  maxWbsWidth: 690,
+  calendarWidth: 0,
+  cellWidth: 21,
   dateRange: {
-    startDate: '2023-09-01',
-    endDate: '2024-09-01',
+    startDate: format(startDate, 'yyyy-MM-dd'),
+    endDate: format(endDate, 'yyyy-MM-dd'),
   },
-  holidayInput: '',
+  holidayInput: initialHolidayInput,
   fileName: '',
   title: ''
 };
@@ -58,7 +64,10 @@ const baseSettingsSlice = createSlice({
     },
     setTitle(state, action: PayloadAction<string>) {
       state.title = action.payload;
-    }
+    },
+    resetBaseSettings(state) {
+      Object.assign(state, initialState)
+    },
   },
 });
 
@@ -70,7 +79,8 @@ export const {
   setDateRange,
   setHolidayInput,
   setFileName,
-  setTitle
+  setTitle,
+  resetBaseSettings
 } = baseSettingsSlice.actions;
 
 export default baseSettingsSlice.reducer;

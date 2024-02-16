@@ -25,9 +25,9 @@ const ChartBarContextMenu: React.FC<ChartBarContextMenuProps> = ({ x, y, onClose
   }, [onClose]);
 
   return (
-    <div ref={menuRef} style={{ position: 'fixed', top: y, left: x, zIndex: 1000, backgroundColor: 'white', border: '1px solid #eeeeee' }}>
+    <div ref={menuRef} style={{ position: 'fixed', top: y, left: x, zIndex: 1000, backgroundColor: 'white', border: '1px solid #e0e0e0' }}>
       <div onClick={onDelete} style={{ padding: '5px 10px', cursor: 'pointer', fontSize: '0.8rem' }}>
-        削除
+        Delete
       </div>
     </div>
   );

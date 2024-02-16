@@ -24,8 +24,11 @@ const regularHolidaysSlice = createSlice({
         if (days !== undefined) state[settingIndex].days = days;
       }
     },
+    resetRegularHolidays(state) {
+      Object.assign(state, initialState)
+    },
   },
 });
 
-export const { updateHolidaySetting } = regularHolidaysSlice.actions;
+export const { updateHolidaySetting, resetRegularHolidays } = regularHolidaysSlice.actions;
 export default regularHolidaysSlice.reducer;

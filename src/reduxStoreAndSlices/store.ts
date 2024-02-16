@@ -7,6 +7,8 @@ import regularHolidaysReducer from './regularHolidaysSlice';
 import undoable from 'redux-undo';
 import baseSettingsReducer from './baseSettingsSlice';
 import { Column } from "@silevis/reactgrid";
+import { initializedEmptyData } from './initialData';
+import { initialHolidays } from './initialHolidays';
 
 export interface ExtendedColumn extends Column {
   columnId: string;
@@ -21,11 +23,11 @@ const initialState: {
   holidays: string[],
   regularHolidaySetting: RegularHolidaySetting[],
   isFixedData: boolean,
-  columns: ExtendedColumn[];
-  showYear: boolean;
+  columns: ExtendedColumn[],
+  showYear: boolean,
 } = {
-  data: {},
-  holidays: [],
+  data: initializedEmptyData,
+  holidays: initialHolidays || [],
   regularHolidaySetting: [
     { id: 1, color: '#d9e6ff', days: [6] },
     { id: 2, color: '#ffdcdc', days: [0] },
@@ -391,6 +393,9 @@ export const wbsDataSlice = createSlice({
         state.columns[columnIndex] = { ...state.columns[columnIndex], width: action.payload.width };
       }
     },
+    resetStore(state) {
+      Object.assign(state, initialState)
+    },
   },
 });
 
@@ -412,6 +417,7 @@ export const {
   setColumns,
   toggleColumnVisibility,
   handleColumnResize,
+  resetStore
 } = wbsDataSlice.actions;
 
 export const store = configureStore({

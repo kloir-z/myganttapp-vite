@@ -75,7 +75,7 @@ export const handleImport = (
           if (parsedData.holidayInput) {
             const newHolidayInput = parsedData.holidayInput;
             dispatch(setHolidayInput(newHolidayInput));
-            updateHolidays(newHolidayInput, dispatch)
+            dispatch(setHolidays(updateHolidays(newHolidayInput)));
           }
           if (parsedData.data) {
             dispatch(simpleSetData(parsedData.data));
@@ -104,10 +104,7 @@ export const handleImport = (
   }
 };
 
-export const updateHolidays = (
-  holidayInput: string,
-  dispatch: AppDispatch,
-) => {
+export const updateHolidays = (holidayInput: string) => {
   const newHolidays = holidayInput.split("\n").map(holiday => {
     const match = holiday.match(/(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/);
     if (match) {
@@ -119,5 +116,5 @@ export const updateHolidays = (
     return null;
   }).filter((holiday): holiday is string => holiday !== null);
 
-  dispatch(setHolidays(newHolidays));
+  return newHolidays
 };

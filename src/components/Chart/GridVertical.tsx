@@ -34,7 +34,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
               }
             }
             else if (/^rgba/.test(color)) {
-              return color.replace(/[\d.]+\)$/g, '0.3)');
+              return color.replace(/[\d.]+\)$/g, '0.5)');
             }
           }
           return color;

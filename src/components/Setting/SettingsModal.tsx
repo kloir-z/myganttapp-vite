@@ -45,7 +45,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   const title = useSelector((state: RootState) => state.baseSettings.title);
   const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.present.columns);
-  const [sliderValue, setSliderValue] = useState(10);
+  const [sliderValue, setSliderValue] = useState(cellWidth);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const browserLocale = navigator.language;
   let locale;
@@ -155,7 +155,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
               <h3>Chart Date Range</h3>
               <div style={{ marginLeft: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', position: 'relative' }}>
                   <LocalizationProvider
                     dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
                     dateAdapter={AdapterDayjs}
@@ -168,7 +167,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: '4px',
-                          padding: '0px'
+                          padding: '3px',
+                          marginRight: '20px'
                         },
                         '& .MuiInputBase-input': {
                           fontSize: '0.8rem',
@@ -189,7 +189,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                       sx={{
                         '& .MuiInputBase-root': {
                           borderRadius: '4px',
-                          padding: '0px'
+                          padding: '3px'
                         },
                         '& .MuiInputBase-input': {
                           fontSize: '0.8rem',
@@ -203,7 +203,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                       }}
                     />
                   </LocalizationProvider>
-                </div>
               </div>
               <h3>Chart Color (Alias)</h3>
               <ColorSetting />
