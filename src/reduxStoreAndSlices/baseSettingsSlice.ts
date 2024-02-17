@@ -24,7 +24,7 @@ const endDate = addMonths(startDate, 6);
 const initialState: BaseSettingsState = {
   wbsWidth: 690,
   maxWbsWidth: 690,
-  calendarWidth: 0,
+  calendarWidth: generateDates(format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')).length * 21,
   cellWidth: 21,
   dateRange: {
     startDate: format(startDate, 'yyyy-MM-dd'),

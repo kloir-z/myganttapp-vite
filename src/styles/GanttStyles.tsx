@@ -85,7 +85,7 @@ export const Overlay = styled.div<{ fadeStatus: 'in' | 'out' }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.659);
+  background: rgba(0, 0, 0, 0.163);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,11 +96,11 @@ export const Overlay = styled.div<{ fadeStatus: 'in' | 'out' }>`
 `;
 
 export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
+  will-change: transform;
   display: flex;
   flex-direction: column;
   margin: 25px;
   background: #ffffff;
-  padding: 20px;
   border: solid 1px rgb(83 87 97);
   border-radius: 5px;
   font-size: 0.8rem;

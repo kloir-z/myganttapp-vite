@@ -62,7 +62,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
               top: '0px',
               left: `${left}px`,
               height: `${gridHeight}px`,
-              width: `${cellWidth}px`,
+              width: `${cellWidth + 0.1}px`,
             }}
           />
         );

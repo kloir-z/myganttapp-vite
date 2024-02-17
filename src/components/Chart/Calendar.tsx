@@ -125,7 +125,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 position: 'absolute',
                 left: `${left}px`,
                 height: '20px',
-                width: `${cellWidth}px`,
+                width: `${cellWidth + 0.1}px`,
                 borderTop: 'none',
                 borderBottom: 'none',
                 zIndex: '-1'

@@ -1,23 +1,16 @@
 // SettingsModal.tsx
-import React, { useState, useEffect, useRef, memo } from "react";
-import { Overlay, ModalContainer } from "../../styles/GanttStyles";
+import React, { useState, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setShowYear } from '../../reduxStoreAndSlices/store';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/en-ca';
-import 'dayjs/locale/en-in';
-import 'dayjs/locale/en';
+import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
-import { handleImport, handleExport } from "./utils/settingHelpers";
-import { setDateRange, setFileName, setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
-import { isEqual } from 'lodash';
-import { Switch, Box, Slider } from '@mui/material';
+import DateRangeSetting from "./DateRangeSetting";
+import ExportImportFile from "./ExportImportFile";
+import { Overlay, ModalContainer } from "../../styles/GanttStyles";
+import { Switch, Slider } from '@mui/material';
 
 type SettingsModalProps = {
   show: boolean;
@@ -29,114 +22,22 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
-  const data = useSelector(
-    (state: RootState) => state.wbsData.present.data,
-    (prevData, nextData) => isEqual(prevData, nextData)
-  );
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
-  const colors = useSelector((state: RootState) => state.color.colors);
-  const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
-  const { startDate, endDate } = useSelector((state: RootState) => state.baseSettings.dateRange);
-  const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
-  const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
-  const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
-  const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const title = useSelector((state: RootState) => state.baseSettings.title);
   const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
-  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
   const [sliderValue, setSliderValue] = useState(cellWidth);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const browserLocale = navigator.language;
-  let locale;
-  if (["ja", "zh", "ko", "hu"].includes(browserLocale)) {
-    locale = 'en-ca';
-  } else if (["in", "sa", "eu", "au"].includes(browserLocale)) {
-    locale = 'en-in';
-  } else {
-    locale = 'en';
-  }
+
+  const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    dispatch(setShowYear(isChecked));
+  };
+
   const handleSliderChange = (_: Event, value: number | number[]) => {
     const newValue = Array.isArray(value) ? value[0] : value;
     setSliderValue(newValue);
   };
 
-  const applySettings = () => {
+  const applyCellWidth = () => {
     dispatch(setCellWidth(sliderValue));
-  };
-
-  const handleExportClick = () => {
-    handleExport(
-      colors,
-      fileName,
-      dateRange,
-      columns,
-      data,
-      holidayInput,
-      regularHolidaySetting,
-      wbsWidth,
-      calendarWidth,
-      cellWidth,
-      title,
-      showYear
-    );
-  };
-
-  const handleImportClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      handleImport(
-        file,
-        dispatch,
-      );
-    }
-  };
-
-  const isValidDateRange = (date: Dayjs) => {
-    const earliestDate = dayjs('1900-01-01');
-    const latestDate = dayjs('2099-12-31');
-    return date.isAfter(earliestDate) && date.isBefore(latestDate);
-  };
-
-  useEffect(() => {
-    const startDay = dayjs(startDate);
-    const endDay = dayjs(endDate);
-    if (startDay.isValid() && endDay.isValid()) {
-      if (!isValidDateRange(startDay)) {
-        dispatch(setDateRange({ startDate: dayjs().format('YYYY-MM-DD'), endDate }));
-        return;
-      }
-      const maxEndDate = startDay.add(3, 'year');
-      if (endDay.isAfter(maxEndDate)) {
-        dispatch(setDateRange({ startDate, endDate: maxEndDate.format('YYYY-MM-DD') }));
-      } else {
-        dispatch(setDateRange({ startDate, endDate }));
-      }
-    }
-  }, [startDate, endDate, dispatch]);
-
-  const handleStartDateChange = (date: Dayjs | null) => {
-    if (!date || !isValidDateRange(date)) {
-      return;
-    }
-    const formattedDate = date.format('YYYY-MM-DD');
-    let newEndDate = endDate;
-    if (!newEndDate || dayjs(date).isAfter(dayjs(endDate))) {
-      newEndDate = date.add(7, 'day').format('YYYY-MM-DD');
-    }
-    dispatch(setDateRange({ startDate: formattedDate, endDate: newEndDate }));
-  };
-
-  const handleEndDateChange = (date: Dayjs | null) => {
-    if (!date || !isValidDateRange(date) || dayjs(startDate).isAfter(date)) {
-      return;
-    }
-    dispatch(setDateRange({ startDate, endDate: date.format('YYYY-MM-DD') }));
-  };
-
-  const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked;
-    dispatch(setShowYear(isChecked));
   };
 
   const handleClose = () => {
@@ -147,96 +48,84 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     }, 210);
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{x: number, y: number}>({x: 0, y: 0});
+  const [modalPosition, setModalPosition] = useState<{x: number, y: number}>({x: 0, y: 0});
+
+  const startDrag = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - modalPosition.x,
+      y: e.clientY - modalPosition.y,
+    });
+    e.preventDefault();
+  }, [modalPosition]);
+
+  const onDrag = useCallback((e: MouseEvent) => {
+    if (isDragging) {
+      setModalPosition({
+        x: Math.round(e.clientX - dragStart.x),
+        y: Math.round(e.clientY - dragStart.y),
+      });
+    }
+  }, [isDragging, dragStart]);
+
+  const endDrag = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', onDrag);
+      window.addEventListener('mouseup', endDrag);
+      return () => {
+        window.removeEventListener('mousemove', onDrag);
+        window.removeEventListener('mouseup', endDrag);
+      };
+    }
+  }, [isDragging, onDrag, endDrag]);
+
   return (
     show ?
       <Overlay fadeStatus={fadeStatus} onMouseDown={handleClose}>
-        <ModalContainer fadeStatus={fadeStatus} onMouseDown={e => e.stopPropagation()}>
+        <ModalContainer
+          fadeStatus={fadeStatus}
+          onMouseDown={e => e.stopPropagation()}
+          style={{
+            transform: `translate(${modalPosition.x}px, ${modalPosition.y}px)`
+          }}
+        >
+        <div
+          style={{
+            height: '25px',
+            cursor: 'grab',
+            backgroundColor: '#00000022',
+            borderBottom: '1px solid #00000044'
+          }}
+          onMouseDown={startDrag}
+        ></div>
           <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
+            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
               <h3>Chart Date Range</h3>
-              <div style={{ marginLeft: '10px' }}>
-                  <LocalizationProvider
-                    dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
-                    dateAdapter={AdapterDayjs}
-                    adapterLocale={locale}
-                  >
-                    <DatePicker
-                      label="Clendar Start"
-                      value={dayjs(dateRange.startDate)}
-                      onChange={handleStartDateChange}
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          borderRadius: '4px',
-                          padding: '3px',
-                          marginRight: '20px'
-                        },
-                        '& .MuiInputBase-input': {
-                          fontSize: '0.8rem',
-                          padding: '5px',
-                          width: '70px',
-                        },
-                        '& .MuiButtonBase-root': {
-                          fontSize: '0.8rem',
-                          padding: '3px',
-                          margin: '0px'
-                        },
-                      }}
-                    />
-                    <DatePicker
-                      label="Calendar End"
-                      value={dayjs(dateRange.endDate)}
-                      onChange={handleEndDateChange}
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          borderRadius: '4px',
-                          padding: '3px'
-                        },
-                        '& .MuiInputBase-input': {
-                          fontSize: '0.8rem',
-                          padding: '5px',
-                          width: '70px'
-                        },
-                        '& .MuiButtonBase-root': {
-                          padding: '3px',
-                          margin: '0px'
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-              </div>
+              <DateRangeSetting />
               <h3>Chart Color (Alias)</h3>
               <ColorSetting />
               <h3>Column (Visiblity & Name)</h3>
               <ColumnSetting />
             </div>
-            
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
+
+            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
               <h3>Holidays</h3>
               <HolidaySetting />
             </div>
 
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '0px 10px' }}>
-              <h3>Export File(.json)</h3>
-              <div style={{ marginLeft: '10px' }}>
-                <input
-                  type="text"
-                  value={fileName}
-                  onChange={(e) => dispatch(setFileName(e.target.value))}
-                  placeholder="Enter file name"
-                />
-                <button onClick={handleExportClick}>Export</button>
-              </div>
-
-              <h3>Import File(.json)</h3>
-              <div style={{ marginLeft: '10px' }}>
-                <button onClick={() => fileInputRef.current?.click()}>Import</button>
-                <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
-              </div>
+            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
+              <ExportImportFile />
               <h3>Regular Holidays</h3>
               <ReguralHolidaySetting />
 
               <h3>Date Cell Format</h3>
-              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 2 }}>
+              <div style={{ marginLeft: '10px' }}>
                 <label>M/d</label>
                 <Switch
                   checked={showYear}
@@ -244,9 +133,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                   name="showYearSwitch"
                 />
                 <label>y/M/d</label>
-              </Box>
+              </div>
 
-              <h3>Cell Width</h3>
+              <h3>Chart Cell Width</h3>
               <div style={{ marginLeft: '10px' }}>
                 <Slider
                   aria-labelledby="cell-width-slider"
@@ -257,10 +146,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
                   min={3}
                   max={21}
                   valueLabelDisplay="auto"
+                  onChangeCommitted={applyCellWidth}
                 />
-                <div style={{ display: 'flex', justifyContent: 'end' }}>
-                  <button onClick={applySettings}>Apply</button>
-                </div>
               </div>
             </div>
           </div>
