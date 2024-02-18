@@ -4,6 +4,7 @@ import { setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { useSelector, useDispatch } from 'react-redux';
+import SettingChildDiv from "./SettingChildDiv";
 
 const ExportImportFile: React.FC = () => {
   const dispatch = useDispatch();
@@ -54,22 +55,23 @@ const ExportImportFile: React.FC = () => {
 
   return (
     <>
-      <h3>Export File(.json)</h3>
-      <div style={{ marginLeft: '10px' }}>
-        <input
-          type="text"
-          value={fileName}
-          onChange={(e) => dispatch(setFileName(e.target.value))}
-          placeholder="Enter File Name"
-        />
-        <button onClick={handleExportClick}>Export</button>
-      </div>
-
-      <h3>Import File(.json)</h3>
-      <div style={{ marginLeft: '10px' }}>
-        <button onClick={() => fileInputRef.current?.click()}>Import</button>
-        <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
-      </div>
+      <SettingChildDiv text='Export File(.json)'>
+        <div>
+          <input
+            type="text"
+            value={fileName}
+            onChange={(e) => dispatch(setFileName(e.target.value))}
+            placeholder="Enter File Name"
+          />
+          <button onClick={handleExportClick}>Export</button>
+        </div>
+      </SettingChildDiv>
+      <SettingChildDiv text='Import File(.json)'>
+        <div style={{ display: 'flex', justifyContent: 'start' }}>
+          <button onClick={() => fileInputRef.current?.click()}>Import</button>
+          <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
+        </div>
+      </SettingChildDiv>
     </>
   );
 };

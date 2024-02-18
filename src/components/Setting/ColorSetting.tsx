@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { updateColor, updateAlias } from '../../reduxStoreAndSlices/colorSlice';
 import { ChromePicker, ColorResult } from 'react-color';
+import SettingChildDiv from "./SettingChildDiv";
 
 const ColorSetting: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const ColorSetting: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div style={{ marginLeft: '10px' }}>
+    <SettingChildDiv text='Chart Color (Alias)'>
       {colors.map(colorInfo => (
         <div key={colorInfo.id} style={{ display: 'flex', flexDirection: 'row' }}>
           <div
@@ -84,7 +85,7 @@ const ColorSetting: React.FC = () => {
           )}
         </div>
       ))}
-    </div>
+    </SettingChildDiv>
   );
 };
 

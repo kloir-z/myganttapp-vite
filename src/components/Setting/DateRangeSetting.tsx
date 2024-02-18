@@ -10,6 +10,7 @@ import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
 import { setDateRange } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import SettingChildDiv from "./SettingChildDiv";
 
 const DateRangeSetting: React.FC = () => {
   const dispatch = useDispatch();
@@ -67,56 +68,58 @@ const DateRangeSetting: React.FC = () => {
   }, [startDate, endDate, dispatch]);
 
   return (
-    <div style={{ marginLeft: '10px' }}>
-      <LocalizationProvider
-        dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
-        dateAdapter={AdapterDayjs}
-        adapterLocale={locale}
-      >
-        <DatePicker
-          label="Clendar Start"
-          value={dayjs(dateRange.startDate)}
-          onChange={handleStartDateChange}
-          sx={{
-            '& .MuiInputBase-root': {
-              borderRadius: '4px',
-              padding: '3px',
-              marginRight: '20px'
-            },
-            '& .MuiInputBase-input': {
-              fontSize: '0.8rem',
-              padding: '5px',
-              width: '70px',
-            },
-            '& .MuiButtonBase-root': {
-              fontSize: '0.8rem',
-              padding: '3px',
-              margin: '0px'
-            },
-          }}
-        />
-        <DatePicker
-          label="Calendar End"
-          value={dayjs(dateRange.endDate)}
-          onChange={handleEndDateChange}
-          sx={{
-            '& .MuiInputBase-root': {
-              borderRadius: '4px',
-              padding: '3px'
-            },
-            '& .MuiInputBase-input': {
-              fontSize: '0.8rem',
-              padding: '5px',
-              width: '70px'
-            },
-            '& .MuiButtonBase-root': {
-              padding: '3px',
-              margin: '0px'
-            },
-          }}
-        />
-      </LocalizationProvider>
-    </div>
+    <SettingChildDiv text='Date Range'>
+      <div>
+        <LocalizationProvider
+          dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
+          dateAdapter={AdapterDayjs}
+          adapterLocale={locale}
+        >
+          <DatePicker
+            label="Clendar Start"
+            value={dayjs(dateRange.startDate)}
+            onChange={handleStartDateChange}
+            sx={{
+              '& .MuiInputBase-root': {
+                borderRadius: '4px',
+                padding: '3px',
+                marginRight: '20px'
+              },
+              '& .MuiInputBase-input': {
+                fontSize: '0.8rem',
+                padding: '5px',
+                width: '70px',
+              },
+              '& .MuiButtonBase-root': {
+                fontSize: '0.8rem',
+                padding: '3px',
+                margin: '0px'
+              },
+            }}
+          />
+          <DatePicker
+            label="Calendar End"
+            value={dayjs(dateRange.endDate)}
+            onChange={handleEndDateChange}
+            sx={{
+              '& .MuiInputBase-root': {
+                borderRadius: '4px',
+                padding: '3px'
+              },
+              '& .MuiInputBase-input': {
+                fontSize: '0.8rem',
+                padding: '5px',
+                width: '70px'
+              },
+              '& .MuiButtonBase-root': {
+                padding: '3px',
+                margin: '0px'
+              },
+            }}
+          />
+        </LocalizationProvider>
+      </div>
+    </SettingChildDiv>
   );
 };
 

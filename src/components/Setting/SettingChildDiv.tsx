@@ -1,0 +1,38 @@
+import React, { ReactNode } from 'react';
+
+interface CustomBoxProps {
+  text: string;
+  children?: ReactNode;
+}
+
+const SettingChildDiv: React.FC<CustomBoxProps> = ({ text, children }) => {
+  const boxStyle: React.CSSProperties = {
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    margin: '10px 25px',
+    padding: '20px 25px',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    minWidth: '250px',
+    maxWidth: '370px'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '-10px',
+    left: '10px',
+    margin: 0,
+    padding: '0px 5px',
+    background: '#FFF',
+  };
+
+  return (
+    <div style={boxStyle}>
+      <h3 style={titleStyle}>{text}</h3>
+      {children}
+    </div>
+  );
+}
+
+export default SettingChildDiv;

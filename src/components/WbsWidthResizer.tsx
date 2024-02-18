@@ -2,14 +2,14 @@ import React, { useRef, useCallback } from 'react';
 import styled from 'styled-components';
 
 interface StyledResizeBarProps {
-  initialWidth: number;
+  width: number;
 }
 
 const StyledResizeBar = styled.div<StyledResizeBarProps>`
   width: 5px;
   cursor: ew-resize;
   position: absolute;
-  left: ${props => props.initialWidth}px;
+  left: ${props => props.width}px;
   height: 100vh;
   z-index: 10;
   transition: background-color 0.3s ease;
@@ -51,7 +51,7 @@ function MemoedResizeBar({ onDrag, initialWidth }: ResizeBarProps) {
 
   return (
     <StyledResizeBar
-      initialWidth={initialWidth}
+      width={initialWidth}
       onMouseDown={handleMouseDown}
     />
   );

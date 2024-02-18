@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { updateRegularHolidaySetting } from "../../reduxStoreAndSlices/store";
 import { ChromePicker, ColorResult } from 'react-color';
+import SettingChildDiv from "./SettingChildDiv";
+
 const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 
 const ReguralHolidaySetting: React.FC = () => {
@@ -49,7 +51,7 @@ const ReguralHolidaySetting: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ marginLeft: '10px' }}>
+    <SettingChildDiv text='Regular Holidays'>
       {localRegularHolidaySettings.map(setting => (
         <div key={setting.id} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: '10px' }}>
           <div
@@ -111,7 +113,7 @@ const ReguralHolidaySetting: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <button onClick={handleApplyChanges}>Apply</button>
       </div>
-    </div>
+    </SettingChildDiv>
   );
 };
 

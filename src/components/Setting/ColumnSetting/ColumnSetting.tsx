@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../reduxStoreAndSlices/store';
 import { setColumns, toggleColumnVisibility } from '../../../reduxStoreAndSlices/store';
 import ColumnRow from './ColumnRow';
+import SettingChildDiv from '../SettingChildDiv';
 
 const ColumnSetting: React.FC = () => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const ColumnSetting: React.FC = () => {
   };
 
   return (
-    <div style={{ marginLeft: '10px', display: 'flex', flexDirection: 'column' }}>
+    <SettingChildDiv text='Column (Visiblity & Name)'>
       {filteredColumns.map(column => (
         <ColumnRow
           key={column.columnId}
@@ -27,7 +28,7 @@ const ColumnSetting: React.FC = () => {
           toggleColumnVisibility={() => dispatch(toggleColumnVisibility(column.columnId))}
         />
       ))}
-    </div>
+    </SettingChildDiv>
   );
 };
 

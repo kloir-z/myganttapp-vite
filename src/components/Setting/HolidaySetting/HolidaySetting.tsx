@@ -5,6 +5,7 @@ import { setHolidayInput } from "../../../reduxStoreAndSlices/baseSettingsSlice"
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from "../../../reduxStoreAndSlices/store";
 import { setHolidays } from "../../../reduxStoreAndSlices/store";
+import SettingChildDiv from "../SettingChildDiv";
 
 const HolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
@@ -14,14 +15,14 @@ const HolidaySetting: React.FC = memo(() => {
   };
 
   return (
-    <div style={{ marginLeft: '10px' }}>
+    <SettingChildDiv text='Holidays'>
       <textarea
         value={holidayInput}
         onChange={(e) => dispatch(setHolidayInput(e.target.value))}
         onBlur={handleBlur}
-        style={{ padding: '10px', width: '200px', height: '700px', overflow: 'auto', whiteSpace: 'nowrap' }}
+        style={{ padding: '10px', minWidth: '256px', minHeight: '300px', overflow: 'auto', whiteSpace: 'nowrap', backgroundColor: '#FFF', zIndex: '15' }}
       />
-    </div>
+    </SettingChildDiv>
   );
 });
 

@@ -111,7 +111,7 @@ export const updateHolidays = (holidayInput: string) => {
       const [, year, month, day] = match;
       const formattedMonth = month.padStart(2, '0');
       const formattedDay = day.padStart(2, '0');
-      return `${year}-${formattedMonth}-${formattedDay}`;
+      return `${year}/${formattedMonth}/${formattedDay}`;
     }
     return null;
   }).filter((holiday): holiday is string => holiday !== null);

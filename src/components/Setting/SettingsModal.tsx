@@ -11,6 +11,8 @@ import DateRangeSetting from "./DateRangeSetting";
 import ExportImportFile from "./ExportImportFile";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { Switch, Slider } from '@mui/material';
+import SettingChildDiv from "./SettingChildDiv";
+import { MdOutlineDragIndicator } from "react-icons/md";
 
 type SettingsModalProps = {
   show: boolean;
@@ -49,8 +51,8 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   };
 
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<{x: number, y: number}>({x: 0, y: 0});
-  const [modalPosition, setModalPosition] = useState<{x: number, y: number}>({x: 0, y: 0});
+  const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
 
   const startDrag = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
@@ -95,62 +97,46 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             transform: `translate(${modalPosition.x}px, ${modalPosition.y}px)`
           }}
         >
-        <div
-          style={{
-            height: '25px',
-            cursor: 'grab',
-            backgroundColor: '#00000022',
-            borderBottom: '1px solid #00000044'
-          }}
-          onMouseDown={startDrag}
-        ></div>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
-              <h3>Chart Date Range</h3>
-              <DateRangeSetting />
-              <h3>Chart Color (Alias)</h3>
-              <ColorSetting />
-              <h3>Column (Visiblity & Name)</h3>
-              <ColumnSetting />
-            </div>
-
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
-              <h3>Holidays</h3>
-              <HolidaySetting />
-            </div>
-
-            <div style={{ border: '1px solid #AAA', borderRadius: '4px', padding: '10px 10px', margin: '20px' }}>
-              <ExportImportFile />
-              <h3>Regular Holidays</h3>
-              <ReguralHolidaySetting />
-
-              <h3>Date Cell Format</h3>
-              <div style={{ marginLeft: '10px' }}>
-                <label>M/d</label>
-                <Switch
-                  checked={showYear}
-                  onChange={handleShowYearChange}
-                  name="showYearSwitch"
-                />
-                <label>y/M/d</label>
-              </div>
-
-              <h3>Chart Cell Width</h3>
-              <div style={{ marginLeft: '10px' }}>
-                <Slider
-                  aria-labelledby="cell-width-slider"
-                  value={sliderValue}
-                  onChange={handleSliderChange}
-                  step={0.5}
-                  marks
-                  min={3}
-                  max={21}
-                  valueLabelDisplay="auto"
-                  onChangeCommitted={applyCellWidth}
-                />
-              </div>
-            </div>
+          <div
+            style={{
+              position: 'absolute',
+              top: '0px',
+              padding:'5px',
+              cursor: 'move',
+            }}
+            onMouseDown={startDrag}
+          ><MdOutlineDragIndicator size={'20px'}/>
           </div>
+          <DateRangeSetting />
+          <ColorSetting />
+          <ColumnSetting />
+          <SettingChildDiv text='Date Cell Format'>
+            <div>
+              <label>M/d</label>
+              <Switch
+                checked={showYear}
+                onChange={handleShowYearChange}
+                name="showYearSwitch"
+              />
+              <label>y/M/d</label>
+            </div>
+          </SettingChildDiv>
+          <HolidaySetting />
+          <ReguralHolidaySetting />
+          <SettingChildDiv text='Chart Cell Width'>
+            <Slider
+              aria-labelledby="cell-width-slider"
+              value={sliderValue}
+              onChange={handleSliderChange}
+              step={0.5}
+              marks
+              min={3}
+              max={21}
+              valueLabelDisplay="auto"
+              onChangeCommitted={applyCellWidth}
+            />
+          </SettingChildDiv>
+          <ExportImportFile />
         </ModalContainer>
       </Overlay>
       : null

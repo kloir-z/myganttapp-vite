@@ -99,7 +99,9 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   will-change: transform;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap;
   margin: 25px;
+  padding-top: 20px;
   background: #ffffff;
   border: solid 1px rgb(83 87 97);
   border-radius: 5px;
@@ -107,6 +109,7 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   z-index: 15;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   color: #1b1b1b;
+  height: 1000px;
 `;
 
 export const CloseButton = styled.button`

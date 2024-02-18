@@ -40,7 +40,7 @@ const isRegularHoliday = (dayOfWeek: number, regularHolidays: number[]): boolean
 };
 
 export const isHoliday = (date: Date, holidays: string[]): boolean => {
-  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const dateString = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
   return holidays.includes(dateString);
 };
 

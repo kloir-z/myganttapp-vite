@@ -20,6 +20,7 @@ import { useWBSData } from './components/Table/hooks/useWBSData';
 import { ActionCreators } from 'redux-undo';
 import TitleSetting from './components/Setting/TitleSetting';
 import { isEqual } from 'lodash';
+import { createSelector } from '@reduxjs/toolkit';
 
 function App() {
   const dispatch = useDispatch();
@@ -27,11 +28,15 @@ function App() {
     (state: RootState) => state.wbsData.present.data,
     (prevData, nextData) => isEqual(prevData, nextData)
   );
-  const selectUndoRedo = (state: RootState) => ({
-    pastState: state.wbsData.past,
-    presentState: state.wbsData.present,
-    futureState: state.wbsData.future
-  });
+  const selectWbsData = (state: RootState) => state.wbsData;
+  const selectUndoRedo = createSelector(
+    [selectWbsData],
+    (wbsData) => ({
+      pastState: wbsData.past,
+      presentState: wbsData.present,
+      futureState: wbsData.future,
+    })
+  );
   const { pastState, presentState, futureState } = useSelector(selectUndoRedo);
   const [actualUndoCount, setActualUndoCount] = useState(0);
   const [actualRedoCount, setActualRedoCount] = useState(0);
@@ -69,6 +74,13 @@ function App() {
   useEffect(() => {
     setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
   }, [dateRange]);
+
+  useEffect(() => {
+    const isChromiumBased = /Chrome/.test(navigator.userAgent) || /Chromium/.test(navigator.userAgent);
+    if (!isChromiumBased) {
+      alert('This application only works correctly in Chromium-based browsers. It may not function properly in other browsers, so please access it using a Chromium-based browser(e.g. Chrome, Edge).');
+    }
+  }, []);
 
   useEffect(() => {
     const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
@@ -284,10 +296,11 @@ function App() {
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent' }} ref={gridRef}>
-          {Object.entries(data).map(([, entry]) => {
+          {Object.entries(data).map(([key, entry]) => {
             if (entry.rowType === 'Chart') {
               return (
                 <ChartRowComponent
+                  key={key}
                   entry={entry as ChartRow}
                   dateArray={dateArray}
                   gridRef={gridRef}
@@ -297,6 +310,7 @@ function App() {
             } else if (entry.rowType === 'Separator') {
               return (
                 <SeparatorRowComponent
+                  key={key}
                   entry={entry as SeparatorRow}
                   separatorX={separatorX}
                   wbsWidth={wbsWidth}
@@ -305,6 +319,7 @@ function App() {
             } else if (entry.rowType === 'Event') {
               return (
                 <EventRowComponent
+                  key={key}
                   entry={entry as EventRow}
                   dateArray={dateArray}
                   gridRef={gridRef}
