@@ -137,6 +137,18 @@ const resetEndDate = (
   });
 };
 
+function validateDateString(dateString: string | undefined): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "";
+  const startDate = new Date("1970/01/01");
+  const endDate = new Date("2099/12/31");
+  if (date < startDate || date > endDate) {
+    return "";
+  }
+  return dateString;
+}
+
 export const wbsDataSlice = createSlice({
   name: 'wbsData',
   initialState,
@@ -149,6 +161,11 @@ export const wbsDataSlice = createSlice({
         if (rowData.rowType === 'Chart') {
           const chartRowData = rowData as ChartRow;
           let updatedRowData = { ...chartRowData };
+
+          updatedRowData.plannedStartDate = validateDateString(chartRowData.plannedStartDate);
+          updatedRowData.plannedEndDate = validateDateString(chartRowData.plannedEndDate);
+          updatedRowData.actualStartDate = validateDateString(chartRowData.actualStartDate);
+          updatedRowData.actualEndDate = validateDateString(chartRowData.actualEndDate);
 
           if (chartRowData.dependency) {
             const parts = chartRowData.dependency.split(',');

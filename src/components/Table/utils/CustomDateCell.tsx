@@ -60,6 +60,7 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
           open={open}
           onOpen={handleOpen}
           onClose={handleClose}
+          minDate={dayjs(1970/1/1)}
           value={selectedDate}
           onChange={(newDate) => {
             setSelectedDate(newDate);
@@ -79,7 +80,7 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
               height: '18px',
               fontSize: '0.8rem',
               padding: '2px 4px',
-              width: '70px',
+              width: '80px',
             },
             '& .MuiButtonBase-root': {
               zIndex: '9',
@@ -87,7 +88,7 @@ function CustomDatePicker({ cell, onCellChanged }: CustomDatePickerProps) {
               margin: '0px',
             },
             '& .MuiSvgIcon-root': {
-              fontSize: '1rem',
+              fontSize: '1.1rem',
             },
           }}
         />
