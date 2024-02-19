@@ -4,7 +4,6 @@ import { isHoliday } from './utils/CalendarUtil';
 import { GanttRow, CalendarCell } from '../../styles/GanttStyles';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
-import { adjustColorOpacity } from './utils/CalendarUtil';
 
 interface CalendarProps {
   dateArray: Date[];
@@ -71,13 +70,10 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           const dayOfWeek = date.getDay();
           const isMonthStart = date.getDate() === 1;
           const isFirstDate = index === 0;
-          const borderLeft = cellWidth > 15 || dayOfWeek === 0 ? true : false;
+          const borderLeft = cellWidth > 12 || dayOfWeek === 0 ? true : false;
           const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
-          if (setting) {
-            chartBarColor = adjustColorOpacity(setting.color, cellWidth);
-          } else if (isHoliday(date, holidays)) {
-            chartBarColor = adjustColorOpacity(regularHolidaySetting[1].color, cellWidth);
-          }
+          const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
+          chartBarColor = selectedSetting ? (cellWidth <= 12 ? selectedSetting.subColor : selectedSetting.color) : '';
           const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
           const firstDayOfWeek = firstDayOfMonth.getDay();
           const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);

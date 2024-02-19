@@ -4,13 +4,15 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import { updateRegularHolidaySetting } from "../../reduxStoreAndSlices/store";
 import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
+import { RegularHolidaySetting } from "../../types/DataTypes";
+import { adjustColorOpacity } from "../Chart/utils/CalendarUtil";
 
 const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 
 const ReguralHolidaySetting: React.FC = () => {
   const dispatch = useDispatch();
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
-  const [localRegularHolidaySettings, setLocalRegularHolidaySettings] = useState(regularHolidaySetting);
+  const [localRegularHolidaySettings, setLocalRegularHolidaySettings] = useState<RegularHolidaySetting[]>(regularHolidaySetting);
 
   type DisplayColorPickerType = { [key: number]: boolean };
   const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
@@ -31,7 +33,7 @@ const ReguralHolidaySetting: React.FC = () => {
   const handleColorChange = useCallback((id: number, color: string) => {
     setLocalRegularHolidaySettings(current =>
       current.map(setting =>
-        setting.id === id ? { ...setting, color } : setting
+        setting.id === id ? { ...setting, color, subColor: adjustColorOpacity(color) } : setting
       )
     );
   }, []);

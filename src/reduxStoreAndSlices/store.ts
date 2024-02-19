@@ -1,9 +1,8 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/DataTypes';
-import { calculatePlannedDays, addPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
+import { calculatePlannedDays, addPlannedDays, toLocalISOString, adjustColorOpacity } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
-import regularHolidaysReducer from './regularHolidaysSlice';
 import undoable from 'redux-undo';
 import baseSettingsReducer from './baseSettingsSlice';
 import { Column } from "@silevis/reactgrid";
@@ -29,9 +28,9 @@ const initialState: {
   data: initializedEmptyData,
   holidays: initialHolidays || [],
   regularHolidaySetting: [
-    { id: 1, color: '#d9e6ff', days: [6] },
-    { id: 2, color: '#ffdcdc', days: [0] },
-    { id: 3, color: '#00000010', days: [] },
+    { id: 1, color: '#d9e6ff', subColor: adjustColorOpacity('#d9e6ff'), days: [6] },
+    { id: 2, color: '#ffdcdc', subColor: adjustColorOpacity('#ffdcdc'), days: [0] },
+    { id: 3, color: '#00000010', subColor: adjustColorOpacity('#00000010'), days: [] },
   ],
   isFixedData: true,
   showYear: false,
@@ -425,7 +424,6 @@ export const store = configureStore({
     wbsData: undoable(wbsDataSlice.reducer),
     copiedRows: copiedRowsReducer,
     color: colorReducer,
-    regularHolidays: regularHolidaysReducer,
     baseSettings: baseSettingsReducer,
   },
 });

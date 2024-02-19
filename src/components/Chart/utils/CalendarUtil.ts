@@ -87,30 +87,28 @@ export const addPlannedDays = (start: Date, days: number | null, holidays: strin
   return currentDate;
 };
 
-export const adjustColorOpacity = (color: string, cellWidth: number): string => {
-  if (cellWidth <= 12) {
-    const opacityDecrease = 0.7;
-    if (/^#/.test(color)) {
-      let opacity;
-      if (color.length === 9) {
-        opacity = parseInt(color.substring(7, 9), 16) / 255;
-        opacity = Math.max(0.05, opacity - opacityDecrease);
-        const newOpacityHex = Math.round(opacity * 255).toString(16).padStart(2, '0');
-        return color.substring(0, 7) + newOpacityHex;
-      } else if (color.length === 7) {
-        opacity = 1 - opacityDecrease;
-        opacity = Math.max(0.05, opacity);
-        const newOpacityHex = Math.round(opacity * 255).toString(16).padStart(2, '0');
-        return color + newOpacityHex;
-      }
+export const adjustColorOpacity = (color: string): string => {
+  const opacityDecrease = 0.5;
+  if (/^#/.test(color)) {
+    let opacity;
+    if (color.length === 9) {
+      opacity = parseInt(color.substring(7, 9), 16) / 255;
+      opacity = Math.max(0.04, opacity - opacityDecrease);
+      const newOpacityHex = Math.round(opacity * 255).toString(16).padStart(2, '0');
+      return color.substring(0, 7) + newOpacityHex;
+    } else if (color.length === 7) {
+      opacity = 1 - opacityDecrease;
+      opacity = Math.max(0.04, opacity);
+      const newOpacityHex = Math.round(opacity * 255).toString(16).padStart(2, '0');
+      return color + newOpacityHex;
     }
-    else if (/^rgba/.test(color)) {
-      const rgbaMatch = color.match(/rgba\((\d+),(\d+),(\d+),([\d.]+)\)/);
-      if (rgbaMatch) {
-        let opacity = parseFloat(rgbaMatch[4]);
-        opacity = Math.max(0.05, opacity - opacityDecrease);
-        return `rgba(${rgbaMatch[1]},${rgbaMatch[2]},${rgbaMatch[3]},${opacity})`;
-      }
+  }
+  else if (/^rgba/.test(color)) {
+    const rgbaMatch = color.match(/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
+    if (rgbaMatch) {
+      let opacity = parseFloat(rgbaMatch[4]);
+      opacity = Math.max(0.04, opacity - opacityDecrease);
+      return `rgba(${rgbaMatch[1]},${rgbaMatch[2]},${rgbaMatch[3]},${opacity})`;
     }
   }
   return color;

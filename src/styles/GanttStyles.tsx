@@ -91,8 +91,6 @@ export const Overlay = styled.div<{ fadeStatus: 'in' | 'out' }>`
   bottom: 0;
   background: rgba(0, 0, 0, 0.163);
   display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 11;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   border: none;
@@ -104,7 +102,6 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin: 25px;
   padding-top: 20px;
   background: #ffffff;
   border: solid 1px rgb(83 87 97);
@@ -113,7 +110,7 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   z-index: 15;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   color: #1b1b1b;
-  height: 90svh;
+  max-height: 90svh;
 `;
 
 export const CloseButton = styled.button`

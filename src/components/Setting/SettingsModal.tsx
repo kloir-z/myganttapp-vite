@@ -1,5 +1,5 @@
 // SettingsModal.tsx
-import React, { useState, memo, useCallback } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setShowYear } from '../../reduxStoreAndSlices/store';
 import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
@@ -52,7 +52,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-  const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 100, y: 50 });
 
   const startDrag = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
@@ -65,18 +65,29 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 
   const onDrag = useCallback((e: MouseEvent) => {
     if (isDragging) {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      let newX = e.clientX - dragStart.x;
+      let newY = e.clientY - dragStart.y;
+      newX = Math.max(newX, 0);
+      newY = Math.max(newY, 0);
+
+      newX = Math.min(newX, windowWidth - 50);
+      newY = Math.min(newY, windowHeight - 50);
+
       setModalPosition({
-        x: Math.round(e.clientX - dragStart.x),
-        y: Math.round(e.clientY - dragStart.y),
+        x: Math.round(newX),
+        y: Math.round(newY),
       });
     }
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart.x, dragStart.y]);
 
   const endDrag = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', onDrag);
       window.addEventListener('mouseup', endDrag);
@@ -86,6 +97,10 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
       };
     }
   }, [isDragging, onDrag, endDrag]);
+
+  useEffect(() => {
+    setSliderValue(cellWidth);
+  }, [cellWidth]);
 
   return (
     show ?
@@ -101,11 +116,11 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             style={{
               position: 'absolute',
               top: '0px',
-              padding:'5px',
+              padding: '5px',
               cursor: 'move',
             }}
             onMouseDown={startDrag}
-          ><MdOutlineDragIndicator size={'20px'}/>
+          ><MdOutlineDragIndicator size={'20px'} />
           </div>
           <DateRangeSetting />
           <ColorSetting />

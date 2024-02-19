@@ -56,5 +56,6 @@ export type WBSData = ChartRow | SeparatorRow | EventRow;
 export type RegularHolidaySetting = {
   id: number;
   color: string;
+  subColor: string;
   days: number[];
 };
