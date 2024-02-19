@@ -4,6 +4,7 @@ import { isHoliday } from './utils/CalendarUtil';
 import { GanttRow, CalendarCell } from '../../styles/GanttStyles';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
+import { adjustColorOpacity } from './utils/CalendarUtil';
 
 interface CalendarProps {
   dateArray: Date[];
@@ -48,7 +49,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 style={{
                   position: 'absolute',
                   padding: '0px 5px',
-                  left: `${left}px`
+                  left: `${left}px`,
+                  height: '21px'
                 }}
               >
                 {displayDate}
@@ -71,21 +73,6 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           const isFirstDate = index === 0;
           const borderLeft = cellWidth > 15 || dayOfWeek === 0 ? true : false;
           const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
-          const adjustColorOpacity = (color: string, cellWidth: number): string => {
-            if (cellWidth <= 15) {
-              if (/^#/.test(color)) {
-                if (color.length === 9) {
-                  return color.substring(0, 7) + '40';
-                } else if (color.length === 7) {
-                  return color + '40';
-                }
-              }
-              else if (/^rgba/.test(color)) {
-                return color.replace(/[\d.]+\)$/g, '0.5)');
-              }
-            }
-            return color;
-          };
           if (setting) {
             chartBarColor = adjustColorOpacity(setting.color, cellWidth);
           } else if (isHoliday(date, holidays)) {
@@ -100,9 +87,9 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
 
           let displayText = `${date.getDate()}`;
-          if (cellWidth <= 7) {
+          if (cellWidth <= 5) {
             displayText = '';
-          } else if (cellWidth <= 15) {
+          } else if (cellWidth <= 12) {
             if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.getDate() > (lastDayOfMonth.getDate() - lastDayOfWeek - 1)) {
               displayText = '';
             } else if ((isMonthStart && !skipFirstWeek) || dayOfWeek === 0) {
@@ -122,16 +109,11 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
               $chartBarColor={chartBarColor}
               $borderLeft={borderLeft}
               style={{
-                position: 'absolute',
                 left: `${left}px`,
-                height: '20px',
-                width: `${cellWidth + 0.1}px`,
-                borderTop: 'none',
-                borderBottom: 'none',
-                zIndex: '-1'
+                width: `${cellWidth + 0.1}px`
               }}
             >
-              {displayText}
+              <label style={{ position: 'absolute', zIndex: '1', whiteSpace: 'nowrap' }}>{displayText}</label>
             </CalendarCell>
           );
         })}

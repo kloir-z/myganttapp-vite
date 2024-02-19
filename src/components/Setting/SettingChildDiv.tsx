@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react';
 
-interface CustomBoxProps {
+interface SettingChildDivProps {
   text: string;
   children?: ReactNode;
 }
 
-const SettingChildDiv: React.FC<CustomBoxProps> = ({ text, children }) => {
+const SettingChildDiv: React.FC<SettingChildDivProps> = ({ text, children }) => {
   const boxStyle: React.CSSProperties = {
     border: '1px solid #ccc',
     borderRadius: '5px',

@@ -127,7 +127,6 @@ const resetEndDate = (
       const endDate = new Date(chartRow.plannedEndDate);
       if (!affectedHolidays || affectedHolidays.some(holiday => isDateInRange(holiday, startDate, endDate))) {
         const includeStartDay = true;
-        console.log('in')
         const dependentEndDate = addPlannedDays(startDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
         state.data[id] = {
           ...chartRow,

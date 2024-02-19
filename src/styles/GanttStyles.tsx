@@ -52,10 +52,14 @@ export const Cell = styled.div<CellProps>`
 `;
 
 export const CalendarCell = styled.div<CellProps>`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  height: 21px;
+  height: 20px;
   border: 1px solid transparent;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
@@ -65,7 +69,7 @@ export const CalendarCell = styled.div<CellProps>`
   }};
   background-color: ${props => {
     if (props.$type === 'vertical') {
-      return props.$chartBarColor ? props.$chartBarColor : '#ffffff';
+      return props.$chartBarColor ? props.$chartBarColor : 'unset';
     }
   }};
 `;
@@ -109,7 +113,7 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   z-index: 15;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   color: #1b1b1b;
-  height: 1000px;
+  height: 90svh;
 `;
 
 export const CloseButton = styled.button`
