@@ -70,7 +70,7 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
           />
         </div>
         <div
-          style={{ position: 'absolute', left: `${leftPosition + width}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
+          style={{ position: 'absolute', left: `${leftPosition + width + 1.5}px`, width: '8px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarEndMouseDown }}
         ></div>
       </>

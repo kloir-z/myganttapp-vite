@@ -20,6 +20,7 @@ interface EventRowProps {
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
   const dispatch = useDispatch();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
+  const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const topPosition = (entry.no - 1) * 21;
   const plannedChartBarColor = useSelector((state: RootState) => {
@@ -52,7 +53,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarDragging(true);
     setCanDrag(false);
-    setInitialMouseX(event.clientX);
+    if (gridRef.current) {
+      const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      setInitialMouseX(adjustedX);
+    }
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
@@ -61,7 +66,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarEndDragging(true);
     setCanDrag(false);
-    setInitialMouseX(event.clientX);
+    if (gridRef.current) {
+      const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      setInitialMouseX(adjustedX);
+    }
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
@@ -70,7 +79,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarStartDragging(true);
     setCanDrag(false);
-    setInitialMouseX(event.clientX);
+    if (gridRef.current) {
+      const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      setInitialMouseX(adjustedX);
+    }
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
@@ -110,7 +123,14 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
       const currentMouseX = event.clientX;
-      const deltaX = currentMouseX - initialMouseX;
+      let deltaX
+      if (isBarDragging) {
+        deltaX = currentMouseX - initialMouseX;
+      } else if (isBarEndDragging) {
+        deltaX = currentMouseX - initialMouseX + cellWidth;
+      } else { //(isBarStartDragging)
+        deltaX = currentMouseX - initialMouseX - cellWidth;
+      }
       const gridSteps = Math.floor(deltaX / cellWidth);
 
       setLocalEvents((prevEvents) => {
@@ -152,7 +172,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
       if (!gridRect || !currentDate || activeEventIndex === null) return;
 
       const scrollLeft = gridRef.current?.scrollLeft || 0;
-      const relativeX = event.clientX - gridRect.left + scrollLeft;
+      const relativeX = event.clientX - gridRect.left + scrollLeft - 1.5;
       const newDate = calculateDateFromX(relativeX);
 
       const isEndDate = newDate > currentDate;

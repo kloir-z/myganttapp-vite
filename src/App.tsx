@@ -44,10 +44,12 @@ function App() {
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const columns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
   const [isDragging, setIsDragging] = useState(false);
+  const [isMouseDown, setIsMouseDown] = useState(false);
   const [canDrag, setCanDrag] = useState(true);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
@@ -144,22 +146,24 @@ function App() {
   };
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
+    setIsMouseDown(true);
     if (canDrag && gridRef.current) {
-      setIsDragging(true);
       setStartX(event.clientX + gridRef.current.scrollLeft);
       setStartY(event.clientY + gridRef.current.scrollTop);
     }
   }, [canDrag]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (canDrag && isDragging && gridRef.current) {
+    if (canDrag && isMouseDown && gridRef.current) {
+      setIsDragging(true);
       gridRef.current.scrollLeft = startX - event.clientX;
       gridRef.current.scrollTop = startY - event.clientY;
     }
-  }, [canDrag, isDragging, startX, startY]);
+  }, [canDrag, isMouseDown, startX, startY]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setIsMouseDown(false);
   }, []);
 
   useEffect(() => {
@@ -275,13 +279,25 @@ function App() {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (gridRef.current) {
+        const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
+        const adjustedX = Math.floor((e.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+        let adjustedY = mousePosition.y;
+        if (!isMouseDown) {
+          const gridStartY = gridRef.current.scrollTop % 21;
+          adjustedY = Math.floor((e.clientY + gridStartY) / 21) * 21 - gridStartY;
+        }
+        setMousePosition(({ x: adjustedX, y: adjustedY }));
+      }
     };
+
     window.addEventListener('mousemove', handleMouseMove);
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [cellWidth, isMouseDown, wbsWidth, mousePosition.y]);
+
 
   return (
     <div style={{ position: 'fixed' }}>
@@ -347,34 +363,37 @@ function App() {
         </div>
       </div>
 
-      {!isSettingsModalOpen && (
+      {!isSettingsModalOpen && !isDragging && (
         <>
           <div
             className="horizontal-indicator"
             style={{
               width: '100vw',
-              height: '20px',
-              backgroundColor: 'rgba(142, 155, 255, 0.072)',
+              height: '21.1px',
+              backgroundColor: 'rgba(124, 124, 124, 0.09)',
               position: 'absolute',
               left: 0,
-              top: mousePosition.y - 5 + 'px',
+              top: mousePosition.y + 'px',
               pointerEvents: 'none',
               zIndex: '20'
             }}
           ></div>
-          <div
-            className="vertical-indicator"
-            style={{
-              height: '100vh',
-              width: '20px',
-              backgroundColor: 'rgba(142, 155, 255, 0.072)',
-              position: 'absolute',
-              left: mousePosition.x - 5 + 'px',
-              top: 0,
-              pointerEvents: 'none',
-              zIndex: '20'
-            }}
-          ></div></>
+          {(mousePosition.x > wbsWidth) && (
+            <div
+              className="vertical-indicator"
+              style={{
+                height: '100vh',
+                width: `${cellWidth + 0.1}px`,
+                backgroundColor: 'rgba(124, 124, 124, 0.09)',
+                position: 'absolute',
+                left: mousePosition.x + 'px',
+                top: 0,
+                pointerEvents: 'none',
+                zIndex: '20'
+              }}
+            ></div>
+          )}
+        </>
       )}
     </div>
   );
