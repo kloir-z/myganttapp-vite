@@ -73,7 +73,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarEndDragging(barType);
     setCanDrag(false);
-    
+
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
@@ -90,7 +90,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarStartDragging(barType);
     setCanDrag(false);
-    
+
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;

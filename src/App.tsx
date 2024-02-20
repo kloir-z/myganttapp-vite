@@ -283,7 +283,7 @@ function App() {
         const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
         const adjustedX = Math.floor((e.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
         let adjustedY = mousePosition.y;
-        if (!isMouseDown) {
+        if (canDrag) {
           const gridStartY = gridRef.current.scrollTop % 21;
           adjustedY = Math.floor((e.clientY + gridStartY) / 21) * 21 - gridStartY;
         }
@@ -296,7 +296,7 @@ function App() {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [cellWidth, isMouseDown, wbsWidth, mousePosition.y]);
+  }, [cellWidth, isMouseDown, wbsWidth, mousePosition.y, canDrag]);
 
 
   return (
@@ -387,7 +387,7 @@ function App() {
                 backgroundColor: 'rgba(124, 124, 124, 0.09)',
                 position: 'absolute',
                 left: mousePosition.x + 'px',
-                top: 0,
+                top: '21px',
                 pointerEvents: 'none',
                 zIndex: '20'
               }}
