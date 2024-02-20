@@ -271,6 +271,18 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
@@ -334,6 +346,36 @@ function App() {
           <div>Undo: {actualUndoCount}, Redo: {actualRedoCount}</div>
         </div>
       </div>
+
+      {!isSettingsModalOpen && (
+        <>
+          <div
+            className="horizontal-indicator"
+            style={{
+              width: '100vw',
+              height: '20px',
+              backgroundColor: 'rgba(142, 155, 255, 0.072)',
+              position: 'absolute',
+              left: 0,
+              top: mousePosition.y - 5 + 'px',
+              pointerEvents: 'none',
+              zIndex: '20'
+            }}
+          ></div>
+          <div
+            className="vertical-indicator"
+            style={{
+              height: '100vh',
+              width: '20px',
+              backgroundColor: 'rgba(142, 155, 255, 0.072)',
+              position: 'absolute',
+              left: mousePosition.x - 5 + 'px',
+              top: 0,
+              pointerEvents: 'none',
+              zIndex: '20'
+            }}
+          ></div></>
+      )}
     </div>
   );
 }
