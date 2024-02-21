@@ -155,7 +155,11 @@ function App() {
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (canDrag && isMouseDown && gridRef.current) {
-      setIsDragging(true);
+      const moveX = Math.abs(startX - event.clientX - gridRef.current.scrollLeft);
+      const moveY = Math.abs(startY - event.clientY - gridRef.current.scrollTop);
+      if (moveX > 5 || moveY > 5) {
+        setIsDragging(true);
+      }
       gridRef.current.scrollLeft = startX - event.clientX;
       gridRef.current.scrollTop = startY - event.clientY;
     }
@@ -382,7 +386,7 @@ function App() {
             <div
               className="vertical-indicator"
               style={{
-                height: '100vh',
+                height: `${calculateGridHeight() + 21}px`,
                 width: `${cellWidth + 0.1}px`,
                 backgroundColor: 'rgba(124, 124, 124, 0.09)',
                 position: 'absolute',
