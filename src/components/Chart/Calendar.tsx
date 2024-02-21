@@ -46,7 +46,6 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 $isMonthStart={true}
                 $isFirstDate={isFirstDate}
                 style={{
-                  position: 'absolute',
                   padding: '0px 5px',
                   left: `${left}px`,
                   height: '21px'
@@ -99,7 +98,6 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             <CalendarCell
               key={index}
               data-index={index}
-              $type='vertical'
               $isMonthStart={isMonthStart}
               $isFirstDate={isFirstDate}
               $chartBarColor={chartBarColor}

@@ -15,63 +15,45 @@ export const GanttRow = styled.div`
 `;
 
 interface CellProps {
-  $type?: string;
-  $isPlanned?: boolean;
-  $isActual?: boolean;
   $chartBarColor?: string;
   $width?: number;
-  $isMonthStart?: boolean;
-  $isFirstDate?: boolean;
-  $borderLeft?: boolean;
 }
 
 export const Cell = styled.div<CellProps>`
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  width: ${props => (props.$width ? `${props.$width}px` : '21.1px')};
+  width: ${props => props.$width ? `${props.$width}px` : '21.1px'};
   height: 21px;
   border: 1px solid transparent;
-  border-left: ${props => {
-    return (props.$isPlanned || props.$isActual) ? '1px solid transparent' : '1px solid #00000010';
-  }};
-  background-color: ${props => {
-    if (props.$isPlanned) {
-      return props.$chartBarColor ? props.$chartBarColor : '#76ff7051';
-    }
-    if (props.$isActual) {
-      return props.$chartBarColor ? props.$chartBarColor : '#0000003d';
-    }
-  }};
+  background-color: ${props => props.$chartBarColor ? props.$chartBarColor : '#99ff937e'};
   &:hover {
-    border: ${props => ((props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid transparent')};
-    border-left: ${props => {
-    return (props.$isPlanned || props.$isActual) ? '1px solid #001aff83' : '1px solid #00000016';
-  }};
+    border: ${props => props.$chartBarColor ? '1px solid #000dff5f' : '1px solid transparent'};
   }
 `;
 
-export const CalendarCell = styled.div<CellProps>`
+interface CalendarCellProps {
+  $chartBarColor?: string;
+  $isMonthStart?: boolean;
+  $isFirstDate?: boolean;
+  $borderLeft?: boolean;
+}
+
+export const CalendarCell = styled.div<CalendarCellProps>`
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   font-size: 0.8rem;
-  text-align: center;
   height: 20px;
-  border: 1px solid transparent;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
     if (props.$isMonthStart) return '1px solid #00000055';
     if (props.$borderLeft) return '1px solid #00000010';
     return 'none';
   }};
-  background-color: ${props => {
-    if (props.$type === 'vertical') {
-      return props.$chartBarColor ? props.$chartBarColor : 'unset';
-    }
-  }};
+  background-color: ${props => props.$chartBarColor ? props.$chartBarColor : 'unset'};
 `;
 
 const createFadeAnimation = (fromOpacity: number, toOpacity: number) => keyframes`

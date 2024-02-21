@@ -1,8 +1,9 @@
 // ChartBar.tsx
 import React from 'react';
-import { ChartCell } from './ChartCell';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
+import { Cell } from '../../styles/GanttStyles';
+import AutoWidthInputBox from '../AutoWidthInputBox';
 
 interface ChartBarProps {
   startDate: Date | null;
@@ -60,14 +61,18 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
           style={{ position: 'absolute', left: `${leftPosition}px`, width: `${width}px` }}
           {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
         >
-          <ChartCell
-            entryId={entryId}
-            eventIndex={eventIndex}
-            isActual={isActual}
-            isPlanned={!isActual}
-            chartBarColor={chartBarColor}
-            width={width}
-          />
+          <Cell
+            $chartBarColor={chartBarColor}
+            $width={width}
+            style={{ position: 'relative' }}
+          >
+            {(!isActual && entryId) && (
+              <AutoWidthInputBox
+                entryId={entryId}
+                eventIndex={eventIndex}
+              />
+            )}
+          </Cell>
         </div>
         <div
           style={{ position: 'absolute', left: `${leftPosition + width + 1.5}px`, width: '5px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
@@ -76,7 +81,6 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
       </>
     );
   }
-
   return null;
 };
 
