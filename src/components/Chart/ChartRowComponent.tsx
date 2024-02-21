@@ -58,7 +58,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     setCanDrag(false);
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
-      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       setInitialMouseX(adjustedX);
     }
     if (barType === 'planned') {
@@ -76,7 +76,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
-      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       setInitialMouseX(adjustedX);
     }
     if (barType === 'planned') {
@@ -93,7 +93,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
-      const adjustedX = Math.floor((event.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+      const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       setInitialMouseX(adjustedX);
     }
     if (barType === 'planned') {
@@ -195,7 +195,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       if (!gridRect || !currentDate) return;
 
       const scrollLeft = gridRef.current?.scrollLeft || 0;
-      const relativeX = event.clientX - gridRect.left + scrollLeft - 1.5;
+      const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
       const newDate = calculateDateFromX(relativeX);
 
       const isEndDate = newDate > currentDate;

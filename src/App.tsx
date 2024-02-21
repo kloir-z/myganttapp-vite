@@ -51,8 +51,8 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [canDrag, setCanDrag] = useState(true);
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
+  const [startX, setStartX] = useState({ eventX: 0, gridRefX: 0 });
+  const [startY, setStartY] = useState({ eventY: 0, gridRefY: 0 });
   const [separatorX, setSeparatorX] = useState(0);
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -86,6 +86,7 @@ function App() {
 
   useEffect(() => {
     const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
+      if (!isDragging) { setIsDragging(true) }
       if (sourceRef.current && targetRef.current) {
         const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
         const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
@@ -96,6 +97,7 @@ function App() {
     };
 
     const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
+      if (!isDragging) { setIsDragging(true) }
       if (sourceRef.current && targetRef.current) {
         const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
         const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
@@ -130,7 +132,7 @@ function App() {
         gridElement.removeEventListener('scroll', () => handleHorizontalScroll(gridRef, calendarRef));
       }
     };
-  }, []);
+  }, [isDragging]);
 
 
   const handleResize = useCallback((newWidth: number) => {
@@ -148,22 +150,26 @@ function App() {
   const handleMouseDown = useCallback((event: MouseEvent) => {
     setIsMouseDown(true);
     if (canDrag && gridRef.current) {
-      setStartX(event.clientX + gridRef.current.scrollLeft);
-      setStartY(event.clientY + gridRef.current.scrollTop);
+      setStartX({ eventX: event.clientX + gridRef.current.scrollLeft, gridRefX: gridRef.current.scrollLeft });
+      setStartY({ eventY: event.clientY + gridRef.current.scrollTop, gridRefY: gridRef.current.scrollTop });
     }
   }, [canDrag]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (canDrag && isMouseDown && gridRef.current) {
-      const moveX = Math.abs(startX - event.clientX - gridRef.current.scrollLeft);
-      const moveY = Math.abs(startY - event.clientY - gridRef.current.scrollTop);
-      if (moveX > 5 || moveY > 5) {
-        setIsDragging(true);
+      if (!isDragging) {
+        const moveX = Math.abs(startX.gridRefX - gridRef.current.scrollLeft);
+        const moveY = Math.abs(startY.gridRefY - gridRef.current.scrollTop);
+        if (moveX > 3 || moveY > 3) {
+          setIsDragging(true);
+        }
       }
-      gridRef.current.scrollLeft = startX - event.clientX;
-      gridRef.current.scrollTop = startY - event.clientY;
+      gridRef.current.scrollLeft = startX.eventX - event.clientX;
+      gridRef.current.scrollTop = startY.eventY - event.clientY;
+    } else if (isDragging) {
+      setIsDragging(false);
     }
-  }, [canDrag, isMouseDown, startX, startY]);
+  }, [canDrag, isDragging, isMouseDown, startX.eventX, startX.gridRefX, startY.eventY, startY.gridRefY]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -285,7 +291,7 @@ function App() {
     const handleMouseMove = (e: MouseEvent) => {
       if (gridRef.current) {
         const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
-        const adjustedX = Math.floor((e.clientX + gridStartX - 1.5) / cellWidth) * cellWidth - gridStartX + 1.5;
+        const adjustedX = Math.floor((e.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
         let adjustedY = mousePosition.y;
         if (canDrag) {
           const gridStartY = gridRef.current.scrollTop % 21;
@@ -382,12 +388,12 @@ function App() {
               zIndex: '20'
             }}
           ></div>
-          {(mousePosition.x > wbsWidth) && (
+          {(mousePosition.x > wbsWidth) && (cellWidth > 5) && (
             <div
               className="vertical-indicator"
               style={{
                 height: `${calculateGridHeight() + 21}px`,
-                width: `${cellWidth + 0.1}px`,
+                width: `${cellWidth + 0.2}px`,
                 backgroundColor: 'rgba(124, 124, 124, 0.09)',
                 position: 'absolute',
                 left: mousePosition.x + 'px',
