@@ -376,7 +376,7 @@ function App() {
               className="horizontal-indicator"
               style={{
                 width: '100vw',
-                height: '1px',
+                height: '0.2px',
                 backgroundColor: 'rgba(59, 42, 255, 0.609)',
                 position: 'absolute',
                 left: 0,
