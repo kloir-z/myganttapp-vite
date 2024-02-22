@@ -57,23 +57,19 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
           style={{ position: 'absolute', left: `${leftPosition - 6}px`, width: '5px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarStartMouseDown }}
         ></div>
-        <div
-          style={{ position: 'absolute', left: `${leftPosition}px`, width: `${width}px` }}
+        <Cell
+          $chartBarColor={chartBarColor}
+          $width={width}
+          $left={leftPosition}
           {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
         >
-          <Cell
-            $chartBarColor={chartBarColor}
-            $width={width}
-            style={{ position: 'relative' }}
-          >
-            {(!isActual && entryId) && (
-              <AutoWidthInputBox
-                entryId={entryId}
-                eventIndex={eventIndex}
-              />
-            )}
-          </Cell>
-        </div>
+          {(!isActual && entryId) && (
+            <AutoWidthInputBox
+              entryId={entryId}
+              eventIndex={eventIndex}
+            />
+          )}
+        </Cell>
         <div
           style={{ position: 'absolute', left: `${leftPosition + width + 1.5}px`, width: '5px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarEndMouseDown }}

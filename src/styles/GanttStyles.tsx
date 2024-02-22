@@ -16,13 +16,16 @@ export const GanttRow = styled.div`
 
 interface CellProps {
   $chartBarColor?: string;
+  $left?: number;
   $width?: number;
 }
 
 export const Cell = styled.div<CellProps>`
+  position: absolute;
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
+  left: ${props => props.$left ? `${props.$left}px` : ''};
   width: ${props => props.$width ? `${props.$width}px` : '21.1px'};
   height: 21px;
   border: 1px solid transparent;

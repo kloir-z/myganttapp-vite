@@ -50,7 +50,7 @@ const createStructuredDataArray = (): WBSData[] => {
   const data: WBSData[] = [];
   data.push(createEmptySeparatorRow());
   data.push(createEmptyEventRow());
-  for (let i = 0; i < 38; i++) {
+  for (let i = 0; i < 500; i++) {
     data.push(createEmptyChartRow());
   }
   return data;

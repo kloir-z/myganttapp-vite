@@ -24,7 +24,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const borderLeft = cellWidth > 3 || dayOfWeek === 0 ? true : false;
         const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
         const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
-        const chartBarColor = selectedSetting ? (cellWidth <= 12 ? selectedSetting.subColor : selectedSetting.color) : '';
+        const chartBarColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
         const left = cellWidth * index;
 
         return (

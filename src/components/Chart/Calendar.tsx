@@ -69,10 +69,10 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           const dayOfWeek = date.getDay();
           const isMonthStart = date.getDate() === 1;
           const isFirstDate = index === 0;
-          const borderLeft = cellWidth > 12 || dayOfWeek === 0 ? true : false;
+          const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
           const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
           const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
-          chartBarColor = selectedSetting ? (cellWidth <= 12 ? selectedSetting.subColor : selectedSetting.color) : '';
+          chartBarColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
           const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
           const firstDayOfWeek = firstDayOfMonth.getDay();
           const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
@@ -84,7 +84,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           let displayText = `${date.getDate()}`;
           if (cellWidth <= 5) {
             displayText = '';
-          } else if (cellWidth <= 12) {
+          } else if (cellWidth <= 11) {
             if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.getDate() > (lastDayOfMonth.getDate() - lastDayOfWeek - 1)) {
               displayText = '';
             } else if ((isMonthStart && !skipFirstWeek) || dayOfWeek === 0) {
@@ -107,7 +107,17 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 width: `${cellWidth + 0.1}px`
               }}
             >
-              <label style={{ position: 'absolute', zIndex: '1', whiteSpace: 'nowrap' }}>{displayText}</label>
+              <label
+                style={{
+                  position: 'absolute',
+                  zIndex: '1',
+                  whiteSpace: 'nowrap',
+                  letterSpacing: cellWidth <= 14 ? '-2px' : 'normal',
+                  marginLeft: cellWidth <= 14 ? '-2px' : '0px',
+                }}
+              >
+                {displayText}
+              </label>
             </CalendarCell>
           );
         })}
