@@ -1,5 +1,5 @@
 // EventRowComponent.tsx
-import React, { useState, memo, useEffect, useCallback, useReducer } from 'react';
+import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEventRow, setIsFixedData } from '../../reduxStoreAndSlices/store';
@@ -13,7 +13,6 @@ import { GanttRow } from '../../styles/GanttStyles';
 type Action =
   | { type: 'INIT'; payload: EventType[] }
   | { type: 'ADD_EVENT'; payload: EventType }
-  | { type: 'DELETE_EVENT'; index: number }
   | { type: 'UPDATE_START_DATE'; payload: { index: number; startDate: Date | null } }
   | { type: 'UPDATE_END_DATE'; payload: { index: number; endDate: Date | null } }
   | { type: 'UPDATE_EVENT_DATES'; payload: { index: number; startDate: Date | null; endDate: Date | null; } }
@@ -32,8 +31,6 @@ function eventsReducer(state: EventType[], action: Action): EventType[] {
       return action.payload;
     case 'ADD_EVENT':
       return [...state, action.payload];
-    case 'DELETE_EVENT':
-      return state.filter((_, index) => index !== action.index);
     case 'UPDATE_START_DATE':
       return state.map((event, index) =>
         index === action.payload.index
@@ -76,15 +73,16 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const topPosition = (entry.no - 1) * 21;
-  const plannedChartBarColor = useSelector((state: RootState) => {
-    if (entry.color === '') { return '#76ff7051' }
-    const colorInfo = state.color.colors.find(c => c.alias === entry.color);
+  const colors = useSelector((state: RootState) => state.color.colors);
+  const plannedChartBarColor = useMemo(() => {
+    if (entry.color === '') { return '#76ff7051'; }
+    const colorInfo = colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
-  });
-  const actualChartBarColor = useSelector((state: RootState) => {
-    const colorInfo = state.color.colors.find(c => c.id === 999);
+  }, [entry.color, colors]);
+  const actualChartBarColor = useMemo(() => {
+    const colorInfo = colors.find(c => c.id === 999);
     return colorInfo ? colorInfo.color : '#0000003d';
-  });
+  }, [colors]);
   const init = (initialEventData: EventData[]) => initialEventData.map(event => ({
     ...event,
     startDate: event.startDate ? new Date(event.startDate) : null,
@@ -104,7 +102,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, index: number } | null>(null);
 
-  const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleBarMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -115,9 +113,9 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  };
+  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
-  const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleBarEndMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarEndDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -128,9 +126,9 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  };
+  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
-  const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+  const handleBarStartMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarStartDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -141,7 +139,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  };
+  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
@@ -153,7 +151,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     return adjustToLocalMidnight(dateArray[dateIndex]);
   }, [cellWidth, dateArray]);
 
-  const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     setCanGridRefDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
@@ -169,7 +167,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     };
     localDispatch({ type: 'ADD_EVENT', payload: newEvent });
     setActiveEventIndex(localEvents.length);
-  }
+  }, [calculateDateFromX, localEvents.length, setCanGridRefDrag]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const update = () => {
@@ -258,7 +256,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localEvents, entry, dispatch]);
 
-  const debouncedSyncToStore = debounce(syncToStore, 20);
+  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 20), [syncToStore]);
 
   useEffect(() => {
     debouncedSyncToStore();
@@ -287,10 +285,19 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
   const handleDeleteBar = useCallback(() => {
     if (contextMenu !== null) {
-      localDispatch({ type: 'DELETE_EVENT', index: contextMenu.index });
+      const updatedEventData = localEvents.filter((_, index) => index !== contextMenu.index).map(event => ({
+        ...event,
+        startDate: event.startDate ? formatDate(event.startDate) : "",
+        endDate: event.endDate ? formatDate(event.endDate) : ""
+      }));
+      const updatedEventRow = {
+        ...entry,
+        eventData: updatedEventData
+      };
+      dispatch(updateEventRow({ id: entry.id, updatedEventRow }));
       handleCloseContextMenu();
     }
-  }, [contextMenu, handleCloseContextMenu]);
+  }, [contextMenu, localEvents, entry, dispatch, handleCloseContextMenu]);
 
   return (
     <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, height: '21px', width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>

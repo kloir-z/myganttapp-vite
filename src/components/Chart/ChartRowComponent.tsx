@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback } from 'react';
+import React, { useState, memo, useEffect, useCallback, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, setIsFixedData } from '../../reduxStoreAndSlices/store';
@@ -24,20 +24,23 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const plannedChartBarColor = useSelector((state: RootState) => {
-    if (entry.color === '') { return '#76ff7051' }
-    const colorInfo = state.color.colors.find(c => c.alias === entry.color);
+  const colors = useSelector((state: RootState) => state.color.colors);
+  const plannedChartBarColor = useMemo(() => {
+    if (entry.color === '') { return '#76ff7051'; }
+    const colorInfo = colors.find(c => c.alias === entry.color);
     return colorInfo ? colorInfo.color : '#76ff7051';
-  });
-  const actualChartBarColor = useSelector((state: RootState) => {
-    const colorInfo = state.color.colors.find(c => c.id === 999);
+  }, [entry.color, colors]);
+  const actualChartBarColor = useMemo(() => {
+    const colorInfo = colors.find(c => c.id === 999);
     return colorInfo ? colorInfo.color : '#0000003d';
-  });
+  }, [colors]);
   const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
-  const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
+  const regularHolidays = useMemo(() => {
+    return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
+  }, [regularHolidaySetting]);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? new Date(entry.plannedEndDate) : null);
   const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? new Date(entry.actualStartDate) : null);
@@ -53,7 +56,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const [isShiftKeyDown, setIsShiftKeyDown] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, barType: 'planned' | 'actual' } | null>(null);
 
-  const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
+  const handleBarMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarDragging(barType);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -68,9 +71,9 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       setOriginalStartDate(localActualStartDate);
       setOriginalEndDate(localActualEndDate);
     }
-  };
+  }, [cellWidth, gridRef, localActualEndDate, localActualStartDate, localPlannedEndDate, localPlannedStartDate, setCanGridRefDrag, wbsWidth]);
 
-  const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
+  const handleBarEndMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarEndDragging(barType);
     setCanGridRefDrag(false);
 
@@ -85,9 +88,9 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       setOriginalStartDate(localActualStartDate);
       setOriginalEndDate(localActualEndDate);
     }
-  };
+  }, [cellWidth, gridRef, localActualEndDate, localActualStartDate, localPlannedEndDate, setCanGridRefDrag, wbsWidth]);
 
-  const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
+  const handleBarStartMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarStartDragging(barType);
     setCanGridRefDrag(false);
 
@@ -102,7 +105,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       setOriginalStartDate(localActualStartDate);
       setOriginalEndDate(localActualEndDate);
     }
-  };
+  }, [cellWidth, gridRef, localActualEndDate, localActualStartDate, localPlannedStartDate, setCanGridRefDrag, wbsWidth]);
 
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
@@ -114,7 +117,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     return adjustToLocalMidnight(dateArray[dateIndex]);
   }, [cellWidth, dateArray]);
 
-  const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     setCanGridRefDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
@@ -128,7 +131,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     const setEndDate = isShiftKeyDown ? setLocalActualEndDate : setLocalPlannedEndDate;
     setStartDate(clickedDate);
     setEndDate(clickedDate);
-  }
+  }, [calculateDateFromX, setCanGridRefDrag]);
 
   const handleMouseMoveEditing = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const update = () => {
@@ -274,14 +277,14 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localPlannedStartDate, localPlannedEndDate, localActualStartDate, localActualEndDate, dispatch, entry.id]);
 
-  const debouncedSyncToStore = debounce(syncToStore, 20);
+  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 20), [syncToStore]);
 
   useEffect(() => {
     debouncedSyncToStore();
     return () => debouncedSyncToStore.cancel();
   }, [debouncedSyncToStore]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     syncToStore();
     setIsEditing(false);
     setIsBarDragging(null);
@@ -290,7 +293,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     setInitialMouseX(null);
     setCanGridRefDrag(true)
     dispatch(setIsFixedData(true))
-  };
+  }, [dispatch, setCanGridRefDrag, syncToStore]);
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     event.preventDefault();

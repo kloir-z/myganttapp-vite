@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -26,14 +26,20 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   );
   const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
-  const regularHolidays = Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.present.columns);
-  const dataArray = Object.values(data);
-  const customDateCellTemplate = new CustomDateCellTemplate(showYear);
-  const customTextCellTemplate = new CustomTextCellTemplate();
+  
+  const regularHolidays = useMemo(() => {
+    return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
+  }, [regularHolidaySetting]);
 
+  const dataArray = useMemo(() => {
+    return Object.values(data);
+  }, [data]);
+
+  const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
+  const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
   const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell>[] => {
     return [
       headerRow,
@@ -52,7 +58,7 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     ];
   }, [visibleColumns, headerRow]);
 
-  const rows = getRows(dataArray);
+  const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
 
   const getSelectedIdsFromRanges = useCallback((selectedRanges: Array<Array<CellLocation>>) => {
     const selectedRowIdsFromRanges = new Set<Id>();
@@ -162,14 +168,14 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     dispatch(setColumns(reorderedColumns));
   }, [columns, dispatch]);
 
-  const onColumnResize = (columnId: Id, width: number) => {
+  const onColumnResize = useCallback((columnId: Id, width: number) => {
     const columnIdAsString = columnId.toString();
     dispatch(handleColumnResize({ columnId: columnIdAsString, width }));
-  };
+  }, [dispatch]);
 
-  const handleCanReorderRows = (targetRowId: Id): boolean => {
+  const handleCanReorderRows = useCallback((targetRowId: Id): boolean => {
     return targetRowId !== 'header';
-  }
+  }, []);
 
   return (
     <ReactGrid

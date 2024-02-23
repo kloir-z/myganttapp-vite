@@ -1,5 +1,5 @@
 // AutoWidthInputBox.tsx
-import React, { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect, useCallback, ChangeEvent, useMemo } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setDisplayName, setEventDisplayName } from '../reduxStoreAndSlices/store';
@@ -111,7 +111,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
     }
   }, [entryId, eventIndex, localDisplayName, dispatch, isEditing]);
 
-  const debouncedSyncToStore = debounce(syncToStore, 100);
+  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 100), [syncToStore]);
 
   useEffect(() => {
     debouncedSyncToStore();

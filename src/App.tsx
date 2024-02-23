@@ -1,5 +1,5 @@
 // App.tsx
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Calendar from './components/Chart/Calendar';
 import { ChartRow, EventRow, SeparatorRow } from './types/DataTypes';
 import WBSInfo from './components/Table/WBSInfo';
@@ -22,20 +22,21 @@ import TitleSetting from './components/Setting/TitleSetting';
 import { isEqual } from 'lodash';
 import { createSelector } from '@reduxjs/toolkit';
 
+const selectWbsData = (state: RootState) => state.wbsData;
+const selectUndoRedo = createSelector(
+  [selectWbsData],
+  (wbsData) => ({
+    pastState: wbsData.past,
+    presentState: wbsData.present,
+    futureState: wbsData.future,
+  })
+);
+
 function App() {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.wbsData.present.data,
     (prevData, nextData) => isEqual(prevData, nextData)
-  );
-  const selectWbsData = (state: RootState) => state.wbsData;
-  const selectUndoRedo = createSelector(
-    [selectWbsData],
-    (wbsData) => ({
-      pastState: wbsData.past,
-      presentState: wbsData.present,
-      futureState: wbsData.future,
-    })
   );
   const { pastState, presentState, futureState } = useSelector(selectUndoRedo);
   const [actualUndoCount, setActualUndoCount] = useState(0);
@@ -47,7 +48,7 @@ function App() {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
+  const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
   const [isGridRefDragging, setIsGridRefDragging] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [canGridRefDrag, setCanGridRefDrag] = useState(true);
@@ -74,10 +75,6 @@ function App() {
     }
     dispatch(setMaxWbsWidth(totalWidth));
   }, [columns, dispatch, maxWbsWidth, wbsWidth]);
-
-  useEffect(() => {
-    setDateArray(generateDates(dateRange.startDate, dateRange.endDate));
-  }, [dateRange]);
 
   useEffect(() => {
     const isChromiumBased = /Chrome/.test(navigator.userAgent) || /Chromium/.test(navigator.userAgent);
