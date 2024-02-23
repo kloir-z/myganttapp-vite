@@ -15,10 +15,10 @@ interface ChartRowProps {
   entry: ChartRow;
   dateArray: Date[];
   gridRef: React.RefObject<HTMLDivElement>;
-  setCanDrag: (canDrag: boolean) => void;
+  setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
 
-const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
+const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanGridRefDrag }) => {
   const dispatch = useDispatch();
   const topPosition = (entry.no - 1) * 21;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
@@ -55,7 +55,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarDragging(barType);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
@@ -72,7 +72,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarEndDragging(barType);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
 
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
@@ -89,7 +89,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarStartDragging(barType);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
 
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
@@ -115,7 +115,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
     const clickedDate = calculateDateFromX(relativeX);
@@ -131,92 +131,104 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   }
 
   const handleMouseMoveEditing = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    const gridRect = gridRef.current?.getBoundingClientRect();
-    if (!gridRect || !currentDate) return;
+    const update = () => {
+      const gridRect = gridRef.current?.getBoundingClientRect();
+      if (!gridRect || !currentDate) return;
 
-    const scrollLeft = gridRef.current?.scrollLeft || 0;
-    const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
-    const newDate = calculateDateFromX(relativeX);
+      const scrollLeft = gridRef.current?.scrollLeft || 0;
+      const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
+      const newDate = calculateDateFromX(relativeX);
 
-    const isEndDate = newDate > currentDate;
-    if (isShiftKeyDown) {
-      setLocalActualStartDate(isEndDate ? currentDate : newDate);
-      setLocalActualEndDate(isEndDate ? newDate : currentDate);
-    } else {
-      setLocalPlannedStartDate(isEndDate ? currentDate : newDate);
-      setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
-    }
+      const isEndDate = newDate > currentDate;
+      if (isShiftKeyDown) {
+        setLocalActualStartDate(isEndDate ? currentDate : newDate);
+        setLocalActualEndDate(isEndDate ? newDate : currentDate);
+      } else {
+        setLocalPlannedStartDate(isEndDate ? currentDate : newDate);
+        setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
+      }
+    };
+    requestAnimationFrame(update);
   }, [calculateDateFromX, currentDate, gridRef, isShiftKeyDown]);
 
   const handleMouseMoveBarDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (initialMouseX !== null && originalStartDate && originalEndDate) {
-      const currentMouseX = event.clientX;
-      const deltaX = currentMouseX - initialMouseX;
-      const gridSteps = Math.floor(deltaX / cellWidth);
+    const update = () => {
+      if (initialMouseX !== null && originalStartDate && originalEndDate) {
+        const currentMouseX = event.clientX;
+        const deltaX = currentMouseX - initialMouseX;
+        const gridSteps = Math.floor(deltaX / cellWidth);
 
-      const newStartDate = new Date(originalStartDate.getTime());
-      newStartDate.setDate(newStartDate.getDate() + gridSteps);
-      if (isBarDragging === 'planned') {
-        setLocalPlannedStartDate(newStartDate);
-        const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
-        setLocalPlannedEndDate(newEndDate);
-      } else if (isBarDragging === 'actual') {
-        setLocalActualStartDate(newStartDate);
-        const newEndDate = new Date(originalEndDate.getTime());
-        newEndDate.setDate(newEndDate.getDate() + gridSteps);
-        setLocalActualEndDate(newEndDate);
-      }
-    }
-  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, originalEndDate, originalStartDate, plannedDays, regularHolidays]);
-
-  const handleMouseMoveBarEndDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (initialMouseX !== null && originalEndDate) {
-      const currentMouseX = event.clientX;
-      const deltaX = currentMouseX - initialMouseX + cellWidth;
-      const gridSteps = Math.floor(deltaX / cellWidth);
-
-      const newEndDate = new Date(originalEndDate.getTime());
-      newEndDate.setDate(newEndDate.getDate() + gridSteps);
-
-      if (isBarEndDragging === 'planned' && localPlannedStartDate) {
-        if (newEndDate < localPlannedStartDate) {
-          setLocalPlannedEndDate(new Date(localPlannedStartDate));
-        } else {
+        const newStartDate = new Date(originalStartDate.getTime());
+        newStartDate.setDate(newStartDate.getDate() + gridSteps);
+        if (isBarDragging === 'planned') {
+          setLocalPlannedStartDate(newStartDate);
+          const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
           setLocalPlannedEndDate(newEndDate);
-        }
-      } else if (isBarEndDragging === 'actual' && localActualStartDate) {
-        if (newEndDate < localActualStartDate) {
-          setLocalActualEndDate(new Date(localActualStartDate));
-        } else {
+        } else if (isBarDragging === 'actual') {
+          setLocalActualStartDate(newStartDate);
+          const newEndDate = new Date(originalEndDate.getTime());
+          newEndDate.setDate(newEndDate.getDate() + gridSteps);
           setLocalActualEndDate(newEndDate);
         }
       }
-    }
+    };
+    requestAnimationFrame(update);
+  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, originalEndDate, originalStartDate, plannedDays, regularHolidays]);
+
+  const handleMouseMoveBarEndDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const update = () => {
+      if (initialMouseX !== null && originalEndDate) {
+        const currentMouseX = event.clientX;
+        const deltaX = currentMouseX - initialMouseX + cellWidth;
+        const gridSteps = Math.floor(deltaX / cellWidth);
+
+        const newEndDate = new Date(originalEndDate.getTime());
+        newEndDate.setDate(newEndDate.getDate() + gridSteps);
+
+        if (isBarEndDragging === 'planned' && localPlannedStartDate) {
+          if (newEndDate < localPlannedStartDate) {
+            setLocalPlannedEndDate(new Date(localPlannedStartDate));
+          } else {
+            setLocalPlannedEndDate(newEndDate);
+          }
+        } else if (isBarEndDragging === 'actual' && localActualStartDate) {
+          if (newEndDate < localActualStartDate) {
+            setLocalActualEndDate(new Date(localActualStartDate));
+          } else {
+            setLocalActualEndDate(newEndDate);
+          }
+        }
+      }
+    };
+    requestAnimationFrame(update);
   }, [cellWidth, initialMouseX, isBarEndDragging, localActualStartDate, localPlannedStartDate, originalEndDate]);
 
   const handleMouseMoveBarStartDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (initialMouseX !== null && originalStartDate) {
-      const currentMouseX = event.clientX;
-      const deltaX = currentMouseX - initialMouseX - cellWidth;
-      const gridSteps = Math.floor(deltaX / cellWidth);
+    const update = () => {
+      if (initialMouseX !== null && originalStartDate) {
+        const currentMouseX = event.clientX;
+        const deltaX = currentMouseX - initialMouseX - cellWidth;
+        const gridSteps = Math.floor(deltaX / cellWidth);
 
-      const newStartDate = new Date(originalStartDate.getTime());
-      newStartDate.setDate(newStartDate.getDate() + gridSteps);
+        const newStartDate = new Date(originalStartDate.getTime());
+        newStartDate.setDate(newStartDate.getDate() + gridSteps);
 
-      if (isBarStartDragging === 'planned' && localPlannedEndDate) {
-        if (newStartDate > localPlannedEndDate) {
-          setLocalPlannedStartDate(new Date(localPlannedEndDate));
-        } else {
-          setLocalPlannedStartDate(newStartDate);
-        }
-      } else if (isBarStartDragging === 'actual' && localActualEndDate) {
-        if (newStartDate > localActualEndDate) {
-          setLocalActualStartDate(new Date(localActualEndDate));
-        } else {
-          setLocalActualStartDate(newStartDate);
+        if (isBarStartDragging === 'planned' && localPlannedEndDate) {
+          if (newStartDate > localPlannedEndDate) {
+            setLocalPlannedStartDate(new Date(localPlannedEndDate));
+          } else {
+            setLocalPlannedStartDate(newStartDate);
+          }
+        } else if (isBarStartDragging === 'actual' && localActualEndDate) {
+          if (newStartDate > localActualEndDate) {
+            setLocalActualStartDate(new Date(localActualEndDate));
+          } else {
+            setLocalActualStartDate(newStartDate);
+          }
         }
       }
-    }
+    };
+    requestAnimationFrame(update);
   }, [cellWidth, initialMouseX, isBarStartDragging, localActualEndDate, localPlannedEndDate, originalStartDate]);
 
   useEffect(() => {
@@ -276,7 +288,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     setIsBarEndDragging(null);
     setIsBarStartDragging(null);
     setInitialMouseX(null);
-    setCanDrag(true)
+    setCanGridRefDrag(true)
     dispatch(setIsFixedData(true))
   };
 

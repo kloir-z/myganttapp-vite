@@ -48,9 +48,9 @@ function App() {
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dateArray, setDateArray] = useState(generateDates(dateRange.startDate, dateRange.endDate));
-  const [isDragging, setIsDragging] = useState(false);
+  const [isGridRefDragging, setIsGridRefDragging] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [canDrag, setCanDrag] = useState(true);
+  const [canGridRefDrag, setCanGridRefDrag] = useState(true);
   const [startX, setStartX] = useState({ eventX: 0, gridRefX: 0 });
   const [startY, setStartY] = useState({ eventY: 0, gridRefY: 0 });
   const [separatorX, setSeparatorX] = useState(0);
@@ -88,7 +88,7 @@ function App() {
 
   useEffect(() => {
     const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
-      if (!isDragging) { setIsDragging(true) }
+      if (!isGridRefDragging) { setIsGridRefDragging(true) }
       if (sourceRef.current && targetRef.current) {
         const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
         const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
@@ -99,7 +99,7 @@ function App() {
     };
 
     const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
-      if (!isDragging) { setIsDragging(true) }
+      if (!isGridRefDragging) { setIsGridRefDragging(true) }
       if (sourceRef.current && targetRef.current) {
         const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
         const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
@@ -134,7 +134,7 @@ function App() {
         gridElement.removeEventListener('scroll', () => handleHorizontalScroll(gridRef, calendarRef));
       }
     };
-  }, [isDragging]);
+  }, [isGridRefDragging]);
 
   const handleResize = useCallback((newWidth: number) => {
     const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
@@ -158,41 +158,45 @@ function App() {
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
     setIsMouseDown(true);
-    if (canDrag && gridRef.current) {
+    if (canGridRefDrag && gridRef.current) {
       setStartX({ eventX: event.clientX + gridRef.current.scrollLeft, gridRefX: gridRef.current.scrollLeft });
       setStartY({ eventY: event.clientY + gridRef.current.scrollTop, gridRefY: gridRef.current.scrollTop });
     }
-  }, [canDrag]);
+  }, [canGridRefDrag]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (canDrag && isMouseDown && gridRef.current) {
-      if (!isDragging) {
-        const moveX = Math.abs(startX.gridRefX - gridRef.current.scrollLeft);
-        const moveY = Math.abs(startY.gridRefY - gridRef.current.scrollTop);
-        if (moveX > 3 || moveY > 3) {
-          setIsDragging(true);
-        }
-      }
-      gridRef.current.scrollLeft = startX.eventX - event.clientX;
-      gridRef.current.scrollTop = startY.eventY - event.clientY;
-    } else if (isDragging) {
-      setIsDragging(false);
-    }
+    const update = () => {
+      if (!gridRef.current) return;
 
-    if (gridRef.current) {
+      if (canGridRefDrag && isMouseDown) {
+        if (!isGridRefDragging) {
+          const moveX = Math.abs(startX.gridRefX - gridRef.current.scrollLeft);
+          const moveY = Math.abs(startY.gridRefY - gridRef.current.scrollTop);
+          if (moveX > 3 || moveY > 3) {
+            setIsGridRefDragging(true);
+          }
+        }
+
+        gridRef.current.scrollLeft = startX.eventX - event.clientX;
+        gridRef.current.scrollTop = startY.eventY - event.clientY;
+      } else if (isGridRefDragging) {
+        setIsGridRefDragging(false);
+      }
       const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
-      let adjustedY = mousePosition.y;
-      if (canDrag) {
+      let adjustedY = mousePosition.y
+      if (canGridRefDrag) {
         const gridStartY = gridRef.current.scrollTop % 21;
         adjustedY = Math.floor((event.clientY + gridStartY) / 21) * 21 - gridStartY;
       }
-      setMousePosition(({ x: adjustedX, y: adjustedY }));
-    }
-  }, [canDrag, cellWidth, isDragging, isMouseDown, mousePosition.y, startX.eventX, startX.gridRefX, startY.eventY, startY.gridRefY, wbsWidth]);
+      setMousePosition({ x: adjustedX, y: adjustedY });
+    };
+
+    requestAnimationFrame(update);
+  }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startX.gridRefX, startY.eventY, startY.gridRefY, wbsWidth]);
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
+    setIsGridRefDragging(false);
     setIsMouseDown(false);
   }, []);
 
@@ -338,7 +342,7 @@ function App() {
                   entry={entry as ChartRow}
                   dateArray={dateArray}
                   gridRef={gridRef}
-                  setCanDrag={setCanDrag}
+                  setCanGridRefDrag={setCanGridRefDrag}
                 />
               );
             } else if (entry.rowType === 'Separator') {
@@ -357,7 +361,7 @@ function App() {
                   entry={entry as EventRow}
                   dateArray={dateArray}
                   gridRef={gridRef}
-                  setCanDrag={setCanDrag}
+                  setCanGridRefDrag={setCanGridRefDrag}
                 />
               );
             }
@@ -369,7 +373,7 @@ function App() {
         </div>
       </div>
 
-      {!isSettingsModalOpen && !isDragging && (
+      {!isSettingsModalOpen && !isGridRefDragging && (
         <>
           {(mousePosition.y > 41) && (
             <div

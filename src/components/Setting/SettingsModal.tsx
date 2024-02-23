@@ -50,12 +50,12 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     }, 210);
   };
 
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsGridRefDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
   const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 100, y: 50 });
 
   const startDrag = useCallback((e: React.MouseEvent) => {
-    setIsDragging(true);
+    setIsGridRefDragging(true);
     setDragStart({
       x: e.clientX - modalPosition.x,
       y: e.clientY - modalPosition.y,
@@ -84,7 +84,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   }, [isDragging, dragStart.x, dragStart.y]);
 
   const endDrag = useCallback(() => {
-    setIsDragging(false);
+    setIsGridRefDragging(false);
   }, []);
 
   useEffect(() => {

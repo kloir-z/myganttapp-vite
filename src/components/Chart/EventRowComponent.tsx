@@ -67,10 +67,10 @@ interface EventRowProps {
   entry: EventRow;
   dateArray: Date[];
   gridRef: React.RefObject<HTMLDivElement>;
-  setCanDrag: (canDrag: boolean) => void;
+  setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
 
-const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanDrag }) => {
+const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanGridRefDrag }) => {
   const dispatch = useDispatch();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
@@ -106,7 +106,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarDragging(true);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
@@ -119,7 +119,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarEndMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarEndDragging(true);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
@@ -132,7 +132,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
   const handleBarStartMouseDown = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     setIsBarStartDragging(true);
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     if (gridRef.current) {
       const gridStartX = ((gridRef.current.scrollLeft - wbsWidth) % cellWidth);
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
@@ -154,7 +154,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    setCanDrag(false);
+    setCanGridRefDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
     const clickedDate = calculateDateFromX(relativeX);
@@ -172,59 +172,62 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
-      const currentMouseX = event.clientX;
-      let deltaX
-      if (isBarDragging) {
-        deltaX = currentMouseX - initialMouseX;
-      } else if (isBarEndDragging) {
-        deltaX = currentMouseX - initialMouseX + cellWidth;
-      } else { //(isBarStartDragging)
-        deltaX = currentMouseX - initialMouseX - cellWidth;
+    const update = () => {
+      if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
+        const currentMouseX = event.clientX;
+        let deltaX
+        if (isBarDragging) {
+          deltaX = currentMouseX - initialMouseX;
+        } else if (isBarEndDragging) {
+          deltaX = currentMouseX - initialMouseX + cellWidth;
+        } else { //(isBarStartDragging)
+          deltaX = currentMouseX - initialMouseX - cellWidth;
+        }
+        const gridSteps = Math.floor(deltaX / cellWidth);
+
+        let newStartDate = originalStartDate ? new Date(originalStartDate.getTime()) : null;
+        let newEndDate = originalEndDate ? new Date(originalEndDate.getTime()) : null;
+
+        if (isBarDragging && originalStartDate && originalEndDate && newStartDate && newEndDate) {
+          newStartDate.setDate(newStartDate.getDate() + gridSteps);
+          newEndDate.setDate(newEndDate.getDate() + gridSteps);
+        } else if (isBarEndDragging && originalEndDate && newStartDate && newEndDate && originalStartDate) {
+          newEndDate.setDate(newEndDate.getDate() + gridSteps);
+          if (newEndDate < originalStartDate) {
+            newEndDate = new Date(originalStartDate.getTime());
+          }
+        } else if (isBarStartDragging && originalStartDate && newStartDate && newEndDate && originalEndDate) {
+          newStartDate.setDate(newStartDate.getDate() + gridSteps);
+          if (newStartDate > originalEndDate) {
+            newStartDate = new Date(originalEndDate.getTime());
+          }
+        }
+        localDispatch({
+          type: 'UPDATE_EVENT_DATES',
+          payload: { index: activeEventIndex, startDate: newStartDate, endDate: newEndDate }
+        });
+      } else if (isEditing) {
+        const gridRect = gridRef.current?.getBoundingClientRect();
+        if (!gridRect || !currentDate || activeEventIndex === null) return;
+
+        const scrollLeft = gridRef.current?.scrollLeft || 0;
+        const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
+        const newDate = calculateDateFromX(relativeX);
+
+        const isEndDate = newDate > currentDate;
+        const newStartDate = (isEndDate ? currentDate : newDate);
+        const newEndDate = (isEndDate ? newDate : currentDate);
+        localDispatch({
+          type: 'UPDATE_EVENT_DATES',
+          payload: {
+            index: activeEventIndex,
+            startDate: newStartDate,
+            endDate: newEndDate
+          }
+        });
       }
-      const gridSteps = Math.floor(deltaX / cellWidth);
-
-      let newStartDate = originalStartDate ? new Date(originalStartDate.getTime()) : null;
-      let newEndDate = originalEndDate ? new Date(originalEndDate.getTime()) : null;
-
-      if (isBarDragging && originalStartDate && originalEndDate && newStartDate && newEndDate) {
-        newStartDate.setDate(newStartDate.getDate() + gridSteps);
-        newEndDate.setDate(newEndDate.getDate() + gridSteps);
-      } else if (isBarEndDragging && originalEndDate && newStartDate && newEndDate && originalStartDate) {
-        newEndDate.setDate(newEndDate.getDate() + gridSteps);
-        if (newEndDate < originalStartDate) {
-          newEndDate = new Date(originalStartDate.getTime());
-        }
-      } else if (isBarStartDragging && originalStartDate && newStartDate && newEndDate && originalEndDate) {
-        newStartDate.setDate(newStartDate.getDate() + gridSteps);
-        if (newStartDate > originalEndDate) {
-          newStartDate = new Date(originalEndDate.getTime());
-        }
-      }
-      localDispatch({
-        type: 'UPDATE_EVENT_DATES',
-        payload: { index: activeEventIndex, startDate: newStartDate, endDate: newEndDate }
-      });
-    } else if (isEditing) {
-      const gridRect = gridRef.current?.getBoundingClientRect();
-      if (!gridRect || !currentDate || activeEventIndex === null) return;
-
-      const scrollLeft = gridRef.current?.scrollLeft || 0;
-      const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
-      const newDate = calculateDateFromX(relativeX);
-
-      const isEndDate = newDate > currentDate;
-      const newStartDate = (isEndDate ? currentDate : newDate);
-      const newEndDate = (isEndDate ? newDate : currentDate);
-      localDispatch({
-        type: 'UPDATE_EVENT_DATES',
-        payload: {
-          index: activeEventIndex,
-          startDate: newStartDate,
-          endDate: newEndDate
-        }
-      });
-    }
+    };
+    requestAnimationFrame(update);
   }, [isBarDragging, isBarEndDragging, isBarStartDragging, initialMouseX, activeEventIndex, isEditing, cellWidth, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
 
   useEffect(() => {
@@ -269,7 +272,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setIsBarEndDragging(false);
     setIsBarStartDragging(false);
     setInitialMouseX(null);
-    setCanDrag(true);
+    setCanGridRefDrag(true);
     dispatch(setIsFixedData(true))
   };
 
