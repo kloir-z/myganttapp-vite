@@ -1,5 +1,5 @@
 // AutoWidthInputBox.tsx
-import React, { useState, useRef, useEffect, useCallback, ChangeEvent, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, ChangeEvent, useMemo, memo } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setDisplayName, setEventDisplayName } from '../reduxStoreAndSlices/store';
@@ -57,7 +57,7 @@ interface AutoWidthInputBoxProps {
   eventIndex?: number;
 }
 
-const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
+const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   entryId,
   eventIndex
 }) => {
@@ -136,6 +136,6 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = ({
       />
     </InputWrapper>
   );
-};
+});
 
 export default AutoWidthInputBox;

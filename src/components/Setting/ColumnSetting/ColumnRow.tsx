@@ -28,7 +28,7 @@ const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleC
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      handleBlur(); // Enterキーを押した時もhandleBlurを呼び出して更新
+      handleBlur();
     }
   };
 

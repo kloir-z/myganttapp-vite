@@ -1,76 +1,36 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
-import { updateAllColors } from '../../reduxStoreAndSlices/colorSlice';
+import { updateColor, updateAlias } from '../../reduxStoreAndSlices/colorSlice';
 import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
-import { ColorInfo } from "../../reduxStoreAndSlices/colorSlice";
-import { debounce } from 'lodash';
 
 const ColorSetting: React.FC = () => {
   const dispatch = useDispatch();
   const colors = useSelector((state: RootState) => state.color.colors);
-  const [localColors, setLocalColors] = useState<ColorInfo[]>(colors)
-  const [isEditing, setIsEditing] = useState(false);
 
   type DisplayColorPickerType = { [key: number]: boolean };
   const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
 
   const handleColorClick = (id: number) => {
     setDisplayColorPicker({ ...displayColorPicker, [id]: !displayColorPicker[id] });
-    setIsEditing(true);
   };
 
   const handleColorClose = (id: number) => {
     setDisplayColorPicker({ ...displayColorPicker, [id]: false });
-    setIsEditing(false);
   };
 
-  const handleColorChange = useCallback((id: number, newColor: string) => {
-    setLocalColors(currentColors =>
-      currentColors.map(color =>
-        color.id === id ? { ...color, color: newColor } : color
-      )
-    );
-  }, []);
+  const handleColorChange = useCallback((id: number, color: string) => {
+    dispatch(updateColor({ id, color }));
+  }, [dispatch]);
 
-  const handleAliasChange = useCallback((id: number, newAlias: string) => {
-    setLocalColors(currentColors =>
-      currentColors.map(color =>
-        color.id === id ? { ...color, alias: newAlias } : color
-      )
-    );
-  }, []);
-
-  const handleFocus = () => {
-    setIsEditing(true);
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-  };
-
-  useEffect(() => {
-    if (!isEditing) { setLocalColors(colors) }
-    console.log(isEditing)
-  }, [isEditing, colors]);
-
-  const syncToStore = useCallback(() => {
-    if (isEditing) {
-      dispatch(updateAllColors(localColors));
-    }
-  }, [dispatch, isEditing, localColors]);
-
-  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 10), [syncToStore]);
-
-  useEffect(() => {
-    debouncedSyncToStore();
-    return () => debouncedSyncToStore.cancel();
-  }, [debouncedSyncToStore]);
+  const handleAliasChange = useCallback((id: number, alias: string) => {
+    dispatch(updateAlias({ id, alias }));
+  }, [dispatch]);
 
   return (
     <SettingChildDiv text='Chart Color (Alias)'>
-      {localColors.map(colorInfo => (
+      {colors.map(colorInfo => (
         <div key={colorInfo.id} style={{ display: 'flex', flexDirection: 'row' }}>
           <div
             style={{
@@ -121,8 +81,6 @@ const ColorSetting: React.FC = () => {
               value={colorInfo.alias}
               onChange={(e) => handleAliasChange(colorInfo.id, e.target.value)}
               style={{ height: '20px', margin: '2px' }}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
             />
           )}
         </div>
