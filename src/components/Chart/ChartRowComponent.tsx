@@ -2,7 +2,6 @@ import React, { useState, memo, useEffect, useCallback, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, setIsFixedData } from '../../reduxStoreAndSlices/store';
-import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { addPlannedDays } from './utils/CalendarUtil';
 import { ChartBar } from './ChartBar';
@@ -10,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { GanttRow } from '../../styles/GanttStyles';
+import { throttle } from 'lodash';
 
 interface ChartRowProps {
   entry: ChartRow;
@@ -277,12 +277,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localPlannedStartDate, localPlannedEndDate, localActualStartDate, localActualEndDate, dispatch, entry.id]);
 
-  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 20), [syncToStore]);
+  const throttledSyncToStore = useMemo(() => throttle(syncToStore, 10), [syncToStore]);
 
   useEffect(() => {
-    debouncedSyncToStore();
-    return () => debouncedSyncToStore.cancel();
-  }, [debouncedSyncToStore]);
+    throttledSyncToStore();
+    return () => throttledSyncToStore.cancel();
+  }, [throttledSyncToStore]);
+  
 
   const handleMouseUp = useCallback(() => {
     syncToStore();

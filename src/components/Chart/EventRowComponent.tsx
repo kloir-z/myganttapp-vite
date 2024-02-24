@@ -3,12 +3,12 @@ import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } fr
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEventRow, setIsFixedData } from '../../reduxStoreAndSlices/store';
-import { debounce } from 'lodash';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
+import { throttle } from 'lodash';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
@@ -256,12 +256,12 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localEvents, entry, dispatch]);
 
-  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 20), [syncToStore]);
+  const throttledSyncToStore = useMemo(() => throttle(syncToStore, 10), [syncToStore]);
 
   useEffect(() => {
-    debouncedSyncToStore();
-    return () => debouncedSyncToStore.cancel();
-  }, [debouncedSyncToStore]);
+    throttledSyncToStore();
+    return () => throttledSyncToStore.cancel();
+  }, [throttledSyncToStore]);
 
   const handleMouseUp = () => {
     syncToStore();
