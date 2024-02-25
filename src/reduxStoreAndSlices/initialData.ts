@@ -1,6 +1,6 @@
 import { assignIds } from "../components/Table/utils/wbsHelpers";
 import { WBSData, ChartRow, SeparatorRow, EventRow } from "../types/DataTypes";
-import { addPlannedDays } from "../components/Chart/utils/CalendarUtil";
+// import { addPlannedDays } from "../components/Chart/utils/CalendarUtil";
 
 const createEmptySeparatorRow = (): SeparatorRow => ({
   rowType: "Separator",
@@ -27,24 +27,24 @@ const createEmptyEventRow = (): EventRow => ({
   eventData: []
 });
 
-const formatDate = (date: Date): string => {
-  return `${date.getFullYear()}/${("0" + (date.getMonth() + 1)).slice(-2)}/${("0" + date.getDate()).slice(-2)}`;
-};
+// const formatdate = (date: date): string => {
+//   return `${date.getfullyear()}/${("0" + (date.getmonth() + 1)).slice(-2)}/${("0" + date.getdate()).slice(-2)}`;
+// };
 
-const generateRandomDate = (): Date => {
-  const start = new Date();
-  const end = new Date();
-  end.setMonth(start.getMonth() + 5);
-  const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  return randomDate;
-};
+// const generateRandomDate = (): Date => {
+//   const start = new Date();
+//   const end = new Date();
+//   end.setMonth(start.getMonth() + 5);
+//   const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+//   return randomDate;
+// };
 
 const createEmptyChartRow = (): ChartRow => {
-  const plannedStartDate = generateRandomDate();
-  const holidays: string[] = [];
-  const isIncludeHolidays = false;
-  const regularHolidays: number[] = [];
-  const plannedEndDate = addPlannedDays(plannedStartDate, 20, holidays, isIncludeHolidays, true, regularHolidays);
+  // const plannedStartDate = generateRandomDate();
+  // const holidays: string[] = [];
+  // const isIncludeHolidays = false;
+  // const regularHolidays: number[] = [];
+  // const plannedEndDate = addPlannedDays(plannedStartDate, 20, holidays, isIncludeHolidays, true, regularHolidays);
 
   return {
     rowType: "Chart",
@@ -56,9 +56,9 @@ const createEmptyChartRow = (): ChartRow => {
     textColumn3: "",
     textColumn4: "",
     color: "",
-    plannedStartDate: formatDate(plannedStartDate),
-    plannedEndDate: formatDate(plannedEndDate),
-    plannedDays: 20,
+    plannedStartDate: "",
+    plannedEndDate: "",
+    plannedDays: null,
     actualStartDate: "",
     actualEndDate: "",
     dependentId: "",
