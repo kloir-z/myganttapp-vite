@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../../reduxStoreAndSlices/store';
 import { setColumns, toggleColumnVisibility } from '../../../reduxStoreAndSlices/store';
 import ColumnRow from './ColumnRow';
 import SettingChildDiv from '../SettingChildDiv';
 
-const ColumnSetting: React.FC = () => {
+const ColumnSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const allColumns = useSelector((state: RootState) => state.wbsData.present.columns);
   const filteredColumns = allColumns.filter(column => column.columnId !== 'no');
@@ -30,6 +30,6 @@ const ColumnSetting: React.FC = () => {
       ))}
     </SettingChildDiv>
   );
-};
+});
 
 export default ColumnSetting;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FaCog } from 'react-icons/fa';
 
@@ -42,13 +43,13 @@ type SettingButtonProps = {
   onClick: () => void;
 };
 
-const SettingButton: React.FC<SettingButtonProps> = ({ onClick }) => {
+const SettingButton: React.FC<SettingButtonProps> = memo(({ onClick }) => {
   return (
     <StyledSettingButton onClick={onClick}>
       <AnimatedCog />
       <span style={{ position: 'absolute', left: '-9999px' }}>Settings</span>
     </StyledSettingButton>
   );
-};
+});
 
 export default SettingButton;

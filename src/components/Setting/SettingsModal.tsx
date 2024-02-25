@@ -2,15 +2,15 @@
 import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setShowYear } from '../../reduxStoreAndSlices/store';
-import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
 import ReguralHolidaySetting from "./RegularHolidaySetting";
 import DateRangeSetting from "./DateRangeSetting";
 import ExportImportFile from "./ExportImportFile";
+import CellWidthSetting from "./CellWidthSetting";
 import { Overlay, ModalContainer } from "../../styles/GanttStyles";
-import { Switch, Slider } from '@mui/material';
+import { Switch } from '@mui/material';
 import SettingChildDiv from "./SettingChildDiv";
 import { MdOutlineDragIndicator } from "react-icons/md";
 
@@ -24,22 +24,11 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
-  const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
-  const [sliderValue, setSliderValue] = useState(cellWidth);
 
   const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;
     dispatch(setShowYear(isChecked));
-  };
-
-  const handleSliderChange = (_: Event, value: number | number[]) => {
-    const newValue = Array.isArray(value) ? value[0] : value;
-    setSliderValue(newValue);
-  };
-
-  const applyCellWidth = () => {
-    dispatch(setCellWidth(sliderValue));
   };
 
   const handleClose = () => {
@@ -98,9 +87,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     }
   }, [isDragging, onDrag, endDrag]);
 
-  useEffect(() => {
-    setSliderValue(cellWidth);
-  }, [cellWidth]);
 
   return (
     show ?
@@ -138,19 +124,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           </SettingChildDiv>
           <HolidaySetting />
           <ReguralHolidaySetting />
-          <SettingChildDiv text='Chart Cell Width'>
-            <Slider
-              aria-labelledby="cell-width-slider"
-              value={sliderValue}
-              onChange={handleSliderChange}
-              step={0.5}
-              marks
-              min={3}
-              max={21}
-              valueLabelDisplay="auto"
-              onChangeCommitted={applyCellWidth}
-            />
-          </SettingChildDiv>
+          <CellWidthSetting />
           <ExportImportFile />
         </ModalContainer>
       </Overlay>

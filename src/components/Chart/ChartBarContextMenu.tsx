@@ -1,5 +1,5 @@
 // ChartBarContextMenu.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
 interface ChartBarContextMenuProps {
   x: number;
@@ -8,7 +8,7 @@ interface ChartBarContextMenuProps {
   onDelete: () => void;
 }
 
-const ChartBarContextMenu: React.FC<ChartBarContextMenuProps> = ({ x, y, onClose, onDelete }) => {
+const ChartBarContextMenu: React.FC<ChartBarContextMenuProps> = memo(({ x, y, onClose, onDelete }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,6 +31,6 @@ const ChartBarContextMenu: React.FC<ChartBarContextMenuProps> = ({ x, y, onClose
       </div>
     </div>
   );
-};
+});
 
 export default ChartBarContextMenu;

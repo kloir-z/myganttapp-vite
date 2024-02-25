@@ -1,13 +1,39 @@
-import React, { useState, useCallback } from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../reduxStoreAndSlices/store';
+import React, { useState, useCallback, useReducer, memo } from "react";
+import { useDispatch } from 'react-redux';
 import { updateColor, updateAlias } from '../../reduxStoreAndSlices/colorSlice';
 import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
+import { store } from "../../reduxStoreAndSlices/store";
+import { ColorState } from "../../reduxStoreAndSlices/colorSlice";
 
-const ColorSetting: React.FC = () => {
+type ColorAction =
+  | { type: 'UPDATE_COLOR'; payload: { id: number; color: string } }
+  | { type: 'UPDATE_ALIAS'; payload: { id: number; alias: string } }
+
+function colorReducer(state: ColorState, action: ColorAction): ColorState {
+  switch (action.type) {
+    case 'UPDATE_COLOR':
+      return {
+        ...state,
+        colors: state.colors.map(color =>
+          color.id === action.payload.id ? { ...color, color: action.payload.color } : color
+        ),
+      };
+    case 'UPDATE_ALIAS':
+      return {
+        ...state,
+        colors: state.colors.map(color =>
+          color.id === action.payload.id ? { ...color, alias: action.payload.alias } : color
+        ),
+      };
+    default:
+      return state;
+  }
+}
+
+const ColorSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
-  const colors = useSelector((state: RootState) => state.color.colors);
+  const [state, localDispatch] = useReducer(colorReducer, store.getState().color);
 
   type DisplayColorPickerType = { [key: number]: boolean };
   const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
@@ -21,16 +47,18 @@ const ColorSetting: React.FC = () => {
   };
 
   const handleColorChange = useCallback((id: number, color: string) => {
+    localDispatch({ type: "UPDATE_COLOR", payload: { id: id, color: color } })
     dispatch(updateColor({ id, color }));
   }, [dispatch]);
 
   const handleAliasChange = useCallback((id: number, alias: string) => {
+    localDispatch({ type: "UPDATE_ALIAS", payload: { id: id, alias: alias } })
     dispatch(updateAlias({ id, alias }));
   }, [dispatch]);
 
   return (
     <SettingChildDiv text='Chart Color (Alias)'>
-      {colors.map(colorInfo => (
+      {state.colors.map(colorInfo => (
         <div key={colorInfo.id} style={{ display: 'flex', flexDirection: 'row' }}>
           <div
             style={{
@@ -87,6 +115,6 @@ const ColorSetting: React.FC = () => {
       ))}
     </SettingChildDiv>
   );
-};
+});
 
 export default ColorSetting;

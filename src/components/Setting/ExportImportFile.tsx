@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, memo } from "react";
 import { handleImport, handleExport } from "./utils/settingHelpers";
 import { setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { isEqual } from 'lodash';
@@ -6,7 +6,7 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import { useSelector, useDispatch } from 'react-redux';
 import SettingChildDiv from "./SettingChildDiv";
 
-const ExportImportFile: React.FC = () => {
+const ExportImportFile: React.FC = memo(() => {
   const dispatch = useDispatch();
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const colors = useSelector((state: RootState) => state.color.colors);
@@ -74,6 +74,6 @@ const ExportImportFile: React.FC = () => {
       </SettingChildDiv>
     </>
   );
-};
+});
 
 export default ExportImportFile;

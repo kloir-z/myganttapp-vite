@@ -7,7 +7,7 @@ export interface ColorInfo {
   color: string;
 }
 
-interface ColorState {
+export interface ColorState {
   colors: ColorInfo[];
 }
 

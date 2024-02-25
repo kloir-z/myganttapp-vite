@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, memo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { updateRegularHolidaySetting } from "../../reduxStoreAndSlices/store";
@@ -9,7 +9,7 @@ import { adjustColorOpacity } from "../Chart/utils/CalendarUtil";
 
 const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 
-const ReguralHolidaySetting: React.FC = () => {
+const ReguralHolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
   const [localRegularHolidaySettings, setLocalRegularHolidaySettings] = useState<RegularHolidaySetting[]>(regularHolidaySetting);
@@ -119,4 +119,6 @@ const ReguralHolidaySetting: React.FC = () => {
       </div>
     </SettingChildDiv>
   );
-}; export default ReguralHolidaySetting;
+});
+
+export default ReguralHolidaySetting;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
@@ -57,7 +57,7 @@ const StyledInput = styled.input`
   }
 `;
 
-const TitleSetting: React.FC = () => {
+const TitleSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const globalTitle = useSelector((state: RootState) => state.baseSettings.title);
   const [title, setTitleLocal] = useState(globalTitle);
@@ -118,6 +118,6 @@ const TitleSetting: React.FC = () => {
       />
     </InputWrapper>
   );
-};
+});
 
 export default TitleSetting;

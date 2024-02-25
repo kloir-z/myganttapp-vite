@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, memo } from 'react';
 
 interface SettingChildDivProps {
   text: string;
   children?: ReactNode;
 }
 
-const SettingChildDiv: React.FC<SettingChildDivProps> = ({ text, children }) => {
+const SettingChildDiv: React.FC<SettingChildDivProps> = memo(({ text, children }) => {
   const boxStyle: React.CSSProperties = {
     border: '1px solid #ccc',
     borderRadius: '5px',
@@ -33,6 +33,6 @@ const SettingChildDiv: React.FC<SettingChildDivProps> = ({ text, children }) => 
       {children}
     </div>
   );
-}
+});
 
 export default SettingChildDiv;

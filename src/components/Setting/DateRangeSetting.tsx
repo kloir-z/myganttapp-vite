@@ -1,5 +1,5 @@
 // DateRangeSetting.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, memo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -12,7 +12,7 @@ import 'dayjs/locale/en';
 import { setDateRange } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import SettingChildDiv from "./SettingChildDiv";
 
-const DateRangeSetting: React.FC = () => {
+const DateRangeSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const { startDate, endDate } = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -121,6 +121,6 @@ const DateRangeSetting: React.FC = () => {
       </div>
     </SettingChildDiv>
   );
-};
+});
 
 export default DateRangeSetting;

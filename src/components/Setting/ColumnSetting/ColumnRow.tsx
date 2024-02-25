@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 
 type ColumnRowProps = {
@@ -7,7 +7,7 @@ type ColumnRowProps = {
   toggleColumnVisibility: (columnId: string) => void;
 };
 
-const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleColumnVisibility }) => {
+const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, toggleColumnVisibility }) => {
   const [localColumnName, setLocalColumnName] = useState(column.columnName ?? '');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -53,6 +53,6 @@ const ColumnRow: React.FC<ColumnRowProps> = ({ column, updateColumnName, toggleC
       />
     </div>
   );
-};
+});
 
 export default ColumnRow;
