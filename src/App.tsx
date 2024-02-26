@@ -85,26 +85,30 @@ function App() {
 
   useEffect(() => {
     const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
-      if (!isGridRefDragging) { setIsGridRefDragging(true) }
-      if (sourceRef.current && targetRef.current) {
-        const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
-        const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
-        const scrollTop = Math.min(sourceRef.current.scrollTop, maxScrollTopSource, maxScrollTopTarget);
-        targetRef.current.scrollTop = scrollTop;
-        sourceRef.current.scrollTop = scrollTop;
-      }
+      if (!isGridRefDragging) setIsGridRefDragging(true);
+      requestAnimationFrame(() => {
+        if (sourceRef.current && targetRef.current) {
+          const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
+          const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
+          const scrollTop = Math.min(sourceRef.current.scrollTop, maxScrollTopSource, maxScrollTopTarget);
+          targetRef.current.scrollTop = scrollTop;
+          sourceRef.current.scrollTop = scrollTop;
+        }
+      });
     };
 
     const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
       if (!isGridRefDragging) { setIsGridRefDragging(true) }
-      if (sourceRef.current && targetRef.current) {
-        const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
-        const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
-        const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
-        targetRef.current.scrollLeft = scrollLeft;
-        sourceRef.current.scrollLeft = scrollLeft;
-        setSeparatorX(scrollLeft);
-      }
+      requestAnimationFrame(() => {
+        if (sourceRef.current && targetRef.current) {
+          const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
+          const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
+          const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
+          targetRef.current.scrollLeft = scrollLeft;
+          sourceRef.current.scrollLeft = scrollLeft;
+          setSeparatorX(scrollLeft);
+        }
+      });
     };
 
     const wbsElement = wbsRef.current;
@@ -309,7 +313,7 @@ function App() {
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden' }} ref={calendarRef}>
+        <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden', willChange: 'scroll-position' }} ref={calendarRef}>
           <SettingButton onClick={openSettingsModal} />
           <SettingsModal
             show={isSettingsModalOpen}
@@ -317,20 +321,20 @@ function App() {
           />
           <TitleSetting />
         </div>
-        <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden', borderLeft: '1px solid #00000066' }} ref={calendarRef}>
+        <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden', borderLeft: '1px solid #00000066', willChange: 'scroll-position' }} ref={calendarRef}>
           <Calendar
             dateArray={dateArray}
           />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
-        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll' }} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', willChange: 'scroll-position' }} ref={wbsRef}>
           <WBSInfo
             headerRow={headerRow}
             visibleColumns={visibleColumns}
           />
         </div>
         <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
-        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent' }} ref={gridRef}>
+        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', willChange: 'scroll-position' }} ref={gridRef}>
           {Object.entries(data).map(([key, entry]) => {
             if (entry.rowType === 'Chart') {
               return (
