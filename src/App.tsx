@@ -1,13 +1,13 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import Calendar from './components/Chart/Calendar';
+import { RootState } from './reduxStoreAndSlices/store';
 import { ChartRow, EventRow, SeparatorRow } from './types/DataTypes';
 import WBSInfo from './components/Table/WBSInfo';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
 import EventRowComponent from './components/Chart/EventRowComponent';
 import SeparatorRowComponent from './components/Chart/SeparatorRowComponent';
+import Calendar from './components/Chart/Calendar';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
 import GridVertical from './components/Chart/GridVertical';
