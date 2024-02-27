@@ -83,59 +83,61 @@ function App() {
     }
   }, []);
 
+  const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
+    if (!isGridRefDragging) {
+      setIsGridRefDragging(true);
+    }
+    if (sourceRef.current && targetRef.current && gridRef.current) {
+      const scrollTop = Math.min(sourceRef.current.scrollTop, gridRef.current.scrollHeight - sourceRef.current.clientHeight);
+      targetRef.current.scrollTop = scrollTop;
+      sourceRef.current.scrollTop = scrollTop;
+    }
+  }, [isGridRefDragging]);
+
+  const handleHorizontalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
+    if (!isGridRefDragging) {
+      setIsGridRefDragging(true);
+    }
+    if (sourceRef.current && targetRef.current) {
+      const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
+      const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
+      const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
+      targetRef.current.scrollLeft = scrollLeft;
+      sourceRef.current.scrollLeft = scrollLeft;
+    }
+  }, [isGridRefDragging]);
+
   useEffect(() => {
-    const handleVerticalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
-      if (!isGridRefDragging) setIsGridRefDragging(true);
-      requestAnimationFrame(() => {
-        if (sourceRef.current && targetRef.current) {
-          const maxScrollTopSource = sourceRef.current.scrollHeight - sourceRef.current.clientHeight;
-          const maxScrollTopTarget = targetRef.current.scrollHeight - targetRef.current.clientHeight;
-          const scrollTop = Math.min(sourceRef.current.scrollTop, maxScrollTopSource, maxScrollTopTarget);
-          targetRef.current.scrollTop = scrollTop;
-          sourceRef.current.scrollTop = scrollTop;
-        }
-      });
-    };
-
-    const handleHorizontalScroll = (sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
-      if (!isGridRefDragging) { setIsGridRefDragging(true) }
-      requestAnimationFrame(() => {
-        if (sourceRef.current && targetRef.current) {
-          const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
-          const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
-          const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
-          targetRef.current.scrollLeft = scrollLeft;
-          sourceRef.current.scrollLeft = scrollLeft;
-          setSeparatorX(scrollLeft);
-        }
-      });
-    };
-
     const wbsElement = wbsRef.current;
     const calendarElement = calendarRef.current;
     const gridElement = gridRef.current;
 
+    const wbsHandleVertical = () => {
+      handleVerticalScroll(wbsRef, gridRef);
+    };
+    const gridHandleVertical = () => {
+      handleVerticalScroll(gridRef, wbsRef);
+    };
     if (wbsElement && gridElement) {
-      wbsElement.addEventListener('scroll', () => handleVerticalScroll(wbsRef, gridRef));
-      gridElement.addEventListener('scroll', () => handleVerticalScroll(gridRef, wbsRef));
+      wbsElement.addEventListener('scroll', wbsHandleVertical);
+      gridElement.addEventListener('scroll', gridHandleVertical);
     }
 
+    const gridHandleHorizontal = () => handleHorizontalScroll(gridRef, calendarRef);
     if (calendarElement && gridElement) {
-      calendarElement.addEventListener('scroll', () => handleHorizontalScroll(calendarRef, gridRef));
-      gridElement.addEventListener('scroll', () => handleHorizontalScroll(gridRef, calendarRef));
+      gridElement.addEventListener('scroll', gridHandleHorizontal);
     }
 
     return () => {
       if (wbsElement && gridElement) {
-        wbsElement.removeEventListener('scroll', () => handleVerticalScroll(wbsRef, gridRef));
-        gridElement.removeEventListener('scroll', () => handleVerticalScroll(gridRef, wbsRef));
+        wbsElement.removeEventListener('scroll', wbsHandleVertical);
+        gridElement.removeEventListener('scroll', gridHandleVertical);
       }
       if (calendarElement && gridElement) {
-        calendarElement.removeEventListener('scroll', () => handleHorizontalScroll(calendarRef, gridRef));
-        gridElement.removeEventListener('scroll', () => handleHorizontalScroll(gridRef, calendarRef));
+        gridElement.removeEventListener('scroll', gridHandleHorizontal);
       }
     };
-  }, [isGridRefDragging]);
+  }, [handleHorizontalScroll, handleVerticalScroll, isGridRefDragging]);
 
   const handleResize = useCallback((newWidth: number) => {
     const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
@@ -166,23 +168,30 @@ function App() {
   }, [canGridRefDrag]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    const update = () => {
-      if (!gridRef.current) return;
+    if (!gridRef.current) return;
 
-      if (canGridRefDrag && isMouseDown) {
-        if (!isGridRefDragging) {
-          const moveX = Math.abs(startX.gridRefX - gridRef.current.scrollLeft);
-          const moveY = Math.abs(startY.gridRefY - gridRef.current.scrollTop);
-          if (moveX > 3 || moveY > 3) {
-            setIsGridRefDragging(true);
-          }
-        }
+    const currentScrollLeft = gridRef.current.scrollLeft;
+    const currentScrollTop = gridRef.current.scrollTop;
 
-        gridRef.current.scrollLeft = startX.eventX - event.clientX;
-        gridRef.current.scrollTop = startY.eventY - event.clientY;
-      } else if (isGridRefDragging) {
-        setIsGridRefDragging(false);
+    if (canGridRefDrag && isMouseDown) {
+      const moveX = Math.abs(startX.gridRefX - currentScrollLeft);
+      const moveY = Math.abs(startY.gridRefY - currentScrollTop);
+
+      if (!isGridRefDragging && (moveX > 1 || moveY > 1)) {
+        setIsGridRefDragging(true);
       }
+
+      const newScrollLeft = startX.eventX - event.clientX;
+      const newScrollTop = startY.eventY - event.clientY;
+      if (newScrollLeft !== currentScrollLeft) {
+        gridRef.current.scrollLeft = newScrollLeft;
+      }
+      if (newScrollTop !== currentScrollTop) {
+        gridRef.current.scrollTop = newScrollTop;
+      }
+    } else if (isGridRefDragging) {
+      setIsGridRefDragging(false);
+    } else if (!isGridRefDragging) {
       const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       let adjustedY = mousePosition.y
@@ -191,14 +200,14 @@ function App() {
         adjustedY = Math.floor((event.clientY + gridStartY) / 21) * 21 - gridStartY;
       }
       setMousePosition({ x: adjustedX, y: adjustedY });
-    };
-
-    requestAnimationFrame(update);
+    }
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startX.gridRefX, startY.eventY, startY.gridRefY, wbsWidth]);
 
   const handleMouseUp = useCallback(() => {
     setIsGridRefDragging(false);
     setIsMouseDown(false);
+    if (!gridRef.current) return;
+    setSeparatorX(gridRef.current.scrollLeft);
   }, []);
 
   useEffect(() => {
