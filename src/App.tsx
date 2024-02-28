@@ -172,6 +172,7 @@ function App() {
       setMousePosition({ x: adjustedX, y: adjustedY });
     } else {
       setIsGridRefDragging(false);
+      setSeparatorX(gridRef.current.scrollLeft);
     }
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startY.eventY, wbsWidth]);
 
@@ -378,7 +379,7 @@ function App() {
 
       {!isSettingsModalOpen && !isGridRefDragging && (
         <>
-          {(mousePosition.y > 41 && window.innerHeight - mousePosition.y > 20) && (
+          {(mousePosition.y > 41 && window.innerHeight - mousePosition.y > 36) && (
             <div
               className="horizontal-indicator"
               style={{

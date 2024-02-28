@@ -28,10 +28,10 @@ export const Cell = styled.div<CellProps>`
   left: ${props => props.$left ? `${props.$left}px` : ''};
   width: ${props => props.$width ? `${props.$width}px` : '21.1px'};
   height: 21px;
-  border: 1px solid transparent;
+  border: 0.2px solid transparent;
   background-color: ${props => props.$chartBarColor ? props.$chartBarColor : '#99ff937e'};
   &:hover {
-    border: ${props => props.$chartBarColor ? '1px solid #000dff5f' : '1px solid transparent'};
+    border: ${props => props.$chartBarColor ? '0.2px solid #000dff5f' : '0.2px solid transparent'};
   }
 `;
 
