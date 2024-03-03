@@ -430,6 +430,9 @@ export const wbsDataSlice = createSlice({
     toggleColumnVisibility(state, action: PayloadAction<string>) {
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
+      if (state.past.length > 30) {
+        state.past.shift();
+      }
       state.columns = state.columns.map(column =>
         column.columnId === action.payload && column.columnId !== 'no'
           ? { ...column, visible: !column.visible }

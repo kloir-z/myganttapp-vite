@@ -1,9 +1,8 @@
 // AutoWidthInputBox.tsx
-import React, { useState, useRef, useEffect, useCallback, ChangeEvent, useMemo, memo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, ChangeEvent, memo } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setDisplayName, setEventDisplayName } from '../reduxStoreAndSlices/store';
-import { debounce } from 'lodash';
+import { RootState, setDisplayName, setEventDisplayName, pushPastState, removePastState } from '../reduxStoreAndSlices/store';
 import { EventRow } from '../types/DataTypes';
 
 const InputWrapper = styled.div`
@@ -32,7 +31,11 @@ const AutoWidthDiv = styled.div`
   }
 `;
 
-const StyledInput = styled.input`
+interface StyledInputProps {
+  $isEditingText?: boolean;
+}
+
+const StyledInput = styled.input<StyledInputProps>`
   position: absolute;
   top: 0;
   font-size: 0.8rem;
@@ -46,6 +49,8 @@ const StyledInput = styled.input`
   padding: 2px 4px;
   background: none;
   border: none;
+  cursor: ${props => props.$isEditingText ? 'text' : 'default'};
+  user-select: ${props => props.$isEditingText ? 'text' : 'none'};
   &:focus {
     outline: none;
     text-decoration:underline;
@@ -75,16 +80,23 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   });
   const dispatch = useDispatch();
   const [localDisplayName, setLocalDisplayName] = useState(storeDisplayName);
-  const [isEditing, setIsEditing] = useState(false);
+  const [originalDisplayName, setOriginalDisplayName] = useState('');
+  const [isEditingText, setIsEditingText] = useState(false);
   const dummyRef = useRef<HTMLDivElement>(null);
   const placeholder = '    '
 
-  const handleFocus = () => {
-    setIsEditing(true);
+  const handleForcus = () => {
+    setIsEditingText(true);
+    setOriginalDisplayName(localDisplayName);
+    dispatch(pushPastState());
   };
 
   const handleBlur = () => {
-    setIsEditing(false);
+    setIsEditingText(false);
+    if (originalDisplayName === localDisplayName) {
+      dispatch(removePastState(1));
+    }
+    syncToStore();
   };
 
   useEffect(() => {
@@ -98,41 +110,45 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   };
 
   useEffect(() => {
-    if (!isEditing) { setLocalDisplayName(storeDisplayName) }
-  }, [storeDisplayName, isEditing]);
+    if (!isEditingText) { setLocalDisplayName(storeDisplayName) }
+  }, [storeDisplayName, isEditingText]);
 
   const syncToStore = useCallback(() => {
-    if (isEditing) {
+    if (isEditingText) {
       if (typeof eventIndex === 'number') {
         dispatch(setEventDisplayName({ id: entryId, eventIndex, displayName: localDisplayName }));
       } else {
         dispatch(setDisplayName({ id: entryId, displayName: localDisplayName }));
       }
     }
-  }, [entryId, eventIndex, localDisplayName, dispatch, isEditing]);
-
-  const debouncedSyncToStore = useMemo(() => debounce(syncToStore, 100), [syncToStore]);
-
-  useEffect(() => {
-    debouncedSyncToStore();
-    return () => debouncedSyncToStore.cancel();
-  }, [debouncedSyncToStore]);
+  }, [entryId, eventIndex, localDisplayName, dispatch, isEditingText]);
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLInputElement>) => {
     e.stopPropagation();
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleBlur();
+    }
+  };
+
   return (
     <InputWrapper>
-      <AutoWidthDiv ref={dummyRef} data-placeholder={placeholder}></AutoWidthDiv>
+      <AutoWidthDiv
+        ref={dummyRef}
+        data-placeholder={placeholder}
+      ></AutoWidthDiv>
       <StyledInput
         type="text"
         placeholder={placeholder}
         value={localDisplayName}
         onChange={handleChange}
-        onFocus={handleFocus}
+        onFocus={handleForcus}
         onBlur={handleBlur}
         onDoubleClick={handleDoubleClick}
+        onKeyDown={handleKeyDown}
+        $isEditingText={isEditingText}
       />
     </InputWrapper>
   );
