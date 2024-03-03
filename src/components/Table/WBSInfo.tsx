@@ -7,7 +7,7 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns } from '../../reduxStoreAndSlices/store';
+import { RootState, simpleSetData, ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
@@ -21,15 +21,15 @@ type WBSInfoProps = {
 const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: RootState) => state.wbsData.present.data,
+    (state: RootState) => state.wbsData.data,
     (prevData, nextData) => isEqual(prevData, nextData)
   );
-  const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const holidays = useSelector((state: RootState) => state.wbsData.holidays);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
-  const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
-  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
-  
+  const showYear = useSelector((state: RootState) => state.wbsData.showYear);
+  const columns = useSelector((state: RootState) => state.wbsData.columns);
+
   const regularHolidays = useMemo(() => {
     return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   }, [regularHolidaySetting]);
@@ -165,11 +165,13 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
     const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, adjustedTargetIndex);
     const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
 
+    dispatch(pushPastState());
     dispatch(setColumns(reorderedColumns));
   }, [columns, dispatch]);
 
   const onColumnResize = useCallback((columnId: Id, width: number) => {
     const columnIdAsString = columnId.toString();
+    dispatch(pushPastState());
     dispatch(handleColumnResize({ columnId: columnIdAsString, width }));
   }, [dispatch]);
 

@@ -11,7 +11,7 @@ const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 
 const ReguralHolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const [localRegularHolidaySettings, setLocalRegularHolidaySettings] = useState<RegularHolidaySetting[]>(regularHolidaySetting);
 
   type DisplayColorPickerType = { [key: number]: boolean };

@@ -4,7 +4,7 @@ import { RootState, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { Row, DefaultCellTypes, HeaderCell } from "@silevis/reactgrid";
 
 export const useWBSData = () => {
-  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const columns = useSelector((state: RootState) => state.wbsData.columns);
 
   const getHeaderRow = (columns: ExtendedColumn[]): Row<DefaultCellTypes> => {
     const cells = columns.filter(column => column.visible).map(column => {

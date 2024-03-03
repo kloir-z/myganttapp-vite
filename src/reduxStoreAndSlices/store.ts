@@ -3,7 +3,6 @@ import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/Dat
 import { calculatePlannedDays, addPlannedDays, toLocalISOString, adjustColorOpacity } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
-import undoable from 'redux-undo';
 import baseSettingsReducer from './baseSettingsSlice';
 import { Column } from "@silevis/reactgrid";
 import { initializedEmptyData } from './initialData';
@@ -15,6 +14,11 @@ export interface ExtendedColumn extends Column {
   visible: boolean;
 }
 
+interface UndoableState {
+  data: { [id: string]: WBSData },
+  columns: ExtendedColumn[],
+}
+
 const initialState: {
   data: {
     [id: string]: WBSData
@@ -24,6 +28,8 @@ const initialState: {
   isFixedData: boolean,
   columns: ExtendedColumn[],
   showYear: boolean,
+  past: UndoableState[],
+  future: UndoableState[]
 } = {
   data: initializedEmptyData,
   holidays: initialHolidays || [],
@@ -50,6 +56,26 @@ const initialState: {
     { columnId: "textColumn4", columnName: "Text4", width: 50, resizable: true, reorderable: true, visible: true },
     { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
   ],
+  past: [{
+    data: initializedEmptyData,
+    columns: [
+      { columnId: "no", columnName: "No", width: 30, resizable: false, visible: true },
+      { columnId: "displayName", columnName: "DisplayName", width: 100, resizable: true, reorderable: true, visible: true },
+      { columnId: "color", columnName: "Color", width: 50, resizable: true, reorderable: true, visible: true },
+      { columnId: "plannedStartDate", columnName: "PlanS", width: 40, resizable: true, reorderable: true, visible: true },
+      { columnId: "plannedEndDate", columnName: "PlanE", width: 40, resizable: true, reorderable: true, visible: true },
+      { columnId: "plannedDays", columnName: "Days", width: 40, resizable: true, reorderable: true, visible: true },
+      { columnId: "actualStartDate", columnName: "ActS", width: 40, resizable: true, reorderable: true, visible: true },
+      { columnId: "actualEndDate", columnName: "ActE", width: 40, resizable: true, reorderable: true, visible: true },
+      { columnId: "dependency", columnName: "Dep", width: 60, resizable: true, reorderable: true, visible: true },
+      { columnId: "textColumn1", columnName: "Text1", width: 50, resizable: true, reorderable: true, visible: true },
+      { columnId: "textColumn2", columnName: "Text2", width: 50, resizable: true, reorderable: true, visible: true },
+      { columnId: "textColumn3", columnName: "Text3", width: 50, resizable: true, reorderable: true, visible: true },
+      { columnId: "textColumn4", columnName: "Text4", width: 50, resizable: true, reorderable: true, visible: true },
+      { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
+    ]
+  }],
+  future: []
 };
 
 const updateDependentRows = (
@@ -270,6 +296,8 @@ export const wbsDataSlice = createSlice({
         }
       });
 
+      state.past.push({ data: state.data, columns: state.columns });
+      state.future = [];
       state.data = updatedData;
     },
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
@@ -382,7 +410,7 @@ export const wbsDataSlice = createSlice({
       resetEndDate(state)
     },
     setIsFixedData: (state, action: PayloadAction<boolean>) => {
-      state.isFixedData = action.payload
+      state.isFixedData = action.payload;
     },
     setShowYear(state, action: PayloadAction<boolean>) {
       state.showYear = action.payload;
@@ -397,6 +425,8 @@ export const wbsDataSlice = createSlice({
       state.columns = action.payload;
     },
     toggleColumnVisibility(state, action: PayloadAction<string>) {
+      state.past.push({ data: state.data, columns: state.columns });
+      state.future = [];
       state.columns = state.columns.map(column =>
         column.columnId === action.payload && column.columnId !== 'no'
           ? { ...column, visible: !column.visible }
@@ -411,6 +441,33 @@ export const wbsDataSlice = createSlice({
     },
     resetStore(state) {
       Object.assign(state, initialState)
+    },
+    pushPastState: (state) => {
+      state.past.push({ data: state.data, columns: state.columns });
+      state.future = [];
+    },
+    removePastState: (state, action: PayloadAction<number>) => {
+      state.past.splice(action.payload, 1);
+    },
+    undo: (state) => {
+      if (state.past.length > 1) {
+        const lastPast = state.past.pop();
+        if (lastPast) {
+          state.future.unshift({ data: state.data, columns: state.columns });
+          state.data = lastPast.data;
+          state.columns = lastPast.columns;
+        }
+      }
+    },
+    redo: (state) => {
+      if (state.future.length > 0) {
+        const firstFuture = state.future.shift();
+        if (firstFuture) {
+          state.past.push({ data: state.data, columns: state.columns });
+          state.data = firstFuture.data;
+          state.columns = firstFuture.columns;
+        }
+      }
     },
   },
 });
@@ -433,12 +490,16 @@ export const {
   setColumns,
   toggleColumnVisibility,
   handleColumnResize,
-  resetStore
+  resetStore,
+  pushPastState,
+  removePastState,
+  undo,
+  redo,
 } = wbsDataSlice.actions;
 
 export const store = configureStore({
   reducer: {
-    wbsData: undoable(wbsDataSlice.reducer),
+    wbsData: wbsDataSlice.reducer,
     copiedRows: copiedRowsReducer,
     color: colorReducer,
     baseSettings: baseSettingsReducer,

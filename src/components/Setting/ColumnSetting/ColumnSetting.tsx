@@ -7,7 +7,7 @@ import SettingChildDiv from '../SettingChildDiv';
 
 const ColumnSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
-  const allColumns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const allColumns = useSelector((state: RootState) => state.wbsData.columns);
   const filteredColumns = allColumns.filter(column => column.columnId !== 'no');
 
   const updateColumnName = (columnId: string, newName: string) => {

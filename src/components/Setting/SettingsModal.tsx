@@ -24,7 +24,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 }) => {
   const dispatch = useDispatch();
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
-  const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
+  const showYear = useSelector((state: RootState) => state.wbsData.showYear);
 
   const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;

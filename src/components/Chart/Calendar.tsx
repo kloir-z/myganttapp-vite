@@ -17,8 +17,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   let previousMonth = dateArray[0].getMonth();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const holidays = useSelector((state: RootState) => state.wbsData.present.holidays);
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const holidays = useSelector((state: RootState) => state.wbsData.holidays);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const calendarRef = useRef<HTMLDivElement>(null);
   const browserLocale = navigator.language.split('-')[0];
   let dateFormat: string;

@@ -62,7 +62,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   eventIndex
 }) => {
   const storeDisplayName = useSelector((state: RootState) => {
-    const rowData = state.wbsData.present.data[entryId];
+    const rowData = state.wbsData.data[entryId];
     if (rowData && rowData.rowType === 'Event' && typeof eventIndex === 'number') {
       const eventRow = rowData as EventRow;
       if (eventRow.eventData && eventRow.eventData[eventIndex]) {

@@ -2,13 +2,13 @@
 import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow, setIsFixedData } from '../../reduxStoreAndSlices/store';
+import { updateEventRow, setIsFixedData, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
 import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
-import { throttle } from 'lodash';
+// import { throttle } from 'lodash';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
@@ -103,6 +103,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, index: number } | null>(null);
 
   const handleBarMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    dispatch(pushPastState());
     setIsBarDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -113,9 +114,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
+  }, [cellWidth, dispatch, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
   const handleBarEndMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    dispatch(pushPastState());
     setIsBarEndDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -126,9 +128,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
+  }, [cellWidth, dispatch, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
   const handleBarStartMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    dispatch(pushPastState());
     setIsBarStartDragging(true);
     setCanGridRefDrag(false);
     if (gridRef.current) {
@@ -139,7 +142,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setOriginalStartDate(localEvents[index].startDate);
     setOriginalEndDate(localEvents[index].endDate);
     setActiveEventIndex(index);
-  }, [cellWidth, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
+  }, [cellWidth, dispatch, gridRef, localEvents, setCanGridRefDrag, wbsWidth]);
 
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
@@ -152,6 +155,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    dispatch(pushPastState());
     setCanGridRefDrag(false);
     const rect = event.currentTarget.getBoundingClientRect();
     const relativeX = event.clientX - rect.left;
@@ -167,7 +171,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     };
     localDispatch({ type: 'ADD_EVENT', payload: newEvent });
     setActiveEventIndex(localEvents.length);
-  }, [calculateDateFromX, localEvents.length, setCanGridRefDrag]);
+  }, [calculateDateFromX, dispatch, localEvents.length, setCanGridRefDrag]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     const update = () => {
@@ -256,14 +260,21 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localEvents, entry, dispatch]);
 
-  const throttledSyncToStore = useMemo(() => throttle(syncToStore, 10), [syncToStore]);
-
-  useEffect(() => {
-    throttledSyncToStore();
-    return () => throttledSyncToStore.cancel();
-  }, [throttledSyncToStore]);
-
   const handleMouseUp = () => {
+    let shouldremovePastState = false;
+    if (activeEventIndex !== null) {
+      if (activeEventIndex !== null && localEvents[activeEventIndex]) {
+        const event = localEvents[activeEventIndex];
+        const originalStartDateString = originalStartDate ? formatDate(originalStartDate) : null;
+        const eventStartDateString = event.startDate ? formatDate(event.startDate) : null;
+        const originalEndDateString = originalEndDate ? formatDate(originalEndDate) : null;
+        const eventEndDateString = event.endDate ? formatDate(event.endDate) : null;
+        shouldremovePastState = (originalStartDateString === eventStartDateString && originalEndDateString === eventEndDateString);
+        if (shouldremovePastState) {
+          dispatch(removePastState(1));
+        }
+      }
+    }
     syncToStore();
     setIsEditing(false);
     setIsBarDragging(false);

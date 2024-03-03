@@ -17,34 +17,18 @@ import "./components/Table/css/HiddenScrollBar.css";
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import { useWBSData } from './components/Table/hooks/useWBSData';
-import { ActionCreators } from 'redux-undo';
 import TitleSetting from './components/Setting/TitleSetting';
-import { isEqual } from 'lodash';
-import { createSelector } from '@reduxjs/toolkit';
-
-const selectWbsData = (state: RootState) => state.wbsData;
-const selectUndoRedo = createSelector(
-  [selectWbsData],
-  (wbsData) => ({
-    pastState: wbsData.past,
-    presentState: wbsData.present,
-    futureState: wbsData.future,
-  })
-);
+import { undo, redo } from './reduxStoreAndSlices/store';
 
 function App() {
   const dispatch = useDispatch();
-  const data = useSelector(
-    (state: RootState) => state.wbsData.present.data,
-    (prevData, nextData) => isEqual(prevData, nextData)
-  );
-  const { pastState, presentState, futureState } = useSelector(selectUndoRedo);
-  const [actualUndoCount, setActualUndoCount] = useState(0);
-  const [actualRedoCount, setActualRedoCount] = useState(0);
+  const data = useSelector((state: RootState) => state.wbsData.data);
+  const pastLength = useSelector((state: RootState) => state.wbsData.past.length);
+  const futureLength = useSelector((state: RootState) => state.wbsData.future.length);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
-  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const columns = useSelector((state: RootState) => state.wbsData.columns);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -218,91 +202,28 @@ function App() {
     }
   }, [handleMouseDown, handleMouseMove, handleMouseUp]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function hasDataChanges(prev: any, next: any): boolean {
-    const isDataChanged = JSON.stringify(prev.data) !== JSON.stringify(next.data);
-    const isColumnsChanged = JSON.stringify(prev.columns) !== JSON.stringify(next.columns);
-    return isDataChanged || isColumnsChanged;
-  }
-
   useEffect(() => {
-    const handleCustomUndo = () => {
-      const pastLength = pastState.length;
-      let undoIndex = -1;
-      for (let i = pastLength - 1; i >= 0; i--) {
-        if (pastState[i].isFixedData && hasDataChanges(pastState[i], presentState)) {
-          undoIndex = i;
-          break;
-        }
-      }
-      if (undoIndex !== -1) {
-        const undoSteps = pastLength - undoIndex;
-        for (let i = 0; i < undoSteps; i++) {
-          dispatch(ActionCreators.undo());
-        }
-      }
-    };
-
-    const handleCustomRedo = () => {
-      const futureLength = futureState.length;
-      let redoIndex = -1;
-      for (let i = 0; i < futureLength; i++) {
-        if (futureState[i].isFixedData && hasDataChanges(futureState[i], presentState)) {
-          redoIndex = i;
-          break;
-        }
-      }
-      if (redoIndex !== -1) {
-        const redoSteps = redoIndex + 1;
-        for (let i = 0; i < redoSteps; i++) {
-          dispatch(ActionCreators.redo());
-        }
-      }
-    };
-
-    const calculateActualUndoRedoCounts = () => {
-      let actualUndoCount = 0;
-      let actualRedoCount = 0;
-
-      for (let i = pastState.length - 1; i >= 0; i--) {
-        if (pastState[i].isFixedData && hasDataChanges(pastState[i], presentState)) {
-          actualUndoCount++;
-        }
-      }
-      for (let i = 0; i < futureState.length; i++) {
-        if (futureState[i].isFixedData && hasDataChanges(futureState[i], presentState)) {
-          actualRedoCount++;
-        }
-      }
-      setActualUndoCount(actualUndoCount);
-      setActualRedoCount(actualRedoCount);
-    };
-
-    calculateActualUndoRedoCounts();
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && !isSettingsModalOpen) {
         switch (event.key) {
           case 'z':
             event.preventDefault();
-            handleCustomUndo();
+            dispatch(undo());
             break;
           case 'y':
             event.preventDefault();
-            handleCustomRedo();
+            dispatch(redo());
             break;
           default:
             break;
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [dispatch, futureState, isSettingsModalOpen, pastState, presentState]);
+  }, [dispatch, isSettingsModalOpen]);
 
   const openSettingsModal = () => {
     setIsSettingsModalOpen(true);
@@ -373,7 +294,7 @@ function App() {
           })}
         </div>
         <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
-          <div>Undo: {actualUndoCount}, Redo: {actualRedoCount}</div>
+          <div>Undo: {pastLength - 1}, Redo: {futureLength}</div>
         </div>
       </div>
 
@@ -415,4 +336,4 @@ function App() {
   );
 }
 
-export default App;
+export default App

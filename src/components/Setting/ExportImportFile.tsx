@@ -8,7 +8,7 @@ import SettingChildDiv from "./SettingChildDiv";
 
 const ExportImportFile: React.FC = memo(() => {
   const dispatch = useDispatch();
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.present.regularHolidaySetting);
+  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const colors = useSelector((state: RootState) => state.color.colors);
   const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -16,13 +16,13 @@ const ExportImportFile: React.FC = memo(() => {
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
-  const showYear = useSelector((state: RootState) => state.wbsData.present.showYear);
+  const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const data = useSelector(
-    (state: RootState) => state.wbsData.present.data,
+    (state: RootState) => state.wbsData.data,
     (prevData, nextData) => isEqual(prevData, nextData)
   );
   const title = useSelector((state: RootState) => state.baseSettings.title);
-  const columns = useSelector((state: RootState) => state.wbsData.present.columns);
+  const columns = useSelector((state: RootState) => state.wbsData.columns);
 
   const handleExportClick = () => {
     handleExport(
