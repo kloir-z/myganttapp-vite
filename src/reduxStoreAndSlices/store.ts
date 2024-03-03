@@ -298,6 +298,9 @@ export const wbsDataSlice = createSlice({
 
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
+      if (state.past.length > 30) {
+        state.past.shift();
+      }
       state.data = updatedData;
     },
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
