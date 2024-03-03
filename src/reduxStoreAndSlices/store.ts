@@ -445,6 +445,9 @@ export const wbsDataSlice = createSlice({
     pushPastState: (state) => {
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
+      if (state.past.length > 30) {
+        state.past.shift();
+      }
     },
     removePastState: (state, action: PayloadAction<number>) => {
       state.past.splice(action.payload, 1);
