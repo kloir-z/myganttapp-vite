@@ -456,7 +456,8 @@ export const wbsDataSlice = createSlice({
       }
     },
     removePastState: (state, action: PayloadAction<number>) => {
-      state.past.splice(action.payload, 1);
+      const numberToRemove = action.payload;
+      state.past.length = Math.max(state.past.length - numberToRemove, 0);
     },
     undo: (state) => {
       if (state.past.length > 1) {
