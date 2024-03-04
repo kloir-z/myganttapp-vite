@@ -5,8 +5,9 @@ import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
 import { Column } from "@silevis/reactgrid";
-import { initializedEmptyData } from './initialData';
+import { initializedDummyData, initializedEmptyData } from './initialData';
 import { initialHolidays } from './initialHolidays';
+import { initialColumns } from './initialColumns';
 
 export interface ExtendedColumn extends Column {
   columnId: string;
@@ -31,7 +32,7 @@ const initialState: {
   past: UndoableState[],
   future: UndoableState[]
 } = {
-  data: initializedEmptyData,
+  data: initializedDummyData,
   holidays: initialHolidays || [],
   regularHolidaySetting: [
     { id: 1, color: '#d9e6ff', subColor: adjustColorOpacity('#d9e6ff'), days: [6] },
@@ -40,42 +41,18 @@ const initialState: {
   ],
   isFixedData: true,
   showYear: false,
-  columns: [
-    { columnId: "no", columnName: "No", width: 30, resizable: false, visible: true },
-    { columnId: "displayName", columnName: "DisplayName", width: 100, resizable: true, reorderable: true, visible: true },
-    { columnId: "color", columnName: "Color", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedStartDate", columnName: "PlanS", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedEndDate", columnName: "PlanE", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "plannedDays", columnName: "Days", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "actualStartDate", columnName: "ActS", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "actualEndDate", columnName: "ActE", width: 40, resizable: true, reorderable: true, visible: true },
-    { columnId: "dependency", columnName: "Dep", width: 60, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn1", columnName: "Text1", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn2", columnName: "Text2", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn3", columnName: "Text3", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "textColumn4", columnName: "Text4", width: 50, resizable: true, reorderable: true, visible: true },
-    { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
-  ],
+  columns: initialColumns,
   past: [{
-    data: initializedEmptyData,
-    columns: [
-      { columnId: "no", columnName: "No", width: 30, resizable: false, visible: true },
-      { columnId: "displayName", columnName: "DisplayName", width: 100, resizable: true, reorderable: true, visible: true },
-      { columnId: "color", columnName: "Color", width: 50, resizable: true, reorderable: true, visible: true },
-      { columnId: "plannedStartDate", columnName: "PlanS", width: 40, resizable: true, reorderable: true, visible: true },
-      { columnId: "plannedEndDate", columnName: "PlanE", width: 40, resizable: true, reorderable: true, visible: true },
-      { columnId: "plannedDays", columnName: "Days", width: 40, resizable: true, reorderable: true, visible: true },
-      { columnId: "actualStartDate", columnName: "ActS", width: 40, resizable: true, reorderable: true, visible: true },
-      { columnId: "actualEndDate", columnName: "ActE", width: 40, resizable: true, reorderable: true, visible: true },
-      { columnId: "dependency", columnName: "Dep", width: 60, resizable: true, reorderable: true, visible: true },
-      { columnId: "textColumn1", columnName: "Text1", width: 50, resizable: true, reorderable: true, visible: true },
-      { columnId: "textColumn2", columnName: "Text2", width: 50, resizable: true, reorderable: true, visible: true },
-      { columnId: "textColumn3", columnName: "Text3", width: 50, resizable: true, reorderable: true, visible: true },
-      { columnId: "textColumn4", columnName: "Text4", width: 50, resizable: true, reorderable: true, visible: true },
-      { columnId: "isIncludeHolidays", columnName: "IncHol", width: 50, resizable: true, reorderable: true, visible: true },
-    ]
+    data: initializedDummyData,
+    columns: initialColumns
   }],
   future: []
+};
+
+const emptyState = {
+  ...initialState,
+  data: initializedEmptyData,
+  past: initialState.past.map(p => ({ ...p, data: initializedEmptyData })),
 };
 
 const updateDependentRows = (
@@ -445,9 +422,7 @@ export const wbsDataSlice = createSlice({
         state.columns[columnIndex] = { ...state.columns[columnIndex], width: action.payload.width };
       }
     },
-    resetStore(state) {
-      Object.assign(state, initialState)
-    },
+    resetStore: () => emptyState,
     pushPastState: (state) => {
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];

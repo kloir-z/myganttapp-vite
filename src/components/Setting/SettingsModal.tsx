@@ -1,7 +1,7 @@
 // SettingsModal.tsx
 import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setShowYear } from '../../reduxStoreAndSlices/store';
+import { RootState, setShowYear, resetStore } from '../../reduxStoreAndSlices/store';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
@@ -126,6 +126,11 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <ReguralHolidaySetting />
           <CellWidthSetting />
           <ExportImportFile />
+          <SettingChildDiv text='Reset & Clear'>
+            <div style={{ display: 'flex', justifyContent: 'start' }}>
+              <button onClick={() => dispatch(resetStore())}>Reset & Clear</button>
+            </div>
+          </SettingChildDiv>
         </ModalContainer>
       </Overlay>
       : null

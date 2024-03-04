@@ -1,7 +1,6 @@
 import React, { useRef, memo } from "react";
-import { handleImport, handleExport } from "./utils/settingHelpers";
+import { handleImport, handleExport, handleAppend } from "./utils/settingHelpers";
 import { setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
-import { isEqual } from 'lodash';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { useSelector, useDispatch } from 'react-redux';
 import SettingChildDiv from "./SettingChildDiv";
@@ -17,10 +16,7 @@ const ExportImportFile: React.FC = memo(() => {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
-  const data = useSelector(
-    (state: RootState) => state.wbsData.data,
-    (prevData, nextData) => isEqual(prevData, nextData)
-  );
+  const data = useSelector((state: RootState) => state.wbsData.data);
   const title = useSelector((state: RootState) => state.baseSettings.title);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
 
@@ -41,6 +37,17 @@ const ExportImportFile: React.FC = memo(() => {
     );
   };
 
+  const handleAppendClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleAppend(
+        data,
+        file,
+        dispatch,
+      );
+    }
+  };
+
   const handleImportClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -51,11 +58,12 @@ const ExportImportFile: React.FC = memo(() => {
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefImport = useRef<HTMLInputElement>(null);
+  const fileInputRefAppend = useRef<HTMLInputElement>(null);
 
   return (
     <>
-      <SettingChildDiv text='Export File(.json)'>
+      <SettingChildDiv text='Export JSON File'>
         <div>
           <input
             type="text"
@@ -66,10 +74,16 @@ const ExportImportFile: React.FC = memo(() => {
           <button onClick={handleExportClick}>Export</button>
         </div>
       </SettingChildDiv>
-      <SettingChildDiv text='Import File(.json)'>
+      <SettingChildDiv text='Import From JSON File'>
         <div style={{ display: 'flex', justifyContent: 'start' }}>
-          <button onClick={() => fileInputRef.current?.click()}>Import</button>
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
+          <button onClick={() => fileInputRefImport.current?.click()}>Import</button>
+          <input type="file" ref={fileInputRefImport} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
+        </div>
+      </SettingChildDiv>
+      <SettingChildDiv text='Append to Table from JSON File'>
+        <div style={{ display: 'flex', justifyContent: 'start' }}>
+          <button onClick={() => fileInputRefAppend.current?.click()}>Append</button>
+          <input type="file" ref={fileInputRefAppend} style={{ display: 'none' }} onChange={handleAppendClick} accept=".json" />
         </div>
       </SettingChildDiv>
     </>

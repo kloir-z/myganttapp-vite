@@ -5,6 +5,7 @@ import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
 import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setCalendarWidth, setCellWidth } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { v4 as uuidv4 } from 'uuid';
 
 export const handleExport = (
   colors: ColorInfo[],
@@ -43,6 +44,41 @@ export const handleExport = (
   link.click();
   document.body.removeChild(link);
 };
+
+export const handleAppend = (
+  data: { [id: string]: WBSData },
+  file: File,
+  dispatch: AppDispatch,
+) => {
+  if (file) {
+    dispatch(setFileName(file.name.replace('.json', '')));
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result;
+      if (typeof text === 'string') {
+        try {
+          const parsedData = JSON.parse(text);
+          if (parsedData.data && typeof parsedData.data === 'object' && !Array.isArray(parsedData.data)) {
+            let maxNo = Object.values(data).reduce((max, curr) => curr.no > max ? curr.no : max, 0);
+
+            const newData = Object.entries(parsedData.data).reduce((acc: { [id: string]: WBSData }, [, row]) => {
+              const newNo = ++maxNo;
+              const newId = uuidv4();
+              acc[newId] = { ...(row as WBSData), no: newNo, id: newId };
+              return acc;
+            }, {} as { [id: string]: WBSData });
+            const updatedData = { ...data, ...newData };
+            dispatch(simpleSetData(updatedData));
+          }
+        } catch (error) {
+          alert("Error: An error occurred while loading the file.");
+        }
+      }
+    };
+    reader.readAsText(file);
+  }
+};
+
 
 export const handleImport = (
   file: File,

@@ -8,7 +8,7 @@ const createEmptySeparatorRow = (): SeparatorRow => ({
   rowType: "Separator",
   no: 0,
   id: "",
-  displayName: "test sep"
+  displayName: ""
 });
 
 const createEmptyEventRow = (): EventRow => ({
@@ -41,7 +41,7 @@ const generateRandomDate = (): Date => {
   return randomDate;
 };
 
-const createEmptyChartRow = (): ChartRow => {
+const createDummyChartRow = (): ChartRow => {
   const plannedStartDate = generateRandomDate();
   const holidays: string[] = updateHolidays(initialHolidayInput);
   const isIncludeHolidays = false;
@@ -70,7 +70,7 @@ const createEmptyChartRow = (): ChartRow => {
   };
 };
 
-const createStructuredDataArray = (): WBSData[] => {
+const createStructuredDummyDataArray = (): WBSData[] => {
   const data: WBSData[] = [];
   data.push(createEmptySeparatorRow());
   data.push(createEmptyEventRow());
@@ -78,7 +78,7 @@ const createStructuredDataArray = (): WBSData[] => {
   let rowCount = 0;
 
   for (let i = 0; i < 500; i++) {
-    data.push(createEmptyChartRow());
+    data.push(createDummyChartRow());
     rowCount++;
 
     if (rowCount % 10 === 0) {
@@ -89,74 +89,41 @@ const createStructuredDataArray = (): WBSData[] => {
   return data;
 };
 
-const structuredData: WBSData[] = createStructuredDataArray();
+const structuredDummyData: WBSData[] = createStructuredDummyDataArray();
 
-export const initializedEmptyData: { [id: string]: WBSData } = assignIds(structuredData);
-
-
+export const initializedDummyData: { [id: string]: WBSData } = assignIds(structuredDummyData);
 
 
+const createEmptyChartRow = (): ChartRow => ({
+  rowType: "Chart",
+  no: 0,
+  id: "",
+  displayName: "",
+  textColumn1: "",
+  textColumn2: "",
+  textColumn3: "",
+  textColumn4: "",
+  color: "",
+  plannedStartDate: "",
+  plannedEndDate: "",
+  plannedDays: null,
+  actualStartDate: "",
+  actualEndDate: "",
+  dependentId: "",
+  dependency: "",
+  isIncludeHolidays: false
+});
 
+const createStructuredEmptyDataArray = (): WBSData[] => {
+  const data: WBSData[] = [];
+  data.push(createEmptySeparatorRow());
+  data.push(createEmptyEventRow());
+  for (let i = 0; i < 50; i++) {
+    data.push(createEmptyChartRow());
+  }
+  return data;
+};
 
+const structuredEmptyData: WBSData[] = createStructuredEmptyDataArray();
 
-// import { assignIds } from "../components/Table/utils/wbsHelpers";
-// import { WBSData, ChartRow, SeparatorRow, EventRow } from "../types/DataTypes";
-
-// const createEmptySeparatorRow = (): SeparatorRow => ({
-//   rowType: "Separator",
-//   no: 0,
-//   id: "",
-//   displayName: ""
-// });
-
-// const createEmptyEventRow = (): EventRow => ({
-//   rowType: "Event",
-//   no: 0,
-//   id: "",
-//   displayName: "",
-//   textColumn1: "",
-//   textColumn2: "",
-//   textColumn3: "",
-//   textColumn4: "",
-//   color: "",
-//   plannedStartDate: "",
-//   plannedEndDate: "",
-//   plannedDays: null,
-//   actualStartDate: "",
-//   actualEndDate: "",
-//   eventData: []
-// });
-
-// const createEmptyChartRow = (): ChartRow => ({
-//   rowType: "Chart",
-//   no: 0,
-//   id: "",
-//   displayName: "",
-//   textColumn1: "",
-//   textColumn2: "",
-//   textColumn3: "",
-//   textColumn4: "",
-//   color: "",
-//   plannedStartDate: "",
-//   plannedEndDate: "",
-//   plannedDays: null,
-//   actualStartDate: "",
-//   actualEndDate: "",
-//   dependentId: "",
-//   dependency: "",
-//   isIncludeHolidays: false
-// });
-
-// const createStructuredDataArray = (): WBSData[] => {
-//   const data: WBSData[] = [];
-//   data.push(createEmptySeparatorRow());
-//   data.push(createEmptyEventRow());
-//   for (let i = 0; i < 500; i++) {
-//     data.push(createEmptyChartRow());
-//   }
-//   return data;
-// };
-
-// const structuredData: WBSData[] = createStructuredDataArray();
-
-// export const initializedEmptyData: { [id: string]: WBSData } = assignIds(structuredData);
+export const initializedEmptyData: { [id: string]: WBSData } = assignIds(structuredEmptyData);
