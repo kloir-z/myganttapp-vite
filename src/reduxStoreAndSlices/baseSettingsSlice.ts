@@ -65,9 +65,7 @@ const baseSettingsSlice = createSlice({
     setTitle(state, action: PayloadAction<string>) {
       state.title = action.payload;
     },
-    resetBaseSettings(state) {
-      Object.assign(state, initialState)
-    },
+    resetBaseSettings: () => initialState,
   },
 });
 

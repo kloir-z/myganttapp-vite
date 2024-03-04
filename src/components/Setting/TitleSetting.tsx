@@ -84,14 +84,17 @@ const TitleSetting: React.FC = memo(() => {
   }, [title, placeholder]);
 
   useEffect(() => {
-    if (!isEditing) { setTitleLocal(globalTitle) }
+    if (!isEditing) {
+      setTitleLocal(globalTitle)
+    }
   }, [globalTitle, isEditing]);
 
   const syncToStore = useCallback(() => {
     if (isEditing) {
       dispatch(setTitle(title));
+      document.title = globalTitle;
     }
-  }, [isEditing, dispatch, title]);
+  }, [isEditing, dispatch, title, globalTitle]);
 
   const debouncedSyncToStore = debounce(syncToStore, 100);
 

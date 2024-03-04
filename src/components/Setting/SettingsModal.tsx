@@ -13,6 +13,8 @@ import { Overlay, ModalContainer } from "../../styles/GanttStyles";
 import { Switch } from '@mui/material';
 import SettingChildDiv from "./SettingChildDiv";
 import { MdOutlineDragIndicator } from "react-icons/md";
+import { resetBaseSettings } from "../../reduxStoreAndSlices/baseSettingsSlice";
+import { resetColor } from "../../reduxStoreAndSlices/colorSlice";
 
 type SettingsModalProps = {
   show: boolean;
@@ -87,6 +89,11 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     }
   }, [isDragging, onDrag, endDrag]);
 
+  const handleReset = () => {
+    dispatch(resetStore())
+    dispatch(resetBaseSettings())
+    dispatch(resetColor())
+  };
 
   return (
     show ?
@@ -128,7 +135,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <ExportImportFile />
           <SettingChildDiv text='Reset & Clear'>
             <div style={{ display: 'flex', justifyContent: 'start' }}>
-              <button onClick={() => dispatch(resetStore())}>Reset & Clear</button>
+              <button onClick={handleReset}>Reset & Clear</button>
             </div>
           </SettingChildDiv>
         </ModalContainer>
