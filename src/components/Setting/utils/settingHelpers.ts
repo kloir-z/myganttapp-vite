@@ -51,7 +51,6 @@ export const handleAppend = (
   dispatch: AppDispatch,
 ) => {
   if (file) {
-    dispatch(setFileName(file.name.replace('.json', '')));
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result;

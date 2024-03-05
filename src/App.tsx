@@ -320,7 +320,7 @@ function App() {
               className="vertical-indicator"
               style={{
                 height: `${gridHeight + 21}px`,
-                width: `${cellWidth + 0.2}px`,
+                width: `${cellWidth + 1}px`,
                 backgroundColor: 'rgba(124, 124, 124, 0.09)',
                 position: 'absolute',
                 left: mousePosition.x + 'px',

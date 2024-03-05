@@ -92,7 +92,7 @@ const TitleSetting: React.FC = memo(() => {
   const syncToStore = useCallback(() => {
     if (isEditing) {
       dispatch(setTitle(title));
-      document.title = globalTitle;
+      document.title = "Gantt - " + globalTitle;
     }
   }, [isEditing, dispatch, title, globalTitle]);
 

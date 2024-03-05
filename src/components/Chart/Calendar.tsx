@@ -66,107 +66,121 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
       animation="fade"
       offset={[0, 20]}
     >
-    <div
-      ref={calendarRef}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: `${calendarWidth}px`
-      }}>
-      <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
-        {dateArray.map((date, index) => {
-          const month = date.getMonth();
-          if (month !== previousMonth || index === 0) {
-            previousMonth = month;
-            const left = cellWidth * index;
-            const isFirstDate = index === 0;
-            const displayDate = dateFormat === 'YYYY/MM' ?
-              `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
-              `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
-            return (
-              <CalendarCell
-                key={index}
-                data-index={index}
-                $isMonthStart={true}
-                $isFirstDate={isFirstDate}
-                style={{
-                  padding: '0px 5px',
-                  left: `${left}px`,
-                  height: '21px'
-                }}
-              >
-                {displayDate}
-              </CalendarCell>
-            );
-          }
-          return null;
-        })}
-      </GanttRow>
-      <GanttRow style={{
-        background: 'none',
-        borderTop: '1px solid #00000016',
-        borderBottom: '1px solid #00000016',
-      }}>
-        {dateArray.map((date, index) => {
-          const left = cellWidth * index;
-          let chartBarColor = '';
-          const dayOfWeek = date.getDay();
-          const isMonthStart = date.getDate() === 1;
-          const isFirstDate = index === 0;
-          const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
-          const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
-          const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
-          chartBarColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
-          const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-          const firstDayOfWeek = firstDayOfMonth.getDay();
-          const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-          const lastDayOfWeek = lastDayOfMonth.getDay();
-          const skipFirstWeek = firstDayOfWeek >= 4 && firstDayOfWeek <= 6;
-          const daysSinceFirstSunday = (date.getDate() - 1) + firstDayOfWeek;
-          const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
-
-          let displayText = `${date.getDate()}`;
-          if (cellWidth <= 5) {
-            displayText = '';
-          } else if (cellWidth <= 11) {
-            if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.getDate() > (lastDayOfMonth.getDate() - lastDayOfWeek - 1)) {
-              displayText = '';
-            } else if ((isMonthStart && !skipFirstWeek) || dayOfWeek === 0) {
-              displayText = weekNumber > 0 ? `${weekNumber}` : '';
-            } else {
-              displayText = '';
+      <div
+        ref={calendarRef}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: `${calendarWidth}px`
+        }}>
+        <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
+          {dateArray.map((date, index) => {
+            const month = date.getMonth();
+            if (month !== previousMonth || index === 0) {
+              previousMonth = month;
+              const left = cellWidth * index;
+              const isFirstDate = index === 0;
+              const displayDate = dateFormat === 'YYYY/MM' ?
+                `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
+                `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
+              return (
+                <CalendarCell
+                  key={index}
+                  data-index={index}
+                  $isMonthStart={true}
+                  $isFirstDate={isFirstDate}
+                  style={{
+                    padding: '0px 5px',
+                    left: `${left}px`,
+                    height: '21px'
+                  }}
+                >
+                  {displayDate}
+                </CalendarCell>
+              );
             }
-          }
+            return null;
+          })}
+        </GanttRow>
+        <GanttRow style={{
+          background: 'none',
+          borderTop: '1px solid #00000016',
+          borderBottom: '1px solid #00000016',
+        }}>
+          {dateArray.map((date, index) => {
+            const left = cellWidth * index;
+            let bgColor = '';
+            const dayOfWeek = date.getDay();
+            const isMonthStart = date.getDate() === 1;
+            const isFirstDate = index === 0;
+            const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
+            const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
+            const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
+            bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
+            const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            const firstDayOfWeek = firstDayOfMonth.getDay();
+            const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            const lastDayOfWeek = lastDayOfMonth.getDay();
+            const skipFirstWeek = firstDayOfWeek >= 4 && firstDayOfWeek <= 6;
+            const daysSinceFirstSunday = (date.getDate() - 1) + firstDayOfWeek;
+            const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
+            const today = new Date();
+            const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
 
-          return (
-            <CalendarCell
-              key={index}
-              data-index={index}
-              $isMonthStart={isMonthStart}
-              $isFirstDate={isFirstDate}
-              $chartBarColor={chartBarColor}
-              $borderLeft={borderLeft}
-              style={{
-                left: `${left}px`,
-                width: `${cellWidth + 0.1}px`
-              }}
-            >
-              <label
-                style={{
-                  position: 'absolute',
-                  zIndex: '1',
-                  whiteSpace: 'nowrap',
-                  letterSpacing: cellWidth <= 14 ? '-2px' : 'normal',
-                  marginLeft: cellWidth <= 14 ? '-2px' : '0px',
-                }}
-              >
-                {displayText}
-              </label>
-            </CalendarCell>
-          );
-        })}
-      </GanttRow>
-    </div>
+            let displayText = `${date.getDate()}`;
+            if (cellWidth <= 5) {
+              displayText = '';
+            } else if (cellWidth <= 11) {
+              if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.getDate() > (lastDayOfMonth.getDate() - lastDayOfWeek - 1)) {
+                displayText = '';
+              } else if ((isMonthStart && !skipFirstWeek) || dayOfWeek === 0) {
+                displayText = weekNumber > 0 ? `${weekNumber}` : '';
+              } else {
+                displayText = '';
+              }
+            }
+
+            return (
+              <>
+                <CalendarCell
+                  key={index}
+                  data-index={index}
+                  $isMonthStart={isMonthStart}
+                  $isFirstDate={isFirstDate}
+                  $bgColor={bgColor}
+                  $borderLeft={borderLeft}
+                  style={{
+                    left: `${left}px`,
+                    width: `${cellWidth + 0.1}px`
+                  }}
+                >
+                  <label
+                    style={{
+                      position: 'absolute',
+                      zIndex: '1',
+                      whiteSpace: 'nowrap',
+                      letterSpacing: cellWidth <= 14 ? '-2px' : 'normal',
+                      marginLeft: cellWidth <= 14 ? '-2px' : '0px',
+                    }}
+                  >
+                    {displayText}
+                  </label>
+                </CalendarCell>
+                {isToday && (
+                  <CalendarCell
+                    key={`${index}-overlay`}
+                    style={{
+                      left: `${left}px`,
+                      width: `${cellWidth + 0.1}px`,
+                      backgroundColor: 'rgba(255, 255, 0, 0.15)',
+                    }}
+                  />
+                )}
+              </>
+            );
+          })}
+        </GanttRow>
+      </div>
     </Tippy >
   );
 });

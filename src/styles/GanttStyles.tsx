@@ -36,7 +36,7 @@ export const Cell = styled.div<CellProps>`
 `;
 
 interface CalendarCellProps {
-  $chartBarColor?: string;
+  $bgColor?: string;
   $isMonthStart?: boolean;
   $isFirstDate?: boolean;
   $borderLeft?: boolean;
@@ -56,7 +56,7 @@ export const CalendarCell = styled.div<CalendarCellProps>`
     if (props.$borderLeft) return '1px solid #00000010';
     return 'none';
   }};
-  background-color: ${props => props.$chartBarColor ? props.$chartBarColor : 'unset'};
+  background-color: ${props => props.$bgColor ? props.$bgColor : 'unset'};
 `;
 
 const createFadeAnimation = (fromOpacity: number, toOpacity: number) => keyframes`
