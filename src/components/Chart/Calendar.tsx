@@ -81,7 +81,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
               const left = cellWidth * index;
               const isFirstDate = index === 0;
               const displayDate = dateFormat === 'YYYY/MM' ?
-                `${date.getFullYear()}/${String(month + 1).padStart(2, '0')}` :
+                `${date.getFullYear()}/${String(month + 1).padStart(1, '0')}` :
                 `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
               return (
                 <CalendarCell
@@ -92,7 +92,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   style={{
                     padding: '0px 5px',
                     left: `${left}px`,
-                    height: '21px'
+                    height: '22px',
                   }}
                 >
                   {displayDate}
@@ -102,11 +102,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             return null;
           })}
         </GanttRow>
-        <GanttRow style={{
-          background: 'none',
-          borderTop: '1px solid #00000016',
-          borderBottom: '1px solid #00000016',
-        }}>
+        <GanttRow style={{ borderTop: '1px solid #00000016' }}>
           {dateArray.map((date, index) => {
             const left = cellWidth * index;
             let bgColor = '';
@@ -151,7 +147,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   $borderLeft={borderLeft}
                   style={{
                     left: `${left}px`,
-                    width: `${cellWidth + 0.1}px`
+                    width: `${cellWidth + 0.1}px`,
+                    zIndex: '-1'
                   }}
                 >
                   <label

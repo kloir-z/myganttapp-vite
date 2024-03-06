@@ -1,12 +1,12 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/DataTypes';
-import { calculatePlannedDays, addPlannedDays, toLocalISOString, adjustColorOpacity } from '../components/Chart/utils/CalendarUtil';
+import { calculatePlannedDays, addPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
 import { Column } from "@silevis/reactgrid";
 import { initializedDummyData, initializedEmptyData } from './initialData';
-import { initialHolidays } from './initialHolidays';
+import { initialHolidays, initialRegularHolidaySetting } from './initialHolidays';
 import { initialColumns } from './initialColumns';
 
 export interface ExtendedColumn extends Column {
@@ -33,12 +33,8 @@ const initialState: {
   future: UndoableState[]
 } = {
   data: initializedDummyData,
-  holidays: initialHolidays || [],
-  regularHolidaySetting: [
-    { id: 1, color: '#d9e6ff', subColor: adjustColorOpacity('#d9e6ff'), days: [6] },
-    { id: 2, color: '#ffdcdc', subColor: adjustColorOpacity('#ffdcdc'), days: [0] },
-    { id: 3, color: '#00000010', subColor: adjustColorOpacity('#00000010'), days: [] },
-  ],
+  holidays: initialHolidays,
+  regularHolidaySetting: initialRegularHolidaySetting,
   isFixedData: true,
   showYear: false,
   columns: initialColumns,

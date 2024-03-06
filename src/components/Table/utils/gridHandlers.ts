@@ -25,8 +25,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
           ...rowData,
-          displayName: customTextCell.text
-
+          displayName: customTextCell.text.trim()
         };
       }
     }
@@ -45,7 +44,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.text
+          [fieldName]: customTextCell.text.trim()
         };
       }
     }
@@ -92,7 +91,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.text
+          [fieldName]: customTextCell.text.trim()
         };
       } else if (fieldName === "isIncludeHolidays" && newCell.type === 'checkbox') {
         const checkboxCell = newCell as CheckboxCell;

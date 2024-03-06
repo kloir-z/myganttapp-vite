@@ -6,11 +6,8 @@ export const GanttRow = styled.div`
   box-sizing: border-box;
   display: flex;
   height: 21px;
-  background: none;
   border-bottom: solid 1px #00000016;
-  position: relative;
   user-select: none;
-  align-items: start;
   font-size: 0.8em;
 `;
 
@@ -27,7 +24,8 @@ export const Cell = styled.div<CellProps>`
   text-align: center;
   left: ${props => props.$left ? `${props.$left}px` : ''};
   width: ${props => props.$width ? `${props.$width}px` : '21.1px'};
-  height: 21px;
+  height: 22px;
+  top: -1px;
   border: 0.2px solid transparent;
   background-color: ${props => props.$chartBarColor ? props.$chartBarColor : '#99ff937e'};
   &:hover {

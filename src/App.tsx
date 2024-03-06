@@ -44,6 +44,7 @@ function App() {
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const dragTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -151,14 +152,38 @@ function App() {
       let adjustedY = mousePosition.y
       if (canGridRefDrag) {
         const gridStartY = gridRef.current.scrollTop % 21;
-        adjustedY = Math.floor((event.clientY + gridStartY) / 21) * 21 - gridStartY;
+        adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
       setMousePosition({ x: adjustedX, y: adjustedY });
     } else {
-      setIsGridRefDragging(false);
-      setSeparatorX(gridRef.current.scrollLeft);
+      if (dragTimeoutRef.current !== null) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+      dragTimeoutRef.current = setTimeout(() => {
+        if (gridRef.current) {
+          const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
+          const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
+          let adjustedY = mousePosition.y
+          if (canGridRefDrag) {
+            const gridStartY = gridRef.current.scrollTop % 21;
+            adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
+          }
+          setMousePosition({ x: adjustedX, y: adjustedY });
+          setIsGridRefDragging(false);
+          setSeparatorX(gridRef.current.scrollLeft);
+        }
+        dragTimeoutRef.current = null;
+      }, 20);
     }
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startY.eventY, wbsWidth]);
+
+  useEffect(() => {
+    return () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleMouseUp = useCallback(() => {
     setIsGridRefDragging(false);
