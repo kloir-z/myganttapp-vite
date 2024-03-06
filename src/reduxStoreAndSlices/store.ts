@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/DataTypes';
-import { calculatePlannedDays, addPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
+import { calculatePlannedDays, addPlannedDays, subtractPlannedDays, toLocalISOString } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
@@ -54,29 +54,59 @@ const emptyState = {
 const updateDependentRows = (
   state: { data: { [id: string]: WBSData }, holidays: string[], regularHolidaySetting: RegularHolidaySetting[] },
   currentId: string,
+  newStartDate: Date,
   newEndDate: Date,
   visited = new Set<string>()
 ) => {
   if (visited.has(currentId)) {
-    if (state.data[currentId] && state.data[currentId].rowType === 'Chart') {
-      const chartRow = state.data[currentId] as ChartRow;
-      chartRow.dependentId = '';
-    }
     return;
   }
   visited.add(currentId);
   const regularHolidays = Array.from(new Set(state.regularHolidaySetting.flatMap(setting => setting.days)));
+
   Object.values(state.data).forEach((row: WBSData) => {
     if (row.rowType === 'Chart') {
       const chartRow = row as ChartRow;
+
+      if (chartRow.id === (state.data[currentId] as ChartRow).dependentId) {
+        const dependency = (state.data[currentId] as ChartRow).dependency.toLowerCase();
+        const dependencyParts = dependency.split(',');
+        let dependentEndDate;
+        let dependentStartDate
+        switch (dependencyParts[0]) {
+          case 'after': {
+            let offsetDays = parseInt(dependencyParts[2], 10);
+            if (isNaN(offsetDays) || offsetDays <= 0) {
+              offsetDays = 1;
+            }
+            let includeStartDay = false;
+            dependentEndDate = subtractPlannedDays(newStartDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
+            includeStartDay = true
+            dependentStartDate = subtractPlannedDays(dependentEndDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
+            break;
+          }
+          case 'sameas': {
+            dependentStartDate = newStartDate;
+            const includeStartDay = true;
+            dependentEndDate = addPlannedDays(dependentStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
+            break;
+          }
+          default:
+            return;
+        }
+
+        chartRow.plannedEndDate = toLocalISOString(dependentEndDate);
+        chartRow.plannedStartDate = toLocalISOString(dependentStartDate);
+        updateDependentRows(state, chartRow.id, dependentStartDate, dependentEndDate, visited);
+      }
+
       if (chartRow.dependentId === currentId) {
         const dependency = chartRow.dependency.toLowerCase();
         if (!chartRow.dependency) {
           return;
         }
         const dependencyParts = dependency.split(',');
-
-        let newStartDate;
+        let dependentStartDate;
         switch (dependencyParts[0]) {
           case 'after': {
             let offsetDays = parseInt(dependencyParts[2], 10);
@@ -84,24 +114,22 @@ const updateDependentRows = (
               offsetDays = 1;
             }
             const includeStartDay = false
-            newStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
+            dependentStartDate = addPlannedDays(newEndDate, offsetDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
             break;
           }
           case 'sameas': {
-            const dependentRow = state.data[currentId] as ChartRow;
-            newStartDate = new Date(dependentRow.plannedStartDate);
+            dependentStartDate = newStartDate;
             break;
           }
           default:
             return;
         }
 
-        chartRow.plannedStartDate = toLocalISOString(newStartDate);
+        chartRow.plannedStartDate = toLocalISOString(dependentStartDate);
         const includeStartDay = true
-        const dependentEndDate = addPlannedDays(newStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
+        const dependentEndDate = addPlannedDays(dependentStartDate, chartRow.plannedDays, state.holidays, chartRow.isIncludeHolidays, includeStartDay, regularHolidays);
         chartRow.plannedEndDate = toLocalISOString(dependentEndDate);
-
-        updateDependentRows(state, chartRow.id, dependentEndDate, visited);
+        updateDependentRows(state, chartRow.id, dependentStartDate, dependentEndDate, visited);
       }
     }
   });
@@ -130,7 +158,7 @@ const resetEndDate = (
           ...chartRow,
           plannedEndDate: toLocalISOString(dependentEndDate)
         };
-        updateDependentRows(state, id, dependentEndDate);
+        updateDependentRows(state, id, startDate, dependentEndDate);
       }
     }
   });
@@ -283,11 +311,10 @@ export const wbsDataSlice = createSlice({
       if (state.data[id] && state.data[id].rowType === 'Chart') {
         const chartRow = state.data[id] as ChartRow;
         chartRow.plannedStartDate = startDate;
-        if (chartRow.plannedEndDate) {
-          const newStartDate = new Date(startDate);
-          const endDate = new Date(chartRow.plannedEndDate);
-          chartRow.plannedDays = calculatePlannedDays(newStartDate, endDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
-        }
+        const newStartDate = new Date(startDate);
+        const endDate = new Date(chartRow.plannedEndDate);
+        chartRow.plannedDays = calculatePlannedDays(newStartDate, endDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
+        updateDependentRows(state, id, newStartDate, endDate);
       }
     },
     setPlannedEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
@@ -297,12 +324,10 @@ export const wbsDataSlice = createSlice({
       if (state.data[id] && state.data[id].rowType === 'Chart') {
         const chartRow = state.data[id] as ChartRow;
         chartRow.plannedEndDate = endDate;
-        if (chartRow.plannedStartDate) {
-          const startDate = new Date(chartRow.plannedStartDate);
-          const newEndDate = new Date(endDate);
-          chartRow.plannedDays = calculatePlannedDays(startDate, newEndDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
-        }
-        updateDependentRows(state, id, new Date(endDate));
+        const startDate = new Date(chartRow.plannedStartDate);
+        const newEndDate = new Date(endDate);
+        chartRow.plannedDays = calculatePlannedDays(startDate, newEndDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
+        updateDependentRows(state, id, startDate, newEndDate);
       }
     },
     setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
@@ -313,13 +338,10 @@ export const wbsDataSlice = createSlice({
         const chartRow = state.data[id] as ChartRow;
         chartRow.plannedStartDate = startDate;
         chartRow.plannedEndDate = endDate;
-
-        if (startDate && endDate) {
-          const newStartDate = new Date(startDate);
-          const newEndDate = new Date(endDate);
-          chartRow.plannedDays = calculatePlannedDays(newStartDate, newEndDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
-        }
-        updateDependentRows(state, id, new Date(endDate));
+        const newStartDate = new Date(startDate);
+        const newEndDate = new Date(endDate);
+        chartRow.plannedDays = calculatePlannedDays(newStartDate, newEndDate, state.holidays, chartRow.isIncludeHolidays, regularHolidays);
+        updateDependentRows(state, id, newStartDate, newEndDate);
       }
     },
     setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {

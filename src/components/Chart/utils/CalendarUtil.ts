@@ -87,6 +87,31 @@ export const addPlannedDays = (start: Date, days: number | null, holidays: strin
   return currentDate;
 };
 
+export const subtractPlannedDays = (end: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): Date => {
+  if (isNaN(end.getTime()) || days === null || days < 0) {
+    return new Date(NaN);
+  }
+  const currentDate = new Date(end);
+  let subtractedDays = 0;
+
+  if (includeStartDay) {
+    const endDayOfWeek = currentDate.getDay();
+    if ((!isRegularHoliday(endDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+      subtractedDays = 1;
+    }
+  }
+
+  while (subtractedDays < days) {
+    currentDate.setDate(currentDate.getDate() - 1);
+    const dayOfWeek = currentDate.getDay();
+    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+      subtractedDays++;
+    }
+  }
+
+  return currentDate;
+};
+
 export const adjustColorOpacity = (color: string): string => {
   const opacityDecrease = 0.5;
   if (/^#/.test(color)) {
