@@ -45,6 +45,7 @@ function App() {
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const dragTimeoutRef = useRef<number | null>(null);
+  const mousePositionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -68,6 +69,27 @@ function App() {
     }
   }, []);
 
+  const resetDragTimeout = useCallback((clientX: number, clientY: number) => {
+    if (dragTimeoutRef.current) {
+      clearTimeout(dragTimeoutRef.current);
+    }
+    dragTimeoutRef.current = setTimeout(() => {
+      if (dragTimeoutRef.current !== null) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+      if (gridRef.current) {
+        const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
+        const adjustedX = Math.floor((clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
+        const gridStartY = gridRef.current.scrollTop % 21;
+        const adjustedY = Math.floor((clientY + gridStartY + 1) / 21) * 21 - gridStartY;
+        setMousePosition({ x: adjustedX, y: adjustedY });
+        setIsGridRefDragging(false);
+        setSeparatorX(gridRef.current.scrollLeft);
+        dragTimeoutRef.current = null;
+      }
+    }, 50);
+  }, [cellWidth, wbsWidth]);
+
   const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
       setIsGridRefDragging(true);
@@ -76,8 +98,9 @@ function App() {
       const scrollTop = Math.min(sourceRef.current.scrollTop, gridRef.current.scrollHeight - sourceRef.current.clientHeight);
       targetRef.current.scrollTop = scrollTop;
       sourceRef.current.scrollTop = scrollTop;
+      resetDragTimeout(mousePositionRef.current.x, mousePositionRef.current.y);
     }
-  }, [isGridRefDragging]);
+  }, [isGridRefDragging, resetDragTimeout]);
 
   const handleHorizontalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -89,8 +112,9 @@ function App() {
       const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
       targetRef.current.scrollLeft = scrollLeft;
       sourceRef.current.scrollLeft = scrollLeft;
+      resetDragTimeout(mousePositionRef.current.x, mousePositionRef.current.y);
     }
-  }, [isGridRefDragging]);
+  }, [isGridRefDragging, resetDragTimeout]);
 
   useEffect(() => {
     const wbsElement = wbsRef.current;
@@ -107,8 +131,9 @@ function App() {
       wbsElement.addEventListener('scroll', wbsHandleVertical);
       gridElement.addEventListener('scroll', gridHandleVertical);
     }
-
-    const gridHandleHorizontal = () => handleHorizontalScroll(gridRef, calendarRef);
+    const gridHandleHorizontal = () => {
+      handleHorizontalScroll(gridRef, calendarRef)
+    };
     if (calendarElement && gridElement) {
       gridElement.addEventListener('scroll', gridHandleHorizontal);
     }
@@ -134,6 +159,7 @@ function App() {
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!gridRef.current) return;
+    mousePositionRef.current = { x: event.clientX, y: event.clientY };
 
     if (canGridRefDrag && isMouseDown) {
       const currentScrollLeft = gridRef.current.scrollLeft;
@@ -155,25 +181,6 @@ function App() {
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
       setMousePosition({ x: adjustedX, y: adjustedY });
-    } else {
-      if (dragTimeoutRef.current !== null) {
-        clearTimeout(dragTimeoutRef.current);
-      }
-      dragTimeoutRef.current = setTimeout(() => {
-        if (gridRef.current) {
-          const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
-          const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
-          let adjustedY = mousePosition.y
-          if (canGridRefDrag) {
-            const gridStartY = gridRef.current.scrollTop % 21;
-            adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
-          }
-          setMousePosition({ x: adjustedX, y: adjustedY });
-          setIsGridRefDragging(false);
-          setSeparatorX(gridRef.current.scrollLeft);
-        }
-        dragTimeoutRef.current = null;
-      }, 20);
     }
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startY.eventY, wbsWidth]);
 
