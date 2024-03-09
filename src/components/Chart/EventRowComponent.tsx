@@ -3,24 +3,24 @@ import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } fr
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEventRow, setIsFixedData, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
-import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
+import { cdate } from 'cdate';
 // import { throttle } from 'lodash';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
   | { type: 'ADD_EVENT'; payload: EventType }
-  | { type: 'UPDATE_START_DATE'; payload: { index: number; startDate: Date | null } }
-  | { type: 'UPDATE_END_DATE'; payload: { index: number; endDate: Date | null } }
-  | { type: 'UPDATE_EVENT_DATES'; payload: { index: number; startDate: Date | null; endDate: Date | null; } }
+  | { type: 'UPDATE_START_DATE'; payload: { index: number; startDate: string | null } }
+  | { type: 'UPDATE_END_DATE'; payload: { index: number; endDate: string | null } }
+  | { type: 'UPDATE_EVENT_DATES'; payload: { index: number; startDate: string | null; endDate: string | null; } }
   | { type: 'UPDATE_DISPLAY_NAME'; payload: { index: number; displayName: string } };
 
 type EventType = {
-  startDate: Date | null;
-  endDate: Date | null;
+  startDate: string | null;
+  endDate: string | null;
   isPlanned: boolean;
   eachDisplayName: string;
 };
@@ -62,7 +62,7 @@ function eventsReducer(state: EventType[], action: Action): EventType[] {
 
 interface EventRowProps {
   entry: EventRow;
-  dateArray: Date[];
+  dateArray: string[];
   gridRef: React.RefObject<HTMLDivElement>;
   setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
@@ -85,19 +85,19 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [colors]);
   const init = (initialEventData: EventData[]) => initialEventData.map(event => ({
     ...event,
-    startDate: event.startDate ? new Date(event.startDate) : null,
-    endDate: event.endDate ? new Date(event.endDate) : null,
+    startDate: event.startDate ? event.startDate : null,
+    endDate: event.endDate ? event.endDate : null,
     isPlanned: event.isPlanned,
     eachDisplayName: event.eachDisplayName
   }));
   const [localEvents, localDispatch] = useReducer(eventsReducer, entry.eventData, init);
-  const [currentDate, setCurrentDate] = useState<Date | null>(null);
+  const [currentDate, setCurrentDate] = useState<cdate.CDate | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isBarDragging, setIsBarDragging] = useState(false);
   const [isBarEndDragging, setIsBarEndDragging] = useState(false);
   const [isBarStartDragging, setIsBarStartDragging] = useState(false);
-  const [originalStartDate, setOriginalStartDate] = useState<Date | null>(null);
-  const [originalEndDate, setOriginalEndDate] = useState<Date | null>(null);
+  const [originalStartDate, setOriginalStartDate] = useState<string | null>(null);
+  const [originalEndDate, setOriginalEndDate] = useState<string | null>(null);
   const [initialMouseX, setInitialMouseX] = useState<number | null>(null);
   const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, index: number } | null>(null);
@@ -147,11 +147,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
     if (dateIndex < 0) {
-      return adjustToLocalMidnight(dateArray[0]);
+      return cdate(dateArray[0]).startOf('day');
     } else if (dateIndex >= dateArray.length) {
-      return adjustToLocalMidnight(dateArray[dateArray.length - 1]);
+      return cdate(dateArray[dateArray.length - 1]).startOf('day');
     }
-    return adjustToLocalMidnight(dateArray[dateIndex]);
+    return cdate(dateArray[dateIndex]).startOf('day');
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -164,8 +164,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setCurrentDate(clickedDate);
     const isShiftKeyDown = event.shiftKey;
     const newEvent = {
-      startDate: clickedDate,
-      endDate: clickedDate,
+      startDate: clickedDate.format('YYYY/MM/DD'),
+      endDate: clickedDate.format('YYYY/MM/DD'),
       isPlanned: !isShiftKeyDown,
       eachDisplayName: ""
     };
@@ -182,31 +182,36 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           deltaX = currentMouseX - initialMouseX;
         } else if (isBarEndDragging) {
           deltaX = currentMouseX - initialMouseX + cellWidth;
-        } else { //(isBarStartDragging)
+        } else { // (isBarStartDragging)
           deltaX = currentMouseX - initialMouseX - cellWidth;
         }
         const gridSteps = Math.floor(deltaX / cellWidth);
 
-        let newStartDate = originalStartDate ? new Date(originalStartDate.getTime()) : null;
-        let newEndDate = originalEndDate ? new Date(originalEndDate.getTime()) : null;
+        let newStartDateCdate = originalStartDate ? cdate(originalStartDate) : null;
+        let newEndDateCdate = originalEndDate ? cdate(originalEndDate) : null;
 
-        if (isBarDragging && originalStartDate && originalEndDate && newStartDate && newEndDate) {
-          newStartDate.setDate(newStartDate.getDate() + gridSteps);
-          newEndDate.setDate(newEndDate.getDate() + gridSteps);
-        } else if (isBarEndDragging && originalEndDate && newStartDate && newEndDate && originalStartDate) {
-          newEndDate.setDate(newEndDate.getDate() + gridSteps);
-          if (newEndDate < originalStartDate) {
-            newEndDate = new Date(originalStartDate.getTime());
+        if (isBarDragging && newStartDateCdate && newEndDateCdate) {
+          newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
+          newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
+        } else if (isBarEndDragging && newEndDateCdate && newStartDateCdate) {
+          newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
+          if (+newEndDateCdate < +newStartDateCdate) {
+            newEndDateCdate = newStartDateCdate;
           }
-        } else if (isBarStartDragging && originalStartDate && newStartDate && newEndDate && originalEndDate) {
-          newStartDate.setDate(newStartDate.getDate() + gridSteps);
-          if (newStartDate > originalEndDate) {
-            newStartDate = new Date(originalEndDate.getTime());
+        } else if (isBarStartDragging && newStartDateCdate && newEndDateCdate) {
+          newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
+          if (+newStartDateCdate > +newEndDateCdate) {
+            newStartDateCdate = newEndDateCdate;
           }
         }
+
         localDispatch({
           type: 'UPDATE_EVENT_DATES',
-          payload: { index: activeEventIndex, startDate: newStartDate, endDate: newEndDate }
+          payload: {
+            index: activeEventIndex,
+            startDate: newStartDateCdate ? newStartDateCdate.format('YYYY/MM/DD') : null,
+            endDate: newEndDateCdate ? newEndDateCdate.format('YYYY/MM/DD') : null
+          }
         });
       } else if (isEditing) {
         const gridRect = gridRef.current?.getBoundingClientRect();
@@ -214,17 +219,17 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
 
         const scrollLeft = gridRef.current?.scrollLeft || 0;
         const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
-        const newDate = calculateDateFromX(relativeX);
+        const newDateCdate = calculateDateFromX(relativeX);
 
-        const isEndDate = newDate > currentDate;
-        const newStartDate = (isEndDate ? currentDate : newDate);
-        const newEndDate = (isEndDate ? newDate : currentDate);
+        const isEndDate = +newDateCdate > + currentDate;
+        const newStartDateCdate = isEndDate ? currentDate : newDateCdate;
+        const newEndDateCdate = isEndDate ? newDateCdate : currentDate;
         localDispatch({
           type: 'UPDATE_EVENT_DATES',
           payload: {
             index: activeEventIndex,
-            startDate: newStartDate,
-            endDate: newEndDate
+            startDate: newStartDateCdate.format('YYYY/MM/DD'),
+            endDate: newEndDateCdate.format('YYYY/MM/DD')
           }
         });
       }
@@ -236,8 +241,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {
       const initializedEvents = entry.eventData.map(event => ({
         ...event,
-        startDate: event.startDate ? new Date(event.startDate) : null,
-        endDate: event.endDate ? new Date(event.endDate) : null,
+        startDate: event.startDate ? event.startDate : null,
+        endDate: event.endDate ? event.endDate : null,
       }));
       localDispatch({ type: 'INIT', payload: initializedEvents });
     }
@@ -247,8 +252,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) {
       const updatedEventData = localEvents.map(event => ({
         ...event,
-        startDate: event.startDate ? formatDate(event.startDate) : "",
-        endDate: event.endDate ? formatDate(event.endDate) : ""
+        startDate: event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : "",
+        endDate: event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : ""
       }));
 
       const updatedEventRow = {
@@ -265,10 +270,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (activeEventIndex !== null) {
       if (activeEventIndex !== null && localEvents[activeEventIndex]) {
         const event = localEvents[activeEventIndex];
-        const originalStartDateString = originalStartDate ? formatDate(originalStartDate) : null;
-        const eventStartDateString = event.startDate ? formatDate(event.startDate) : null;
-        const originalEndDateString = originalEndDate ? formatDate(originalEndDate) : null;
-        const eventEndDateString = event.endDate ? formatDate(event.endDate) : null;
+        const originalStartDateString = originalStartDate ? cdate(originalStartDate).format('YYYY/MM/DD') : null;
+        const eventStartDateString = event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : null;
+        const originalEndDateString = originalEndDate ? cdate(originalEndDate).format('YYYY/MM/DD') : null;
+        const eventEndDateString = event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : null;
         shouldremovePastState = (originalStartDateString === eventStartDateString && originalEndDateString === eventEndDateString);
         if (shouldremovePastState) {
           dispatch(removePastState(1));
@@ -298,8 +303,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (contextMenu !== null) {
       const updatedEventData = localEvents.filter((_, index) => index !== contextMenu.index).map(event => ({
         ...event,
-        startDate: event.startDate ? formatDate(event.startDate) : "",
-        endDate: event.endDate ? formatDate(event.endDate) : ""
+        startDate: event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : "",
+        endDate: event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : ""
       }));
       const updatedEventRow = {
         ...entry,
@@ -322,8 +327,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
       {localEvents.map((event, index) => (
         <ChartBar
           key={index}
-          startDate={event.startDate ? new Date(event.startDate) : null}
-          endDate={event.endDate ? new Date(event.endDate) : null}
+          startDate={event.startDate ? event.startDate : null}
+          endDate={event.endDate ? event.endDate : null}
           dateArray={dateArray}
           isActual={!event.isPlanned}
           entryId={entry.id}

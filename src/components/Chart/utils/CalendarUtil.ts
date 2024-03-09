@@ -1,22 +1,18 @@
 // CalendarUtils.ts
+import { cdate } from "cdate";
 
-export const generateDates = (start: string, end: string): Date[] => {
-  const startDate = new Date(start)
-  const endDate = new Date(end)
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || start > end) {
+export const generateDates = (start: string, end: string): string[] => {
+  const startDate = cdate(start);
+  const endDate = cdate(end);
+  if (+startDate > +endDate) {
     return [];
   }
-
-  const dateArray: Date[] = [];
-  const currentDate = new Date(startDate);
-
-  while (currentDate <= endDate) {
-    const adjustedDate = new Date(currentDate);
-    adjustedDate.setHours(0, 0, 0, 0);
-    dateArray.push(adjustedDate);
-    currentDate.setDate(currentDate.getDate() + 1);
+  const dateArray: string[] = [];
+  let currentDate = startDate;
+  while (+currentDate <= +endDate) {
+    dateArray.push(currentDate.format('YYYY/MM/DD'));
+    currentDate = currentDate.add(1, 'day');
   }
-
   return dateArray;
 };
 
@@ -31,86 +27,135 @@ export const toLocalISOString = (date: Date): string => {
   return adjustedDate.toISOString().split('T')[0].replace(/-/g, '/');
 };
 
-const getStartOfDay = (date: Date) => {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-};
-
 const isRegularHoliday = (dayOfWeek: number, regularHolidays: number[]): boolean => {
   return regularHolidays.includes(dayOfWeek);
 };
 
-export const isHoliday = (date: Date, holidays: string[]): boolean => {
-  const dateString = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+export const isHoliday = (date: cdate.CDate, holidays: string[]): boolean => {
+  const dateString = date.format("YYYY/MM/DD");
   return holidays.includes(dateString);
 };
 
-export const calculatePlannedDays = (start: Date, end: Date, holidays: string[], isIncludeHolidays: boolean, regularHolidays: number[]): number => {
-  if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
+export const calculatePlannedDays = (startString: string, endString: string, holidays: string[], isIncludeHolidays: boolean, regularHolidays: number[]): number => {
+  const start = cdate(startString);
+  const end = cdate(endString);
+
+  if (+start > +end) {
     return 0;
   }
   let count = 0;
-  const currentDate = new Date(getStartOfDay(start));
+  let currentDate = start.startOf('day');
 
-  while (currentDate <= getStartOfDay(end)) {
-    const dayOfWeek = currentDate.getDay();
+  while (+currentDate <= +end.startOf('day')) {
+    const dayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       count++;
     }
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate = currentDate.add(1, 'day');
   }
 
   return count;
 };
 
-export const addPlannedDays = (start: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): Date => {
-  if (isNaN(start.getTime()) || days === null || days < 0) {
-    return new Date(NaN);
+export const addPlannedDays = (startString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
+  if (days === null || days < 0) {
+    return '';
   }
-  const currentDate = new Date(start);
+
+  let currentDate = cdate(startString);
   let addedDays = 0;
 
   if (includeStartDay) {
-    const startDayOfWeek = currentDate.getDay();
+    const startDayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularHoliday(startDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays = 1;
     }
   }
 
   while (addedDays < days) {
-    currentDate.setDate(currentDate.getDate() + 1);
-    const dayOfWeek = currentDate.getDay();
+    currentDate = currentDate.add(1, 'day');
+    const dayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays++;
     }
   }
 
-  return currentDate;
+  return currentDate.format("YYYY/MM/DD");
 };
 
-export const subtractPlannedDays = (end: Date, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): Date => {
-  if (isNaN(end.getTime()) || days === null || days < 0) {
-    return new Date(NaN);
+export const subtractPlannedDays = (endString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
+  if (days === null || days < 0) {
+    return '';
   }
-  const currentDate = new Date(end);
+
+  let currentDate = cdate(endString);
   let subtractedDays = 0;
 
   if (includeStartDay) {
-    const endDayOfWeek = currentDate.getDay();
+    const endDayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularHoliday(endDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       subtractedDays = 1;
     }
   }
 
   while (subtractedDays < days) {
-    currentDate.setDate(currentDate.getDate() - 1);
-    const dayOfWeek = currentDate.getDay();
+    currentDate = currentDate.add(-1, 'day'); // Subtract days
+    const dayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       subtractedDays++;
     }
   }
 
-  return currentDate;
+  return currentDate.format("YYYY/MM/DD");
 };
+
+export interface CalculateDependenciesParams {
+  currentDependency: string;
+  plannedDays: number;
+  isIncludeHolidays: boolean;
+  baseDate: string;
+  calculationDirection: 'back' | 'forward';
+  stateHolidays: string[];
+  stateRegularHolidays: number[];
+}
+
+export function calculateDependencies({ currentDependency, plannedDays, isIncludeHolidays, baseDate, calculationDirection, stateHolidays, stateRegularHolidays }: CalculateDependenciesParams): { startDate: string; endDate: string } {
+  const dependencyParts = currentDependency.toLowerCase().split(',');
+  let startDateCdate;
+  let endDateCdate;
+
+  switch (dependencyParts[0]) {
+    case 'after': {
+      let offsetDays = parseInt(dependencyParts[2], 10);
+      if (isNaN(offsetDays) || offsetDays <= 0) {
+        offsetDays = 1;
+      }
+      if (calculationDirection === 'back') {
+        const includeStartDay = false;
+        endDateCdate = subtractPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
+        startDateCdate = subtractPlannedDays(endDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularHolidays);
+      } else { // if (calculationDirection === 'forward')
+        const includeStartDay = false;
+        startDateCdate = addPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
+        endDateCdate = addPlannedDays(startDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularHolidays);
+      }
+      break;
+    }
+    case 'sameas': {
+      startDateCdate = baseDate;
+      const includeStartDay = true;
+      endDateCdate = addPlannedDays(baseDate, plannedDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
+      break;
+    }
+    default:
+      throw new Error('Unsupported dependency type');
+  }
+
+  return {
+    startDate: startDateCdate, 
+    endDate: endDateCdate
+  };
+}
 
 export const adjustColorOpacity = (color: string): string => {
   const opacityDecrease = 0.5;

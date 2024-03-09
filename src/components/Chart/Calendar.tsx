@@ -7,14 +7,15 @@ import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
+import { cdate } from 'cdate';
 
 interface CalendarProps {
-  dateArray: Date[];
+  dateArray: string[];
 }
 
 const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   const dispatch = useDispatch();
-  let previousMonth = dateArray[0].getMonth();
+  let previousMonth = cdate(dateArray[0]).get("M") - 1;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
@@ -74,15 +75,16 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           width: `${calendarWidth}px`
         }}>
         <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
-          {dateArray.map((date, index) => {
-            const month = date.getMonth();
+          {dateArray.map((dateString, index) => {
+            const date = cdate(dateString);
+            const month = date.get('M') - 1;
             if (month !== previousMonth || index === 0) {
               previousMonth = month;
               const left = cellWidth * index;
               const isFirstDate = index === 0;
               const displayDate = dateFormat === 'YYYY/MM' ?
-                `${date.getFullYear()}/${String(month + 1).padStart(1, '0')}` :
-                `${String(month + 1).padStart(2, '0')}/${date.getFullYear()}`;
+                `${date.format("YYYY")}/${date.format("MM")}` :
+                `${date.format("MM")}/${date.format("YYYY")}`;
               return (
                 <CalendarCell
                   key={index}
@@ -103,31 +105,32 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           })}
         </GanttRow>
         <GanttRow style={{ borderTop: '1px solid #00000016' }}>
-          {dateArray.map((date, index) => {
+          {dateArray.map((dateString, index) => {
+            const date = cdate(dateString); // dateStringをcdateオブジェクトに変換
             const left = cellWidth * index;
             let bgColor = '';
-            const dayOfWeek = date.getDay();
-            const isMonthStart = date.getDate() === 1;
+            const dayOfWeek = date.get("day");
+            const isMonthStart = date.get("date") === 1;
             const isFirstDate = index === 0;
             const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
             const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
             const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
             bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
-            const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-            const firstDayOfWeek = firstDayOfMonth.getDay();
-            const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            const lastDayOfWeek = lastDayOfMonth.getDay();
+            const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01"); // 月の初日
+            const firstDayOfWeek = firstDayOfMonth.get("day");
+            const lastDayOfMonth = firstDayOfMonth.add(1, "month").prev("day"); // 月の最終日
+            const lastDayOfWeek = lastDayOfMonth.get("day");
             const skipFirstWeek = firstDayOfWeek >= 4 && firstDayOfWeek <= 6;
-            const daysSinceFirstSunday = (date.getDate() - 1) + firstDayOfWeek;
+            const daysSinceFirstSunday = (date.get("date") - 1) + firstDayOfWeek;
             const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
-            const today = new Date();
-            const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+            const today = cdate();
+            const isToday = date.format("YYYY-MM-DD") === today.format("YYYY-MM-DD");
 
-            let displayText = `${date.getDate()}`;
+            let displayText = `${date.get("date")}`;
             if (cellWidth <= 5) {
               displayText = '';
             } else if (cellWidth <= 11) {
-              if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.getDate() > (lastDayOfMonth.getDate() - lastDayOfWeek - 1)) {
+              if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.get("date") > (lastDayOfMonth.get("date") - lastDayOfWeek - 1)) {
                 displayText = '';
               } else if ((isMonthStart && !skipFirstWeek) || dayOfWeek === 0) {
                 displayText = weekNumber > 0 ? `${weekNumber}` : '';

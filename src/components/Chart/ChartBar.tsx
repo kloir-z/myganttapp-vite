@@ -4,11 +4,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { Cell } from '../../styles/GanttStyles';
 import AutoWidthInputBox from '../AutoWidthInputBox';
+import { cdate } from 'cdate';
 
 interface ChartBarProps {
-  startDate: Date | null;
-  endDate: Date | null;
-  dateArray: Date[];
+  startDate: string | null;
+  endDate: string | null;
+  dateArray: string[];
   isActual: boolean;
   entryId: string;
   eventIndex?: number;
@@ -19,27 +20,23 @@ interface ChartBarProps {
   onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-const getStartOfDay = (date: Date) => {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-};
-
 const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   if (!startDate || !endDate) {
     return null;
   }
 
-  const startOfDay = getStartOfDay(startDate);
-  const endOfDay = getStartOfDay(endDate);
-  const dateArrayStart = dateArray[0];
-  const dateArrayEnd = dateArray[dateArray.length - 1];
+  const startCDate = cdate(startDate);
+  const endCDate = cdate(endDate);
+  const dateArrayStart = cdate(dateArray[0]);
+  const dateArrayEnd = cdate(dateArray[dateArray.length - 1]);
 
-  if (startDate > dateArrayEnd || endDate < dateArrayStart) {
+  if (+startCDate > +dateArrayEnd || +endCDate < +dateArrayStart) {
     return null;
   }
 
-  let startIndex = dateArray.findIndex(date => date >= startOfDay);
-  let endIndex = dateArray.findIndex(date => date > endOfDay);
+  let startIndex = dateArray.findIndex(date => cdate(date) >= startCDate);
+  let endIndex = dateArray.findIndex(date => cdate(date) > endCDate);
   startIndex = startIndex === -1 ? 0 : startIndex;
   endIndex = endIndex === -1 ? dateArray.length - 1 : endIndex - 1;
 

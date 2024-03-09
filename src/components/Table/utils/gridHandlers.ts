@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import { simpleSetData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
-import { calculatePlannedDays, addPlannedDays, toLocalISOString } from "../../Chart/utils/CalendarUtil";
+import { calculatePlannedDays, addPlannedDays } from "../../Chart/utils/CalendarUtil";
 
 type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;
 
@@ -62,8 +62,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (fieldName === "plannedStartDate") {
         const customDateCell = newCell as CustomDateCell;
-        const startDate = new Date(customDateCell.text)
-        const endDate = new Date(chartRow.plannedEndDate)
+        const startDate = customDateCell.text
+        const endDate = chartRow.plannedEndDate
         updatedData[rowId] = {
           ...rowData,
           plannedStartDate: customDateCell.text,
@@ -71,8 +71,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (fieldName === "plannedEndDate") {
         const customDateCell = newCell as CustomDateCell;
-        const startDate = new Date(chartRow.plannedStartDate)
-        const endDate = new Date(customDateCell.text)
+        const startDate = chartRow.plannedStartDate
+        const endDate = customDateCell.text
         updatedData[rowId] = {
           ...rowData,
           plannedEndDate: customDateCell.text,
@@ -81,10 +81,10 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
       } else if (fieldName === "plannedDays") {
         const customTextCell = newCell as CustomTextCell;
         const plannedDays = Math.min(parseInt(customTextCell.text, 10), 9999);
-        const startDate = new Date(chartRow.plannedStartDate)
+        const startDate = chartRow.plannedStartDate
         updatedData[rowId] = {
           ...rowData,
-          plannedEndDate: toLocalISOString(addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularHolidays)),
+          plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularHolidays),
           plannedDays: plannedDays
         };
       } else if (newCell.type === 'customText') {
@@ -95,11 +95,11 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (fieldName === "isIncludeHolidays" && newCell.type === 'checkbox') {
         const checkboxCell = newCell as CheckboxCell;
-        const startDate = new Date(chartRow.plannedStartDate)
+        const startDate = chartRow.plannedStartDate
         updatedData[rowId] = {
           ...rowData,
           isIncludeHolidays: checkboxCell.checked,
-          plannedEndDate: toLocalISOString(addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularHolidays)),
+          plannedEndDate: addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularHolidays),
         };
       }
     }

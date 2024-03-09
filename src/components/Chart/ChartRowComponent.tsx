@@ -2,7 +2,6 @@ import React, { useState, memo, useEffect, useCallback, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, setIsFixedData, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
-import { formatDate, adjustToLocalMidnight } from './utils/chartHelpers';
 import { addPlannedDays } from './utils/CalendarUtil';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
@@ -10,10 +9,11 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { GanttRow } from '../../styles/GanttStyles';
 import { throttle } from 'lodash';
+import { cdate } from 'cdate';
 
 interface ChartRowProps {
   entry: ChartRow;
-  dateArray: Date[];
+  dateArray: string[];
   gridRef: React.RefObject<HTMLDivElement>;
   setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
@@ -41,17 +41,17 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const regularHolidays = useMemo(() => {
     return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
   }, [regularHolidaySetting]);
-  const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
-  const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? new Date(entry.plannedEndDate) : null);
-  const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? new Date(entry.actualStartDate) : null);
-  const [localActualEndDate, setLocalActualEndDate] = useState(entry.actualEndDate ? new Date(entry.actualEndDate) : null);
-  const [currentDate, setCurrentDate] = useState<Date | null>(null);
+  const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? entry.plannedStartDate : null);
+  const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? entry.plannedEndDate : null);
+  const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? entry.actualStartDate : null);
+  const [localActualEndDate, setLocalActualEndDate] = useState(entry.actualEndDate ? entry.actualEndDate : null);
+  const [currentDate, setCurrentDate] = useState<cdate.CDate | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isBarDragging, setIsBarDragging] = useState<'planned' | 'actual' | null>(null);
   const [isBarEndDragging, setIsBarEndDragging] = useState<'planned' | 'actual' | null>(null);
   const [isBarStartDragging, setIsBarStartDragging] = useState<'planned' | 'actual' | null>(null);
-  const [originalStartDate, setOriginalStartDate] = useState<Date | null>(null);
-  const [originalEndDate, setOriginalEndDate] = useState<Date | null>(null);
+  const [originalStartDate, setOriginalStartDate] = useState<string | null>(null);
+  const [originalEndDate, setOriginalEndDate] = useState<string | null>(null);
   const [initialMouseX, setInitialMouseX] = useState<number | null>(null);
   const [isShiftKeyDown, setIsShiftKeyDown] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number, y: number, barType: 'planned' | 'actual' } | null>(null);
@@ -113,11 +113,11 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
     if (dateIndex < 0) {
-      return adjustToLocalMidnight(dateArray[0]);
+      return cdate(dateArray[0]).startOf('day');
     } else if (dateIndex >= dateArray.length) {
-      return adjustToLocalMidnight(dateArray[dateArray.length - 1]);
+      return cdate(dateArray[dateArray.length - 1]).startOf('day');
     }
-    return adjustToLocalMidnight(dateArray[dateIndex]);
+    return cdate(dateArray[dateIndex]).startOf('day');
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -133,8 +133,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
     const setStartDate = isShiftKeyDown ? setLocalActualStartDate : setLocalPlannedStartDate;
     const setEndDate = isShiftKeyDown ? setLocalActualEndDate : setLocalPlannedEndDate;
-    setStartDate(clickedDate);
-    setEndDate(clickedDate);
+    setStartDate(clickedDate.format('YYYY/MM/DD'));
+    setEndDate(clickedDate.format('YYYY/MM/DD'));
   }, [calculateDateFromX, dispatch, setCanGridRefDrag]);
 
   const handleMouseMoveEditing = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -148,11 +148,11 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
       const isEndDate = newDate > currentDate;
       if (isShiftKeyDown) {
-        setLocalActualStartDate(isEndDate ? currentDate : newDate);
-        setLocalActualEndDate(isEndDate ? newDate : currentDate);
+        setLocalActualStartDate(isEndDate ? currentDate.format('YYYY/MM/DD') : newDate.format('YYYY/MM/DD'));
+        setLocalActualEndDate(isEndDate ? newDate.format('YYYY/MM/DD') : currentDate.format('YYYY/MM/DD'));
       } else {
-        setLocalPlannedStartDate(isEndDate ? currentDate : newDate);
-        setLocalPlannedEndDate(isEndDate ? newDate : currentDate);
+        setLocalPlannedStartDate(isEndDate ? currentDate.format('YYYY/MM/DD') : newDate.format('YYYY/MM/DD'));
+        setLocalPlannedEndDate(isEndDate ? newDate.format('YYYY/MM/DD') : currentDate.format('YYYY/MM/DD'));
       }
     };
     requestAnimationFrame(update);
@@ -164,18 +164,15 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         const currentMouseX = event.clientX;
         const deltaX = currentMouseX - initialMouseX;
         const gridSteps = Math.floor(deltaX / cellWidth);
-
-        const newStartDate = new Date(originalStartDate.getTime());
-        newStartDate.setDate(newStartDate.getDate() + gridSteps);
+        const newStartDateString = cdate(originalStartDate).add(gridSteps, 'days').format('YYYY/MM/DD');
         if (isBarDragging === 'planned') {
-          setLocalPlannedStartDate(newStartDate);
-          const newEndDate = addPlannedDays(newStartDate, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
-          setLocalPlannedEndDate(newEndDate);
+          setLocalPlannedStartDate(newStartDateString);
+          const newEndDate = addPlannedDays(newStartDateString, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
+          setLocalPlannedEndDate(cdate(newEndDate).format('YYYY/MM/DD'));
         } else if (isBarDragging === 'actual') {
-          setLocalActualStartDate(newStartDate);
-          const newEndDate = new Date(originalEndDate.getTime());
-          newEndDate.setDate(newEndDate.getDate() + gridSteps);
-          setLocalActualEndDate(newEndDate);
+          setLocalActualStartDate(newStartDateString);
+          const newEndDateString = cdate(originalEndDate).add(gridSteps, 'days').format('YYYY/MM/DD');
+          setLocalActualEndDate(newEndDateString);
         }
       }
     };
@@ -188,22 +185,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         const currentMouseX = event.clientX;
         const deltaX = currentMouseX - initialMouseX + cellWidth;
         const gridSteps = Math.floor(deltaX / cellWidth);
-
-        const newEndDate = new Date(originalEndDate.getTime());
-        newEndDate.setDate(newEndDate.getDate() + gridSteps);
-
+        const newEndDateString = cdate(originalEndDate).add(gridSteps, 'days').format('YYYY/MM/DD');
         if (isBarEndDragging === 'planned' && localPlannedStartDate) {
-          if (newEndDate < localPlannedStartDate) {
-            setLocalPlannedEndDate(new Date(localPlannedStartDate));
-          } else {
-            setLocalPlannedEndDate(newEndDate);
-          }
+          const isEndDateBeforeStartDate = cdate(newEndDateString) < cdate(localPlannedStartDate);
+          setLocalPlannedEndDate(isEndDateBeforeStartDate ? localPlannedStartDate : newEndDateString);
         } else if (isBarEndDragging === 'actual' && localActualStartDate) {
-          if (newEndDate < localActualStartDate) {
-            setLocalActualEndDate(new Date(localActualStartDate));
-          } else {
-            setLocalActualEndDate(newEndDate);
-          }
+          const isEndDateBeforeStartDate = cdate(newEndDateString) < cdate(localActualStartDate);
+          setLocalActualEndDate(isEndDateBeforeStartDate ? localActualStartDate : newEndDateString);
         }
       }
     };
@@ -216,22 +204,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         const currentMouseX = event.clientX;
         const deltaX = currentMouseX - initialMouseX - cellWidth;
         const gridSteps = Math.floor(deltaX / cellWidth);
-
-        const newStartDate = new Date(originalStartDate.getTime());
-        newStartDate.setDate(newStartDate.getDate() + gridSteps);
-
+        const newStartDateString = cdate(originalStartDate).add(gridSteps, 'days').format('YYYY/MM/DD');
         if (isBarStartDragging === 'planned' && localPlannedEndDate) {
-          if (newStartDate > localPlannedEndDate) {
-            setLocalPlannedStartDate(new Date(localPlannedEndDate));
-          } else {
-            setLocalPlannedStartDate(newStartDate);
-          }
+          const isStartDateAfterEndDate = cdate(newStartDateString) > cdate(localPlannedEndDate);
+          setLocalPlannedStartDate(isStartDateAfterEndDate ? localPlannedEndDate : newStartDateString);
         } else if (isBarStartDragging === 'actual' && localActualEndDate) {
-          if (newStartDate > localActualEndDate) {
-            setLocalActualStartDate(new Date(localActualEndDate));
-          } else {
-            setLocalActualStartDate(newStartDate);
-          }
+          const isStartDateAfterEndDate = cdate(newStartDateString) > cdate(localActualEndDate);
+          setLocalActualStartDate(isStartDateAfterEndDate ? localActualEndDate : newStartDateString);
         }
       }
     };
@@ -240,10 +219,10 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
 
   useEffect(() => {
     if (!isEditing && !isBarDragging && !isBarEndDragging && !isBarStartDragging) {
-      setLocalPlannedStartDate(entry.plannedStartDate ? new Date(entry.plannedStartDate) : null);
-      setLocalPlannedEndDate(entry.plannedEndDate ? new Date(entry.plannedEndDate) : null);
-      setLocalActualStartDate(entry.actualStartDate ? new Date(entry.actualStartDate) : null);
-      setLocalActualEndDate(entry.actualEndDate ? new Date(entry.actualEndDate) : null);
+      setLocalPlannedStartDate(entry.plannedStartDate ? cdate(entry.plannedStartDate).format('YYYY/MM/DD') : null);
+      setLocalPlannedEndDate(entry.plannedEndDate ? cdate(entry.plannedEndDate).format('YYYY/MM/DD') : null);
+      setLocalActualStartDate(entry.actualStartDate ? cdate(entry.actualStartDate).format('YYYY/MM/DD') : null);
+      setLocalActualEndDate(entry.actualEndDate ? cdate(entry.actualEndDate).format('YYYY/MM/DD') : null);
     }
   }, [entry.plannedStartDate, entry.plannedEndDate, entry.actualStartDate, entry.actualEndDate, isEditing, isBarDragging, isBarEndDragging, isBarStartDragging]);
 
@@ -252,30 +231,30 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       if (localPlannedStartDate && localPlannedEndDate) {
         dispatch(setPlannedStartAndEndDate({
           id: entry.id,
-          startDate: formatDate(localPlannedStartDate),
-          endDate: formatDate(localPlannedEndDate)
+          startDate: cdate(localPlannedStartDate).format('YYYY/MM/DD'),
+          endDate: cdate(localPlannedEndDate).format('YYYY/MM/DD')
         }));
       } else {
         if (localPlannedStartDate) {
-          dispatch(setPlannedStartDate({ id: entry.id, startDate: formatDate(localPlannedStartDate) }));
+          dispatch(setPlannedStartDate({ id: entry.id, startDate: cdate(localPlannedStartDate).format('YYYY/MM/DD') }));
         }
         if (localPlannedEndDate) {
-          dispatch(setPlannedEndDate({ id: entry.id, endDate: formatDate(localPlannedEndDate) }));
+          dispatch(setPlannedEndDate({ id: entry.id, endDate: cdate(localPlannedEndDate).format('YYYY/MM/DD') }));
         }
       }
 
       if (localActualStartDate && localActualEndDate) {
         dispatch(setActualStartAndEndDate({
           id: entry.id,
-          startDate: formatDate(localActualStartDate),
-          endDate: formatDate(localActualEndDate)
+          startDate: cdate(localActualStartDate).format('YYYY/MM/DD'),
+          endDate: cdate(localActualEndDate).format('YYYY/MM/DD')
         }));
       } else {
         if (localActualStartDate) {
-          dispatch(setActualStartDate({ id: entry.id, startDate: formatDate(localActualStartDate) }));
+          dispatch(setActualStartDate({ id: entry.id, startDate: cdate(localActualStartDate).format('YYYY/MM/DD') }));
         }
         if (localActualEndDate) {
-          dispatch(setActualEndDate({ id: entry.id, endDate: formatDate(localActualEndDate) }));
+          dispatch(setActualEndDate({ id: entry.id, endDate: cdate(localActualEndDate).format('YYYY/MM/DD') }));
         }
       }
     }
@@ -293,16 +272,16 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     const isActualDrag = isBarDragging === 'actual' || isBarStartDragging === 'actual' || isBarEndDragging === 'actual';
     let shouldremovePastState = false;
     if (isPlannedDrag) {
-      const originalPlannedStartDate = originalStartDate ? formatDate(originalStartDate) : null;
-      const originalPlannedEndDate = originalEndDate ? formatDate(originalEndDate) : null;
-      const localPlannedStartDateStr = localPlannedStartDate ? formatDate(localPlannedStartDate) : null;
-      const localPlannedEndDateStr = localPlannedEndDate ? formatDate(localPlannedEndDate) : null;
+      const originalPlannedStartDate = originalStartDate ? cdate(originalStartDate).format('YYYY/MM/DD') : null;
+      const originalPlannedEndDate = originalEndDate ? cdate(originalEndDate).format('YYYY/MM/DD') : null;
+      const localPlannedStartDateStr = localPlannedStartDate ? cdate(localPlannedStartDate).format('YYYY/MM/DD') : null;
+      const localPlannedEndDateStr = localPlannedEndDate ? cdate(localPlannedEndDate).format('YYYY/MM/DD') : null;
       shouldremovePastState = (originalPlannedStartDate === localPlannedStartDateStr && originalPlannedEndDate === localPlannedEndDateStr);
     } else if (isActualDrag) {
-      const originalActualStartDate = originalStartDate ? formatDate(originalStartDate) : null;
-      const originalActualEndDate = originalEndDate ? formatDate(originalEndDate) : null;
-      const localActualStartDateStr = localActualStartDate ? formatDate(localActualStartDate) : null;
-      const localActualEndDateStr = localActualEndDate ? formatDate(localActualEndDate) : null;
+      const originalActualStartDate = originalStartDate ? cdate(originalStartDate).format('YYYY/MM/DD') : null;
+      const originalActualEndDate = originalEndDate ? cdate(originalEndDate).format('YYYY/MM/DD') : null;
+      const localActualStartDateStr = localActualStartDate ? cdate(localActualStartDate).format('YYYY/MM/DD') : null;
+      const localActualEndDateStr = localActualEndDate ? cdate(localActualEndDate).format('YYYY/MM/DD') : null;
       shouldremovePastState = (originalActualStartDate === localActualStartDateStr && originalActualEndDate === localActualEndDateStr);
     }
     if (shouldremovePastState) {

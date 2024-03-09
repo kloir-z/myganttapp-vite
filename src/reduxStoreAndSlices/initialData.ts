@@ -3,6 +3,7 @@ import { WBSData, ChartRow, SeparatorRow, EventRow } from "../types/DataTypes";
 import { addPlannedDays, calculatePlannedDays } from "../components/Chart/utils/CalendarUtil";
 import { initialHolidayInput } from "./initialHolidays";
 import { updateHolidays } from "../components/Setting/utils/settingHelpers";
+import { cdate } from "cdate";
 
 const createEmptySeparatorRow = (): SeparatorRow => ({
   rowType: "Separator",
@@ -29,16 +30,14 @@ const createEmptyEventRow = (): EventRow => ({
   eventData: []
 });
 
-const formatDate = (date: Date): string => {
-  return `${date.getFullYear()}/${("0" + (date.getMonth() + 1)).slice(-2)}/${("0" + date.getDate()).slice(-2)}`;
-};
-
-const generateRandomDate = (): Date => {
-  const start = new Date();
-  const end = new Date();
-  end.setMonth(start.getMonth() + 5);
-  const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  return randomDate;
+const generateRandomDate = (): string => {
+  const start = cdate();
+  const end = start.add(5, "months");
+  const startTime = start.toDate().getTime();
+  const endTime = end.toDate().getTime();
+  const randomTimeDiff = Math.random() * (endTime - startTime);
+  const randomDate = cdate(new Date(startTime + randomTimeDiff));
+  return randomDate.format("YYYY/MM/DD");
 };
 
 const createDummyChartRow = (): ChartRow => {
@@ -46,8 +45,8 @@ const createDummyChartRow = (): ChartRow => {
   const holidays: string[] = updateHolidays(initialHolidayInput);
   const isIncludeHolidays = false;
   const regularHolidays: number[] = [0, 6];
-  const plannedEndDate = addPlannedDays(plannedStartDate, 20, holidays, isIncludeHolidays, true, regularHolidays);
-  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularHolidays)
+  const plannedEndDate = addPlannedDays(plannedStartDate, 2, holidays, isIncludeHolidays, true, regularHolidays);
+  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularHolidays);
 
   return {
     rowType: "Chart",
@@ -59,8 +58,8 @@ const createDummyChartRow = (): ChartRow => {
     textColumn3: "",
     textColumn4: "",
     color: "test",
-    plannedStartDate: formatDate(plannedStartDate),
-    plannedEndDate: formatDate(plannedEndDate),
+    plannedStartDate: cdate(plannedStartDate).format('YYYY/MM/DD'),
+    plannedEndDate: cdate(plannedEndDate).format('YYYY/MM/DD'),
     plannedDays: plannedDays,
     actualStartDate: "",
     actualEndDate: "",
