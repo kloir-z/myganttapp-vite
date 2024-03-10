@@ -16,17 +16,6 @@ export const generateDates = (start: string, end: string): string[] => {
   return dateArray;
 };
 
-export const toLocalISOString = (date: Date): string => {
-  if (isNaN(date.getTime())) {
-    return '';
-  }
-
-  const offset = date.getTimezoneOffset();
-  const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
-
-  return adjustedDate.toISOString().split('T')[0].replace(/-/g, '/');
-};
-
 const isRegularHoliday = (dayOfWeek: number, regularHolidays: number[]): boolean => {
   return regularHolidays.includes(dayOfWeek);
 };
