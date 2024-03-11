@@ -62,7 +62,7 @@ function eventsReducer(state: EventType[], action: Action): EventType[] {
 
 interface EventRowProps {
   entry: EventRow;
-  dateArray: string[];
+  dateArray: ReturnType<typeof cdate>[];
   gridRef: React.RefObject<HTMLDivElement>;
   setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
@@ -147,11 +147,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const calculateDateFromX = useCallback((x: number) => {
     const dateIndex = Math.floor(x / cellWidth);
     if (dateIndex < 0) {
-      return cdate(dateArray[0]).startOf('day');
+      return dateArray[0].startOf('day');
     } else if (dateIndex >= dateArray.length) {
-      return cdate(dateArray[dateArray.length - 1]).startOf('day');
+      return dateArray[dateArray.length - 1].startOf('day');
     }
-    return cdate(dateArray[dateIndex]).startOf('day');
+    return dateArray[dateIndex].startOf('day');
   }, [cellWidth, dateArray]);
 
   const handleDoubleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {

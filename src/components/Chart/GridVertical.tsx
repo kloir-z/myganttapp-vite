@@ -7,7 +7,7 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import { cdate } from 'cdate';
 
 interface CalendarProps {
-  dateArray: string[];
+  dateArray: ReturnType<typeof cdate>[];
   gridHeight: number;
 }
 
@@ -19,7 +19,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
   return (
     <GanttRow style={{ height: '0px', borderBottom: 'none' }}>
       {dateArray.map((dateString, index) => {
-        const date = cdate(dateString);
+        const date = dateString;
         const dayOfWeek = date.get('day');
         const isMonthStart = date.get('date') === 1;
         const isFirstDate = index === 0;

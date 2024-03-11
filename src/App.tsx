@@ -180,7 +180,10 @@ function App() {
         const gridStartY = gridRef.current.scrollTop % 21;
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
+    const update = () => {
       setMousePosition({ x: adjustedX, y: adjustedY });
+    };
+    requestAnimationFrame(update);
     }
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startY.eventY, wbsWidth]);
 

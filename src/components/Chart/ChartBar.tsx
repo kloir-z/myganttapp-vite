@@ -9,7 +9,7 @@ import { cdate } from 'cdate';
 interface ChartBarProps {
   startDate: string | null;
   endDate: string | null;
-  dateArray: string[];
+  dateArray: ReturnType<typeof cdate>[];
   isActual: boolean;
   entryId: string;
   eventIndex?: number;
@@ -28,15 +28,15 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
 
   const startCDate = cdate(startDate);
   const endCDate = cdate(endDate);
-  const dateArrayStart = cdate(dateArray[0]);
-  const dateArrayEnd = cdate(dateArray[dateArray.length - 1]);
+  const dateArrayStart = dateArray[0];
+  const dateArrayEnd = dateArray[dateArray.length - 1];
 
   if (+startCDate > +dateArrayEnd || +endCDate < +dateArrayStart) {
     return null;
   }
 
-  let startIndex = dateArray.findIndex(date => cdate(date) >= startCDate);
-  let endIndex = dateArray.findIndex(date => cdate(date) > endCDate);
+  let startIndex = dateArray.findIndex(date => date >= startCDate);
+  let endIndex = dateArray.findIndex(date => date > endCDate);
   startIndex = startIndex === -1 ? 0 : startIndex;
   endIndex = endIndex === -1 ? dateArray.length - 1 : endIndex - 1;
 

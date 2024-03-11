@@ -85,7 +85,7 @@ const updateDependentRows = (
   newEndDate: string,
   visited = new Set<string>()
 ) => {
-  if (visited.has(currentId)) {
+  if (visited.has(currentId) || newStartDate === '' || newEndDate === '') {
     return;
   }
   visited.add(currentId);
@@ -113,7 +113,6 @@ const updateDependentRows = (
       } catch (error) {
         console.error("Dependency calculation failed for row ID " + chartRow.id + ": ", error);
       }
-
     }
   }
   const dependentRows = state.dependencyMap[currentId];
@@ -145,7 +144,6 @@ const updateDependentRows = (
     });
   }
 };
-
 
 function isDateInRange(dateString: string, startDateString: string, endDateString: string): boolean {
   const date = cdate(dateString);

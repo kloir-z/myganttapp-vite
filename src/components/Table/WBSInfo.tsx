@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -18,7 +18,7 @@ type WBSInfoProps = {
   visibleColumns: ExtendedColumn[];
 };
 
-const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
+const WBSInfo: React.FC<WBSInfoProps> = memo(({ headerRow, visibleColumns }) => {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.wbsData.data,
@@ -198,6 +198,6 @@ const WBSInfo: React.FC<WBSInfoProps> = ({ headerRow, visibleColumns }) => {
       minColumnWidth={10}
     />
   );
-};
+});
 
 export default WBSInfo;

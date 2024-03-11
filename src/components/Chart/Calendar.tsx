@@ -10,12 +10,12 @@ import 'tippy.js/dist/tippy.css';
 import { cdate } from 'cdate';
 
 interface CalendarProps {
-  dateArray: string[];
+  dateArray: ReturnType<typeof cdate>[];
 }
 
 const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   const dispatch = useDispatch();
-  let previousMonth = cdate(dateArray[0]).get("M") - 1;
+  let previousMonth = dateArray[0].get("M") - 1;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
@@ -76,7 +76,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
         }}>
         <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
           {dateArray.map((dateString, index) => {
-            const date = cdate(dateString);
+            const date = dateString;
             const month = date.get('M') - 1;
             if (month !== previousMonth || index === 0) {
               previousMonth = month;
@@ -106,7 +106,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
         </GanttRow>
         <GanttRow style={{ borderTop: '1px solid #00000016' }}>
           {dateArray.map((dateString, index) => {
-            const date = cdate(dateString); // dateStringをcdateオブジェクトに変換
+            const date = dateString;
             const left = cellWidth * index;
             let bgColor = '';
             const dayOfWeek = date.get("day");
@@ -116,9 +116,9 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
             const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
             bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
-            const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01"); // 月の初日
+            const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01");
             const firstDayOfWeek = firstDayOfMonth.get("day");
-            const lastDayOfMonth = firstDayOfMonth.add(1, "month").prev("day"); // 月の最終日
+            const lastDayOfMonth = firstDayOfMonth.add(1, "month").prev("day");
             const lastDayOfWeek = lastDayOfMonth.get("day");
             const skipFirstWeek = firstDayOfWeek >= 4 && firstDayOfWeek <= 6;
             const daysSinceFirstSunday = (date.get("date") - 1) + firstDayOfWeek;

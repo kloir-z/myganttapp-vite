@@ -1,16 +1,16 @@
 // CalendarUtils.ts
 import { cdate } from "cdate";
 
-export const generateDates = (start: string, end: string): string[] => {
+export const generateDates = (start: string, end: string): ReturnType<typeof cdate>[] => {
   const startDate = cdate(start);
   const endDate = cdate(end);
-  if (+startDate > +endDate) {
+  if (+startDate.toDate() > +endDate.toDate()) {
     return [];
   }
-  const dateArray: string[] = [];
+  const dateArray: ReturnType<typeof cdate>[] = [];
   let currentDate = startDate;
-  while (+currentDate <= +endDate) {
-    dateArray.push(currentDate.format('YYYY/MM/DD'));
+  while (+currentDate.toDate() <= +endDate.toDate()) {
+    dateArray.push(currentDate);
     currentDate = currentDate.add(1, 'day');
   }
   return dateArray;
@@ -47,7 +47,7 @@ export const calculatePlannedDays = (startString: string, endString: string, hol
 };
 
 export const addPlannedDays = (startString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
-  if (days === null || days < 0) {
+  if (days === null || days < 0 || startString === '') {
     return '';
   }
 
@@ -73,7 +73,7 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
 };
 
 export const subtractPlannedDays = (endString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
-  if (days === null || days < 0) {
+  if (days === null || days < 0 || endString === '') {
     return '';
   }
 
@@ -141,7 +141,7 @@ export function calculateDependencies({ currentDependency, plannedDays, isInclud
   }
 
   return {
-    startDate: startDateCdate, 
+    startDate: startDateCdate,
     endDate: endDateCdate
   };
 }
