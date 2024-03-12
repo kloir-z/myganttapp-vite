@@ -252,8 +252,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) {
       const updatedEventData = localEvents.map(event => ({
         ...event,
-        startDate: event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : "",
-        endDate: event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : ""
+        startDate: event.startDate ? event.startDate : "",
+        endDate: event.endDate ? event.endDate : ""
       }));
 
       const updatedEventRow = {
@@ -270,10 +270,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (activeEventIndex !== null) {
       if (activeEventIndex !== null && localEvents[activeEventIndex]) {
         const event = localEvents[activeEventIndex];
-        const originalStartDateString = originalStartDate ? cdate(originalStartDate).format('YYYY/MM/DD') : null;
-        const eventStartDateString = event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : null;
-        const originalEndDateString = originalEndDate ? cdate(originalEndDate).format('YYYY/MM/DD') : null;
-        const eventEndDateString = event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : null;
+        const originalStartDateString = originalStartDate ? originalStartDate : null;
+        const eventStartDateString = event.startDate ? event.startDate : null;
+        const originalEndDateString = originalEndDate ? originalEndDate : null;
+        const eventEndDateString = event.endDate ? event.endDate : null;
         shouldremovePastState = (originalStartDateString === eventStartDateString && originalEndDateString === eventEndDateString);
         if (shouldremovePastState) {
           dispatch(removePastState(1));
@@ -303,8 +303,8 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     if (contextMenu !== null) {
       const updatedEventData = localEvents.filter((_, index) => index !== contextMenu.index).map(event => ({
         ...event,
-        startDate: event.startDate ? cdate(event.startDate).format('YYYY/MM/DD') : "",
-        endDate: event.endDate ? cdate(event.endDate).format('YYYY/MM/DD') : ""
+        startDate: event.startDate ? event.startDate : "",
+        endDate: event.endDate ? event.endDate : ""
       }));
       const updatedEventRow = {
         ...entry,
