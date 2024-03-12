@@ -37,10 +37,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
-  const regularHolidays = useMemo(() => {
-    return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
-  }, [regularHolidaySetting]);
+  const regularHolidays = useSelector((state: RootState) => state.wbsData.regularHolidays);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? entry.plannedStartDate : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? entry.plannedEndDate : null);
   const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? entry.actualStartDate : null);

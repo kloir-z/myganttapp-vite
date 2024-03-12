@@ -25,14 +25,10 @@ const WBSInfo: React.FC<WBSInfoProps> = memo(({ headerRow, visibleColumns }) => 
     (prevData, nextData) => isEqual(prevData, nextData)
   );
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
-
-  const regularHolidays = useMemo(() => {
-    return Array.from(new Set(regularHolidaySetting.flatMap(setting => setting.days)));
-  }, [regularHolidaySetting]);
+  const regularHolidays = useSelector((state: RootState) => state.wbsData.regularHolidays);
 
   const dataArray = useMemo(() => {
     return Object.values(data);
