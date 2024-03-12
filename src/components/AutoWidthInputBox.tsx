@@ -43,7 +43,7 @@ const StyledInput = styled.input<StyledInputProps>`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   left: 0;
-  color: #000000d0;
+  color: #000000ef;
   box-sizing: border-box;
   width: 100%;
   padding: 2px 4px;

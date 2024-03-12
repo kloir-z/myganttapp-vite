@@ -5,7 +5,11 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import { useSelector, useDispatch } from 'react-redux';
 import SettingChildDiv from "./SettingChildDiv";
 
-const ExportImportFile: React.FC = memo(() => {
+type ExportImportFileProps = {
+  handleClose: () => void;
+};
+
+const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose }) => {
   const dispatch = useDispatch();
   const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
   const colors = useSelector((state: RootState) => state.color.colors);
@@ -46,6 +50,7 @@ const ExportImportFile: React.FC = memo(() => {
         dispatch,
       );
     }
+    handleClose();
   };
 
   const handleImportClick = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +61,7 @@ const ExportImportFile: React.FC = memo(() => {
         dispatch,
       );
     }
+    handleClose();
   };
 
   const fileInputRefImport = useRef<HTMLInputElement>(null);

@@ -64,8 +64,19 @@ const baseSettingsSlice = createSlice({
     },
     setTitle(state, action: PayloadAction<string>) {
       state.title = action.payload;
+      document.title = "Gantt - " + action.payload;
     },
-    resetBaseSettings: () => initialState,
+    resetBaseSettings(state) {
+      state.wbsWidth = initialState.wbsWidth;
+      state.maxWbsWidth = initialState.maxWbsWidth;
+      state.calendarWidth = initialState.calendarWidth;
+      state.cellWidth = initialState.cellWidth;
+      state.dateRange = initialState.dateRange;
+      state.holidayInput = initialState.holidayInput;
+      state.fileName = initialState.fileName;
+      state.title = initialState.title;
+      document.title = "Gantt"
+    }
   },
 });
 

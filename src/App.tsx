@@ -87,7 +87,7 @@ function App() {
         setSeparatorX(gridRef.current.scrollLeft);
         dragTimeoutRef.current = null;
       }
-    }, 50);
+    }, 80);
   }, [cellWidth, wbsWidth]);
 
   const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {

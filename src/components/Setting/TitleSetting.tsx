@@ -92,9 +92,8 @@ const TitleSetting: React.FC = memo(() => {
   const syncToStore = useCallback(() => {
     if (isEditing) {
       dispatch(setTitle(title));
-      document.title = "Gantt - " + globalTitle;
     }
-  }, [isEditing, dispatch, title, globalTitle]);
+  }, [isEditing, dispatch, title]);
 
   const debouncedSyncToStore = debounce(syncToStore, 100);
 

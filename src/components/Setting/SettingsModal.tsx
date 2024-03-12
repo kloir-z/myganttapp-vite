@@ -90,9 +90,10 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   }, [isDragging, onDrag, endDrag]);
 
   const handleReset = () => {
-    dispatch(resetStore())
-    dispatch(resetBaseSettings())
-    dispatch(resetColor())
+    dispatch(resetStore());
+    dispatch(resetBaseSettings());
+    dispatch(resetColor());
+    handleClose();
   };
 
   return (
@@ -132,7 +133,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <HolidaySetting />
           <ReguralHolidaySetting />
           <CellWidthSetting />
-          <ExportImportFile />
+          <ExportImportFile
+            handleClose={handleClose}
+          />
           <SettingChildDiv text='Reset & Clear'>
             <div style={{ display: 'flex', justifyContent: 'start' }}>
               <button onClick={handleReset}>Reset & Clear</button>

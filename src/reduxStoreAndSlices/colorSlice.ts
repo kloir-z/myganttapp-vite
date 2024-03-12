@@ -46,7 +46,9 @@ const colorSlice = createSlice({
     updateAllColors: (state, action: PayloadAction<ColorInfo[]>) => {
       state.colors = action.payload;
     },
-    resetColor: () => initialState,
+    resetColor: (state) => {
+      state.colors = initialState.colors;
+    },
   },
 });
 
