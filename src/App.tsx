@@ -36,8 +36,8 @@ function App() {
   const [isGridRefDragging, setIsGridRefDragging] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [canGridRefDrag, setCanGridRefDrag] = useState(true);
-  const [startX, setStartX] = useState({ eventX: 0, gridRefX: 0 });
-  const [startY, setStartY] = useState({ eventY: 0, gridRefY: 0 });
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
   const [separatorX, setSeparatorX] = useState(0);
   const [gridHeight, setGridHeight] = useState<number>(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -46,6 +46,19 @@ function App() {
   const gridRef = useRef<HTMLDivElement>(null);
   const dragTimeoutRef = useRef<number | null>(null);
   const mousePositionRef = useRef({ x: 0, y: 0 });
+  const prevCellWidthRef = useRef(cellWidth);
+
+  useEffect(() => {
+    if (cellWidth !== prevCellWidthRef.current && gridRef.current) {
+      const relativeX = mousePositionRef.current.x - wbsWidth + gridRef.current.scrollLeft;
+      const dateIndex = Math.floor(relativeX / cellWidth);
+      const cellWidthDifference = cellWidth - prevCellWidthRef.current;
+      const scrollAdjustment = (dateIndex) * cellWidthDifference;
+      gridRef.current.scrollLeft += scrollAdjustment;
+      prevCellWidthRef.current = cellWidth;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cellWidth]);
 
   useEffect(() => {
     const totalWidth = columns.reduce((sum, column) => {
@@ -152,8 +165,8 @@ function App() {
   const handleMouseDown = useCallback((event: MouseEvent) => {
     setIsMouseDown(true);
     if (canGridRefDrag && gridRef.current) {
-      setStartX({ eventX: event.clientX + gridRef.current.scrollLeft, gridRefX: gridRef.current.scrollLeft });
-      setStartY({ eventY: event.clientY + gridRef.current.scrollTop, gridRefY: gridRef.current.scrollTop });
+      setStartX(event.clientX + gridRef.current.scrollLeft);
+      setStartY(event.clientY + gridRef.current.scrollTop);
     }
   }, [canGridRefDrag]);
 
@@ -164,8 +177,8 @@ function App() {
     if (canGridRefDrag && isMouseDown) {
       const currentScrollLeft = gridRef.current.scrollLeft;
       const currentScrollTop = gridRef.current.scrollTop;
-      const newScrollLeft = startX.eventX - event.clientX;
-      const newScrollTop = startY.eventY - event.clientY;
+      const newScrollLeft = startX - event.clientX;
+      const newScrollTop = startY - event.clientY;
       if (newScrollLeft !== currentScrollLeft) {
         gridRef.current.scrollLeft = newScrollLeft;
       }
@@ -180,12 +193,12 @@ function App() {
         const gridStartY = gridRef.current.scrollTop % 21;
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
-    const update = () => {
-      setMousePosition({ x: adjustedX, y: adjustedY });
-    };
-    requestAnimationFrame(update);
+      const update = () => {
+        setMousePosition({ x: adjustedX, y: adjustedY });
+      };
+      requestAnimationFrame(update);
     }
-  }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX.eventX, startY.eventY, wbsWidth]);
+  }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, mousePosition.y, startX, startY, wbsWidth]);
 
   useEffect(() => {
     return () => {
