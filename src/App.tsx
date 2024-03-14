@@ -50,11 +50,11 @@ function App() {
 
   useEffect(() => {
     if (cellWidth !== prevCellWidthRef.current && gridRef.current) {
-      const relativeX = mousePositionRef.current.x - wbsWidth + gridRef.current.scrollLeft;
-      const dateIndex = Math.floor(relativeX / cellWidth);
-      const cellWidthDifference = cellWidth - prevCellWidthRef.current;
-      const scrollAdjustment = (dateIndex) * cellWidthDifference;
-      gridRef.current.scrollLeft += scrollAdjustment;
+      const mouseX = mousePositionRef.current.x;
+      const relativeMouseX = mouseX - gridRef.current.getBoundingClientRect().left + gridRef.current.scrollLeft;
+      const scale = cellWidth / prevCellWidthRef.current;
+      const newScrollLeft = (relativeMouseX * scale) - (mouseX - gridRef.current.getBoundingClientRect().left);
+      gridRef.current.scrollLeft = newScrollLeft;
       prevCellWidthRef.current = cellWidth;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

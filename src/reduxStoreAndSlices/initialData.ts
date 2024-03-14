@@ -76,7 +76,7 @@ const createStructuredDummyDataArray = (): WBSData[] => {
 
   let rowCount = 0;
 
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < 300; i++) {
     data.push(createDummyChartRow());
     rowCount++;
 
