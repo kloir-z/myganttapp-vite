@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -7,18 +7,14 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, ExtendedColumn, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
+import { RootState, simpleSetData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
 import { isEqual } from 'lodash';
+import { useWBSData } from './hooks/useWBSData';
 
-type WBSInfoProps = {
-  headerRow: Row<DefaultCellTypes>;
-  visibleColumns: ExtendedColumn[];
-};
-
-const WBSInfo: React.FC<WBSInfoProps> = memo(({ headerRow, visibleColumns }) => {
+const WBSInfo: React.FC = () => {
   const dispatch = useDispatch();
   const data = useSelector(
     (state: RootState) => state.wbsData.data,
@@ -29,7 +25,7 @@ const WBSInfo: React.FC<WBSInfoProps> = memo(({ headerRow, visibleColumns }) => 
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const regularHolidays = useSelector((state: RootState) => state.wbsData.regularHolidays);
-
+  const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
   }, [data]);
@@ -194,6 +190,6 @@ const WBSInfo: React.FC<WBSInfoProps> = memo(({ headerRow, visibleColumns }) => 
       minColumnWidth={10}
     />
   );
-});
+};
 
 export default WBSInfo;

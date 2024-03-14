@@ -65,7 +65,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
 export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: number): Row<DefaultCellTypes | CustomTextCell> => {
   const rowCells = [
     { type: "number", value: separatorRow.no, isEditing: false, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell,
-    { type: "customText", text: separatorRow.displayName, value: NaN, colspan: 14, style: { background: '#ddedff' } } as CustomTextCell
+    { type: "customText", text: separatorRow.displayName, value: NaN, colspan: 13, style: { background: '#ddedff' } } as CustomTextCell
   ];
   fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

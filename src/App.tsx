@@ -11,12 +11,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
 import GridVertical from './components/Chart/GridVertical';
-import { ResizeBar } from './components/WbsWidthResizer';
+import ResizeBar from './components/WbsWidthResizer';
 import "./components/Table/css/ReactGrid.css";
 import "./components/Table/css/HiddenScrollBar.css";
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
-import { useWBSData } from './components/Table/hooks/useWBSData';
 import TitleSetting from './components/Setting/TitleSetting';
 import { undo, redo } from './reduxStoreAndSlices/store';
 
@@ -30,7 +29,6 @@ function App() {
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const { headerRow, visibleColumns } = useWBSData();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
   const [isGridRefDragging, setIsGridRefDragging] = useState(false);
@@ -194,7 +192,9 @@ function App() {
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
       const update = () => {
-        setMousePosition({ x: adjustedX, y: adjustedY });
+        if (mousePositionRef.current.x !== adjustedX || mousePositionRef.current.y !== adjustedY) {
+          setMousePosition({ x: adjustedX, y: adjustedY });
+        }
       };
       requestAnimationFrame(update);
     }
@@ -214,11 +214,6 @@ function App() {
     if (!gridRef.current) return;
     setSeparatorX(gridRef.current.scrollLeft);
   }, []);
-
-  const handleResize = useCallback((newWidth: number) => {
-    const adjustedWidth = Math.max(0, Math.min(newWidth, maxWbsWidth));
-    dispatch(setWbsWidth(adjustedWidth));
-  }, [dispatch, maxWbsWidth]);
 
   useEffect(() => {
     const calculateGridHeight = () => {
@@ -299,12 +294,10 @@ function App() {
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
         <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
-          <WBSInfo
-            headerRow={headerRow}
-            visibleColumns={visibleColumns}
-          />
+          <WBSInfo />
         </div>
-        <ResizeBar onDrag={handleResize} initialWidth={wbsWidth} />
+
+        <ResizeBar />
 
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
           {Object.entries(data).map(([key, entry]) => {
