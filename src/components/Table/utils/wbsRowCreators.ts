@@ -13,7 +13,7 @@ const fillEmptyCells = (cells: (NumberCell | CheckboxCell | CustomTextCell | Cus
 };
 
 export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
-  const rowCells = columns.map(column => {
+  const rowCells: (NumberCell | CustomTextCell | CustomDateCell | CheckboxCell)[] = columns.map(column => {
     const columnId = column.columnId as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cellValue = (chartRow as any)[columnId];
@@ -22,26 +22,26 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
     }
     const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, value: NaN } as CustomDateCell;
+      return { type: "customDate", text: cellValue, shortDate: '', value: NaN };
     }
     else if (columnId === "no") {
-      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell;
+      return { type: "number", value: cellValue, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
     else if (columnId === "isIncludeHolidays") {
       if (cellValue === '') {
         cellValue = false;
       }
-      return { type: "checkbox", checked: cellValue as boolean } as CheckboxCell;
+      return { type: "checkbox", checked: cellValue };
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN, columnWidth } as CustomTextCell;
+      return { type: "customText", text: cellValue, value: NaN, columnWidth };
     }
   });
   return { rowId: chartRow.id, height: 21, cells: rowCells, reorderable: true };
 };
 
 export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
-  const rowCells = columns.map(column => {
+  const rowCells: (NumberCell | CustomTextCell | CustomDateCell)[] = columns.map(column => {
     const columnId = column.columnId as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let cellValue = (eventRow as any)[columnId];
@@ -50,24 +50,23 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
     }
     const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomDateCell;
+      return { type: "customDate", text: cellValue, shortDate: '', value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
     else if (columnId === "no") {
-      return { type: "number", value: cellValue as number, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell;
+      return { type: "number", value: cellValue, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
     else {
-      return { type: "customText", text: cellValue as string, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomTextCell;
+      return { type: "customText", text: cellValue, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomTextCell;
     }
   });
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };
 };
 
 export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: number): Row<DefaultCellTypes | CustomTextCell> => {
-  const rowCells = [
-    { type: "number", value: separatorRow.no, isEditing: false, style: { background: 'rgba(128, 128, 128, 0.1)' } } as NumberCell,
-    { type: "customText", text: separatorRow.displayName, value: NaN, colspan: 13, style: { background: '#ddedff' } } as CustomTextCell
+  const rowCells: (NumberCell | CustomTextCell)[] = [
+    { type: "number", value: separatorRow.no, style: { background: 'rgba(128, 128, 128, 0.1)' } },
   ];
-  fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { rowId: separatorRow.id, height: 21, cells: rowCells as any[], reorderable: true };
+  rowCells.push({ type: "customText", text: separatorRow.displayName, colspan: 13, value: NaN, style: { background: '#ddedff' } } as CustomTextCell)
+  fillEmptyCells(rowCells, columnCount - 1, { background: '#ddedff' });
+  return { rowId: separatorRow.id, height: 21, cells: rowCells, reorderable: true };
 };
