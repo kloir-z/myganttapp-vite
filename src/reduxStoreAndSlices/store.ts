@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, ChartRow, EventRow, RegularHolidaySetting } from '../types/DataTypes';
+import { WBSData, ChartRow, EventRow, RegularHolidaySetting, isChartRow, isEventRow } from '../types/DataTypes';
 import { calculatePlannedDays, addPlannedDays, calculateDependencies, CalculateDependenciesParams } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
@@ -59,9 +59,8 @@ const emptyState = {
 function buildDependencyMap(data: { [id: string]: WBSData }) {
   const dependencyMap: { [id: string]: string[] } = {};
   Object.keys(data).forEach(id => {
-    const row = data[id];
-    if (row.rowType === 'Chart') {
-      const chartRow = row as ChartRow;
+    const chartRow = data[id];
+    if (isChartRow(chartRow)) {
       if (chartRow.dependentId) {
         if (!dependencyMap[chartRow.dependentId]) {
           dependencyMap[chartRow.dependentId] = [];
@@ -90,37 +89,38 @@ const updateDependentRows = (
   }
   visited.add(currentId);
   const currentRow = state.data[currentId]
-  if (currentRow.rowType === 'Chart') {
+  if (isChartRow(currentRow)) {
     const currentDependentId = currentRow.dependentId;
     if (currentDependentId && !visited.has(currentDependentId)) {
-      const chartRow = state.data[currentDependentId] as ChartRow;
-      const dependency = currentRow.dependency.toLowerCase();
-      const baseDate = newStartDate;
-      const params: CalculateDependenciesParams = {
-        currentDependency: dependency,
-        plannedDays: chartRow.plannedDays || 1,
-        isIncludeHolidays: chartRow.isIncludeHolidays,
-        baseDate: baseDate,
-        calculationDirection: 'back',
-        stateHolidays: state.holidays,
-        stateRegularHolidays: state.regularHolidays,
-      };
-      try {
-        const result = calculateDependencies(params);
-        chartRow.plannedStartDate = result.startDate;
-        chartRow.plannedEndDate = result.endDate;
-        updateDependentRows(state, chartRow.id, result.startDate, result.endDate, visited);
-      } catch (error) {
-        console.error("Dependency calculation failed for row ID " + chartRow.id + ": ", error);
+      const chartRow = state.data[currentDependentId];
+      if (isChartRow(chartRow)) {
+        const dependency = currentRow.dependency.toLowerCase();
+        const baseDate = newStartDate;
+        const params: CalculateDependenciesParams = {
+          currentDependency: dependency,
+          plannedDays: chartRow.plannedDays || 1,
+          isIncludeHolidays: chartRow.isIncludeHolidays,
+          baseDate: baseDate,
+          calculationDirection: 'back',
+          stateHolidays: state.holidays,
+          stateRegularHolidays: state.regularHolidays,
+        };
+        try {
+          const result = calculateDependencies(params);
+          chartRow.plannedStartDate = result.startDate;
+          chartRow.plannedEndDate = result.endDate;
+          updateDependentRows(state, chartRow.id, result.startDate, result.endDate, visited);
+        } catch (error) {
+          console.error("Dependency calculation failed for row ID " + chartRow.id + ": ", error);
+        }
       }
     }
   }
   const dependentRows = state.dependencyMap[currentId];
   if (dependentRows) {
     dependentRows.forEach((dependentRowId) => {
-      const row = state.data[dependentRowId];
-      if (!visited.has(row.id) && row.rowType === 'Chart') {
-        const chartRow = row as ChartRow;
+      const chartRow = state.data[dependentRowId];
+      if (!visited.has(chartRow.id) && isChartRow(chartRow)) {
         const dependency = chartRow.dependency.toLowerCase();
         const baseDate = dependency.startsWith('sameas') ? newStartDate : newEndDate;
         const params: CalculateDependenciesParams = {
@@ -162,9 +162,8 @@ const resetEndDate = (
   affectedHolidays?: string[]
 ) => {
   Object.keys(state.data).forEach(id => {
-    const row = state.data[id];
-    if (row.rowType === 'Chart') {
-      const chartRow = row as ChartRow;
+    const chartRow = state.data[id];
+    if (isChartRow(chartRow)) {
       const startDate = chartRow.plannedStartDate;
       const endDate = chartRow.plannedEndDate;
       if (!affectedHolidays || affectedHolidays.some(holiday => isDateInRange(holiday, startDate, endDate))) {
@@ -204,18 +203,17 @@ export const wbsDataSlice = createSlice({
     simpleSetData: (state, action: PayloadAction<{ [id: string]: WBSData }>) => {
       const data = action.payload;
       const updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
-        const rowData = data[rowId];
-        if (rowData.rowType === 'Chart') {
-          const chartRowData = rowData as ChartRow;
-          let updatedRowData = { ...chartRowData };
+        const chartRow = data[rowId];
+        if (isChartRow(chartRow)) {
+          let updatedRowData = { ...chartRow };
 
-          updatedRowData.plannedStartDate = validateDateString(chartRowData.plannedStartDate);
-          updatedRowData.plannedEndDate = validateDateString(chartRowData.plannedEndDate);
-          updatedRowData.actualStartDate = validateDateString(chartRowData.actualStartDate);
-          updatedRowData.actualEndDate = validateDateString(chartRowData.actualEndDate);
+          updatedRowData.plannedStartDate = validateDateString(chartRow.plannedStartDate);
+          updatedRowData.plannedEndDate = validateDateString(chartRow.plannedEndDate);
+          updatedRowData.actualStartDate = validateDateString(chartRow.actualStartDate);
+          updatedRowData.actualEndDate = validateDateString(chartRow.actualEndDate);
 
-          if (chartRowData.dependency) {
-            const parts = chartRowData.dependency.split(',');
+          if (chartRow.dependency) {
+            const parts = chartRow.dependency.split(',');
             if (parts.length >= 2) {
               const refRowNo = parts[1].trim();
               let refRowId: string | undefined;
@@ -230,7 +228,7 @@ export const wbsDataSlice = createSlice({
                   if (currentIndex < 0 || currentIndex >= Object.keys(data).length) {
                     break;
                   }
-                  if (data[Object.keys(data)[currentIndex]].rowType === 'Chart') {
+                  if (isChartRow(data[Object.keys(data)[currentIndex]])) {
                     steps--;
                   }
                 }
@@ -238,8 +236,8 @@ export const wbsDataSlice = createSlice({
                 if (currentIndex >= 0 && currentIndex < Object.keys(data).length) {
                   refRowId = Object.keys(data)[currentIndex];
                 }
-              } else if (refRowNo && chartRowData.dependentId) {
-                const matchingRow = Object.entries(data).find(([key, value]) => key === chartRowData.dependentId && value.rowType === 'Chart') as [string, ChartRow] | undefined;
+              } else if (refRowNo && chartRow.dependentId) {
+                const matchingRow = Object.entries(data).find(([key, value]) => key === chartRow.dependentId && isChartRow(value)) as [string, ChartRow] | undefined;
                 if (matchingRow) {
                   const [, matchingRowData] = matchingRow;
                   parts[1] = matchingRowData.no.toString();
@@ -249,27 +247,27 @@ export const wbsDataSlice = createSlice({
                 const targetNo = parseInt(refRowNo, 10);
                 refRowId = Object.keys(data).find(key => {
                   const keyRowData = data[key];
-                  return keyRowData.rowType === 'Chart' && (keyRowData as ChartRow).no === targetNo;
+                  return isChartRow(keyRowData) && keyRowData.no === targetNo;
                 });
               }
               if (refRowId) {
                 updatedRowData = {
-                  ...chartRowData,
+                  ...chartRow,
                   dependentId: refRowId,
-                  dependency: chartRowData.dependency
+                  dependency: chartRow.dependency
                 };
               }
             }
           } else {
             updatedRowData = {
-              ...chartRowData,
+              ...chartRow,
               dependentId: '',
               dependency: ''
             };
           }
           acc[rowId] = updatedRowData;
         } else {
-          acc[rowId] = rowData;
+          acc[rowId] = chartRow;
         }
         return acc;
       }, {});
@@ -281,9 +279,8 @@ export const wbsDataSlice = createSlice({
         const dependentRows = state.dependencyMap[currentId];
         if (dependentRows) {
           dependentRows.forEach((dependentRowId) => {
-            const row = updatedData[dependentRowId];
-            if (!visited.has(row.id) && row.rowType === 'Chart') {
-              const chartRow = row as ChartRow;
+            const chartRow = updatedData[dependentRowId];
+            if (!visited.has(chartRow.id) && isChartRow(chartRow)) {
               const dependency = chartRow.dependency.toLowerCase();
               if (!dependency) return;
               const baseDate = dependency.startsWith('sameas') ? newStartDate : newEndDate;
@@ -325,8 +322,8 @@ export const wbsDataSlice = createSlice({
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
       state.isFixedData = false;
       const { id, startDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        const chartRow = state.data[id] as ChartRow;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
         chartRow.plannedStartDate = startDate;
         chartRow.plannedDays = calculatePlannedDays(startDate, chartRow.plannedEndDate, state.holidays, chartRow.isIncludeHolidays, state.regularHolidays);
         updateDependentRows(state, id, startDate, chartRow.plannedEndDate);
@@ -335,8 +332,8 @@ export const wbsDataSlice = createSlice({
     setPlannedEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
       state.isFixedData = false;
       const { id, endDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        const chartRow = state.data[id] as ChartRow;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
         chartRow.plannedEndDate = endDate;
         chartRow.plannedDays = calculatePlannedDays(chartRow.plannedStartDate, endDate, state.holidays, chartRow.isIncludeHolidays, state.regularHolidays);
         updateDependentRows(state, id, chartRow.plannedStartDate, endDate);
@@ -345,8 +342,8 @@ export const wbsDataSlice = createSlice({
     setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        const chartRow = state.data[id] as ChartRow;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
         chartRow.plannedStartDate = startDate;
         chartRow.plannedEndDate = endDate;
         chartRow.plannedDays = calculatePlannedDays(startDate, endDate, state.holidays, chartRow.isIncludeHolidays, state.regularHolidays);
@@ -356,22 +353,24 @@ export const wbsDataSlice = createSlice({
     setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
       state.isFixedData = false;
       const { id, startDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        (state.data[id] as ChartRow).actualStartDate = startDate;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
+        chartRow.actualStartDate = startDate;
       }
     },
     setActualEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
       state.isFixedData = false;
       const { id, endDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        (state.data[id] as ChartRow).actualEndDate = endDate;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
+        chartRow.actualEndDate = endDate;
       }
     },
     setActualStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Chart') {
-        const chartRow = state.data[id] as ChartRow;
+      const chartRow = state.data[id];
+      if (isChartRow(chartRow)) {
         chartRow.actualStartDate = startDate;
         chartRow.actualEndDate = endDate;
       }
@@ -396,9 +395,8 @@ export const wbsDataSlice = createSlice({
     },
     setEventDisplayName: (state, action: PayloadAction<{ id: string; eventIndex: number; displayName: string }>) => {
       const { id, eventIndex, displayName } = action.payload;
-      const row = state.data[id];
-      if (row && row.rowType === 'Event') {
-        const eventRow = row as EventRow;
+      const eventRow = state.data[id];
+      if (isEventRow(eventRow)) {
         if (eventRow.eventData[eventIndex]) {
           eventRow.eventData[eventIndex].eachDisplayName = displayName;
         }
@@ -407,9 +405,7 @@ export const wbsDataSlice = createSlice({
     updateEventRow: (state, action: PayloadAction<{ id: string; updatedEventRow: EventRow }>) => {
       state.isFixedData = false;
       const { id, updatedEventRow } = action.payload;
-      if (state.data[id] && state.data[id].rowType === 'Event') {
-        state.data[id] = updatedEventRow;
-      }
+      state.data[id] = updatedEventRow;
     },
     updateRegularHolidaySetting: (state, action: PayloadAction<RegularHolidaySetting[]>) => {
       const regularHolidaySetting = action.payload;

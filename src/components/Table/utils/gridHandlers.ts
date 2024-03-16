@@ -1,6 +1,6 @@
 // gridHandlers.ts
 import { CellChange, TextCell, NumberCell, CheckboxCell, EmailCell, DropdownCell, ChevronCell, HeaderCell, TimeCell, DateCell } from "@silevis/reactgrid";
-import { WBSData, ChartRow, EventRow } from '../../../types/DataTypes';
+import { WBSData, ChartRow, isChartRow, isEventRow, isSeparatorRow } from '../../../types/DataTypes';
 import { Dispatch } from 'redux';
 import { simpleSetData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
@@ -18,7 +18,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     const rowId = change.rowId.toString();
     const rowData = updatedData[rowId];
 
-    if (rowData && rowData.rowType === 'Separator' && change.columnId === secondVisibleColumnId) {
+    if (isSeparatorRow(rowData) && change.columnId === secondVisibleColumnId) {
       const newCell = change.newCell;
 
       if (newCell.type === 'customText') {
@@ -30,8 +30,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
       }
     }
 
-    if (rowData && rowData.rowType === 'Event') {
-      const fieldName = change.columnId as keyof EventRow;
+    if (isEventRow(rowData)) {
+      const fieldName = change.columnId;
       const newCell = change.newCell;
 
       if (newCell.type === 'customDate') {
@@ -49,8 +49,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
       }
     }
 
-    if (rowData && rowData.rowType === 'Chart') {
-      const chartRow = rowData as ChartRow
+    if (isChartRow(rowData)) {
+      const chartRow = rowData;
       const fieldName = change.columnId as keyof ChartRow;
       const newCell = change.newCell;
 

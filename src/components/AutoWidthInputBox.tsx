@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback, ChangeEvent, memo } fr
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setDisplayName, setEventDisplayName, pushPastState, removePastState } from '../reduxStoreAndSlices/store';
-import { EventRow } from '../types/DataTypes';
+import { isEventRow } from '../types/DataTypes';
 
 const InputWrapper = styled.div`
   position: absolute;
@@ -68,10 +68,9 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
 }) => {
   const storeDisplayName = useSelector((state: RootState) => {
     const rowData = state.wbsData.data[entryId];
-    if (rowData && rowData.rowType === 'Event' && typeof eventIndex === 'number') {
-      const eventRow = rowData as EventRow;
-      if (eventRow.eventData && eventRow.eventData[eventIndex]) {
-        return eventRow.eventData[eventIndex].eachDisplayName;
+    if (isEventRow(rowData) && typeof eventIndex === 'number') {
+      if (rowData.eventData && rowData.eventData[eventIndex]) {
+        return rowData.eventData[eventIndex].eachDisplayName;
       } else {
         return "";
       }

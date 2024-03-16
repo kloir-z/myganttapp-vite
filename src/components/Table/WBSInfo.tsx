@@ -1,6 +1,6 @@
 // WBSInfo.tsx
 import React, { useCallback, useMemo, memo } from 'react';
-import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
+import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
@@ -25,6 +25,7 @@ const WBSInfo: React.FC = memo(() => {
   const dataArray = useMemo(() => {
     return Object.values(data);
   }, [data]);
+  console.log('renderd')
 
   const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
   const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
@@ -32,20 +33,18 @@ const WBSInfo: React.FC = memo(() => {
     return [
       headerRow,
       ...data.map((item) => {
-        switch (item.rowType) {
-          case 'Chart':
-            return createChartRow(item as ChartRow, visibleColumns);
-          case 'Separator':
-            return createSeparatorRow(item as SeparatorRow, visibleColumns.length);
-          case 'Event':
-            return createEventRow(item as EventRow, visibleColumns);
-          default:
-            return { rowId: 'empty', height: 21, cells: [{ type: "customText", text: '' } as CustomTextCell], reorderable: true };
+        if (isChartRow(item)) {
+          return createChartRow(item, visibleColumns);
+        } else if (isSeparatorRow(item)) {
+          return createSeparatorRow(item, visibleColumns.length);
+        } else if (isEventRow(item)) {
+          return createEventRow(item, visibleColumns);
+        } else {
+          return { rowId: 'empty', height: 21, cells: [{ type: "customText", text: '' } as CustomTextCell], reorderable: true };
         }
       })
     ];
   }, [visibleColumns, headerRow]);
-
   const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
 
   const getSelectedIdsFromRanges = useCallback((selectedRanges: Array<Array<CellLocation>>) => {

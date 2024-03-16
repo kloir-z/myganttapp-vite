@@ -53,6 +53,18 @@ export interface EventRow extends BaseRow {
 
 export type WBSData = ChartRow | SeparatorRow | EventRow;
 
+export function isChartRow(entry: WBSData): entry is ChartRow {
+  return entry.rowType === "Chart";
+}
+
+export function isSeparatorRow(entry: WBSData): entry is SeparatorRow {
+  return entry.rowType === "Separator";
+}
+
+export function isEventRow(entry: WBSData): entry is EventRow {
+  return entry.rowType === "Event";
+}
+
 export type RegularHolidaySetting = {
   id: number;
   color: string;

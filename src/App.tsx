@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, undo, redo } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
-import { ChartRow, EventRow, SeparatorRow } from './types/DataTypes';
+import { isChartRow, isEventRow, isSeparatorRow } from './types/DataTypes';
 import Calendar from './components/Chart/Calendar';
 import GridVertical from './components/Chart/GridVertical';
 import ResizeBar from './components/WbsWidthResizer';
@@ -300,29 +300,29 @@ function App() {
 
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
           {Object.entries(data).map(([key, entry]) => {
-            if (entry.rowType === 'Chart') {
+            if (isChartRow(entry)) {
               return (
                 <ChartRowComponent
                   key={key}
-                  entry={entry as ChartRow}
+                  entry={entry}
                   dateArray={dateArray}
                   gridRef={gridRef}
                   setCanGridRefDrag={setCanGridRefDrag}
                 />
               );
-            } else if (entry.rowType === 'Separator') {
+            } else if (isSeparatorRow(entry)) {
               return (
                 <SeparatorRowComponent
                   key={key}
-                  entry={entry as SeparatorRow}
+                  entry={entry}
                   separatorX={separatorX}
                 />
               );
-            } else if (entry.rowType === 'Event') {
+            } else if (isEventRow(entry)) {
               return (
                 <EventRowComponent
                   key={key}
-                  entry={entry as EventRow}
+                  entry={entry}
                   dateArray={dateArray}
                   gridRef={gridRef}
                   setCanGridRefDrag={setCanGridRefDrag}
