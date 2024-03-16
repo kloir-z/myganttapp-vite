@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import styled from 'styled-components';
-import { debounce } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { setTitle } from '../../reduxStoreAndSlices/baseSettingsSlice';
@@ -95,12 +94,9 @@ const TitleSetting: React.FC = memo(() => {
     }
   }, [isEditing, dispatch, title]);
 
-  const debouncedSyncToStore = debounce(syncToStore, 100);
-
   useEffect(() => {
-    debouncedSyncToStore();
-    return () => debouncedSyncToStore.cancel();
-  }, [debouncedSyncToStore]);
+    syncToStore();
+  }, [syncToStore]);
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLInputElement>) => {
     e.stopPropagation();

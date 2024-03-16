@@ -66,7 +66,7 @@ export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: numb
   const rowCells: (NumberCell | CustomTextCell)[] = [
     { type: "number", value: separatorRow.no, style: { background: 'rgba(128, 128, 128, 0.1)' } },
   ];
-  rowCells.push({ type: "customText", text: separatorRow.displayName, colspan: 13, value: NaN, style: { background: '#ddedff' } } as CustomTextCell)
-  fillEmptyCells(rowCells, columnCount - 1, { background: '#ddedff' });
+  rowCells.push({ type: "customText", text: separatorRow.displayName, colspan: 14, value: NaN, style: { background: '#ddedff' } } as CustomTextCell)
+  fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });
   return { rowId: separatorRow.id, height: 21, cells: rowCells, reorderable: true };
 };

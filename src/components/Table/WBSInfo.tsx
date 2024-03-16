@@ -11,15 +11,11 @@ import { RootState, simpleSetData, handleColumnResize, toggleColumnVisibility, s
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
-import { isEqual } from 'lodash';
 import { useWBSData } from './hooks/useWBSData';
 
 const WBSInfo: React.FC = () => {
   const dispatch = useDispatch();
-  const data = useSelector(
-    (state: RootState) => state.wbsData.data,
-    (prevData, nextData) => isEqual(prevData, nextData)
-  );
+  const data = useSelector((state: RootState) => state.wbsData.data);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);

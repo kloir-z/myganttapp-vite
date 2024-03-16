@@ -1,5 +1,5 @@
 export const initialColumns = [
-  { columnId: "no", columnName: "No", width: 30, resizable: false, visible: true },
+  { columnId: "no", columnName: "No", width: 37, resizable: false, visible: true },
   { columnId: "displayName", columnName: "DisplayName", width: 100, resizable: true, reorderable: true, visible: true },
   { columnId: "color", columnName: "Color", width: 50, resizable: true, reorderable: true, visible: true },
   { columnId: "plannedStartDate", columnName: "PlanS", width: 40, resizable: true, reorderable: true, visible: true },
