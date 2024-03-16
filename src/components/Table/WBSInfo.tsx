@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, memo } from 'react';
 import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -13,7 +13,7 @@ import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
 import { useWBSData } from './hooks/useWBSData';
 
-const WBSInfo: React.FC = () => {
+const WBSInfo: React.FC = memo(() => {
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.data);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
@@ -186,6 +186,6 @@ const WBSInfo: React.FC = () => {
       minColumnWidth={10}
     />
   );
-};
+});
 
 export default WBSInfo;

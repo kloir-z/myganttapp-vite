@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux';
 interface SeparatorRowProps {
   entry: SeparatorRow;
   separatorX: number;
-  wbsWidth: number;
 }
 
 const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, separatorX }) => {

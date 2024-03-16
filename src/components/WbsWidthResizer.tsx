@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setWbsWidth } from '../reduxStoreAndSlices/baseSettingsSlice';
 import styled from 'styled-components';
@@ -22,7 +22,7 @@ const StyledResizeBar = styled.div<StyledResizeBarProps>`
   }
 `;
 
-const ResizeBar: React.FC = () => {
+const ResizeBar: React.FC = memo(() => {
   const dispatch = useDispatch();
   const initialPositionRef = useRef<number | null>(null);
   const maxWbsWidth = useSelector((state: RootState) => state.baseSettings.maxWbsWidth);
@@ -57,6 +57,6 @@ const ResizeBar: React.FC = () => {
       onMouseDown={handleMouseDown}
     />
   );
-}
+});
 
 export default ResizeBar;

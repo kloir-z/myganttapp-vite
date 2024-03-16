@@ -316,7 +316,6 @@ function App() {
                   key={key}
                   entry={entry as SeparatorRow}
                   separatorX={separatorX}
-                  wbsWidth={wbsWidth}
                 />
               );
             } else if (entry.rowType === 'Event') {
