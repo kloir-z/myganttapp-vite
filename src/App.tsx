@@ -6,11 +6,12 @@ import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsS
 import { isChartRow, isEventRow, isSeparatorRow } from './types/DataTypes';
 import Calendar from './components/Chart/Calendar';
 import GridVertical from './components/Chart/GridVertical';
-import ResizeBar from './components/WbsWidthResizer';
-import WBSInfo from './components/Table/WBSInfo';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
 import EventRowComponent from './components/Chart/EventRowComponent';
 import SeparatorRowComponent from './components/Chart/SeparatorRowComponent';
+import ResizeBar from './components/WbsWidthResizer';
+import WBSInfo from './components/Table/WBSInfo';
+import SeparatorRowLabelComponent from './components/Table/SeparatorRowLabel';
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
@@ -37,13 +38,19 @@ function App() {
   const [separatorX, setSeparatorX] = useState(0);
   const [gridHeight, setGridHeight] = useState<number>(0);
   const [indicatorPosition, setIndicatorPosition] = useState({ x: 0, y: 0 });
+  const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 200 });
   const wbsRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const dragTimeoutRef = useRef<number | null>(null);
   const prevIndicatorRef = useRef({ x: 0, y: 0 });
   const prevCellWidthRef = useRef(cellWidth);
+  const prevVisibleRowRef = useRef(0);
   const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
+  const rowHeight = 21;
+  const extraRows = 30;
+  const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight]);
+  const totalRows = useMemo(() => Object.keys(data).length, [data]);
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
     setIsMouseDown(true);
@@ -122,8 +129,17 @@ function App() {
       targetRef.current.scrollTop = scrollTop;
       sourceRef.current.scrollTop = scrollTop;
       resetDragTimeout();
+
+      const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - extraRows;
+      const rawEndIndex = rawStartIndex + visibleRows + (extraRows * 2);
+      const startIndex = Math.max(0, rawStartIndex);
+      const endIndex = Math.min(totalRows - 1, rawEndIndex);
+      if (startIndex != prevVisibleRowRef.current) {
+        setVisibleRange({ startIndex, endIndex });
+      }
+      prevVisibleRowRef.current = startIndex;
     }
-  }, [isGridRefDragging, resetDragTimeout]);
+  }, [isGridRefDragging, resetDragTimeout, totalRows, visibleRows]);
 
   const handleHorizontalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -293,44 +309,64 @@ function App() {
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
         <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
+          {Object.entries(data).map(([key, entry], index) => {
+            if (isSeparatorRow(entry) && gridRef.current) {
+              if (index >= visibleRange.startIndex && index <= visibleRange.endIndex) {
+                return (
+                  <SeparatorRowLabelComponent
+                    key={key}
+                    entry={entry}
+                  />
+                );
+              } else {
+                return null;
+              }
+            }
+          })}
           <WBSInfo />
         </div>
 
         <ResizeBar />
 
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
-          {Object.entries(data).map(([key, entry]) => {
-            if (isChartRow(entry)) {
-              return (
-                <ChartRowComponent
-                  key={key}
-                  entry={entry}
-                  dateArray={dateArray}
-                  gridRef={gridRef}
-                  setCanGridRefDrag={setCanGridRefDrag}
-                />
-              );
-            } else if (isSeparatorRow(entry)) {
-              return (
-                <SeparatorRowComponent
-                  key={key}
-                  entry={entry}
-                  separatorX={separatorX}
-                />
-              );
-            } else if (isEventRow(entry)) {
-              return (
-                <EventRowComponent
-                  key={key}
-                  entry={entry}
-                  dateArray={dateArray}
-                  gridRef={gridRef}
-                  setCanGridRefDrag={setCanGridRefDrag}
-                />
-              );
-            }
-            return null;
-          })}
+          <div style={{ height: `${(Object.keys(data).length * rowHeight) - 31}px` }}>
+            {Object.entries(data).map(([key, entry], index) => {
+              if (gridRef.current) {
+                if (index >= visibleRange.startIndex && index <= visibleRange.endIndex) {
+                  if (isChartRow(entry)) {
+                    return (
+                      <ChartRowComponent
+                        key={key}
+                        entry={entry}
+                        dateArray={dateArray}
+                        gridRef={gridRef}
+                        setCanGridRefDrag={setCanGridRefDrag}
+                      />
+                    );
+                  } else if (isSeparatorRow(entry)) {
+                    return (
+                      <SeparatorRowComponent
+                        key={key}
+                        entry={entry}
+                        separatorX={separatorX}
+                      />
+                    );
+                  } else if (isEventRow(entry)) {
+                    return (
+                      <EventRowComponent
+                        key={key}
+                        entry={entry}
+                        dateArray={dateArray}
+                        gridRef={gridRef}
+                        setCanGridRefDrag={setCanGridRefDrag}
+                      />
+                    );
+                  }
+                }
+                return null;
+              }
+            })}
+          </div>
         </div>
         <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
           <div>Undo: {pastLength - 1}, Redo: {futureLength}</div>
@@ -348,7 +384,7 @@ function App() {
                 backgroundColor: 'rgba(59, 42, 255, 0.609)',
                 position: 'absolute',
                 left: 0,
-                top: `${indicatorPosition.y + 20}px`,
+                top: `${indicatorPosition.y + rowHeight - 1}px`,
                 pointerEvents: 'none',
                 zIndex: '20'
               }}
@@ -358,7 +394,7 @@ function App() {
             <div
               className="vertical-indicator"
               style={{
-                height: `${gridHeight + 21}px`,
+                height: `${gridHeight + rowHeight}px`,
                 width: `${cellWidth + 1}px`,
                 backgroundColor: 'rgba(124, 124, 124, 0.09)',
                 position: 'absolute',

@@ -25,7 +25,6 @@ const WBSInfo: React.FC = memo(() => {
   const dataArray = useMemo(() => {
     return Object.values(data);
   }, [data]);
-  console.log('renderd')
 
   const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
   const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
