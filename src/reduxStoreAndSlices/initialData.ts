@@ -32,7 +32,7 @@ const createEmptyEventRow = (): EventRow => ({
 
 const generateRandomDate = (): string => {
   const start = cdate();
-  const end = start.add(5, "months");
+  const end = start.add(24, "months");
   const startTime = start.toDate().getTime();
   const endTime = end.toDate().getTime();
   const randomTimeDiff = Math.random() * (endTime - startTime);
@@ -45,7 +45,7 @@ const createDummyChartRow = (): ChartRow => {
   const holidays: string[] = updateHolidays(initialHolidayInput);
   const isIncludeHolidays = false;
   const regularHolidays: number[] = [0, 6];
-  const plannedEndDate = addPlannedDays(plannedStartDate, 2, holidays, isIncludeHolidays, true, regularHolidays);
+  const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularHolidays);
   const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularHolidays);
 
   return {

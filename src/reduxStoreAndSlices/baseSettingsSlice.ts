@@ -19,7 +19,7 @@ interface BaseSettingsState {
 
 const now = new Date();
 const startDate = subWeeks(now, 2);
-const endDate = addMonths(startDate, 6);
+const endDate = addMonths(startDate, 24);
 
 const initialState: BaseSettingsState = {
   wbsWidth: 690,

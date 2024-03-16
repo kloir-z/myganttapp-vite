@@ -35,7 +35,6 @@ function App() {
   const [canGridRefDrag, setCanGridRefDrag] = useState(true);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
-  const [separatorX, setSeparatorX] = useState(0);
   const [gridHeight, setGridHeight] = useState<number>(0);
   const [indicatorPosition, setIndicatorPosition] = useState({ x: 0, y: 0 });
   const [visibleRange, setVisibleRange] = useState({ startIndex: 0, endIndex: 200 });
@@ -45,10 +44,10 @@ function App() {
   const dragTimeoutRef = useRef<number | null>(null);
   const prevIndicatorRef = useRef({ x: 0, y: 0 });
   const prevCellWidthRef = useRef(cellWidth);
-  const prevVisibleRowRef = useRef(0);
+  const prevStartIndexRef = useRef(0);
   const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
   const rowHeight = 21;
-  const extraRows = 30;
+  const renderRowsInterval = 30;
   const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight]);
   const totalRows = useMemo(() => Object.keys(data).length, [data]);
 
@@ -112,13 +111,22 @@ function App() {
         clearTimeout(dragTimeoutRef.current);
       }
       if (gridRef.current) {
-        setIndicatorPosition({ x: prevIndicatorRef.current.x, y: prevIndicatorRef.current.y });
+        const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
+        const adjustedX = Math.floor((prevIndicatorRef.current.x + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
+        let adjustedY = indicatorPosition.y
+        if (canGridRefDrag) {
+          const gridStartY = gridRef.current.scrollTop % 21;
+          adjustedY = Math.floor((prevIndicatorRef.current.y + gridStartY + 1) / 21) * 21 - gridStartY;
+        }
+        if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
+          setIndicatorPosition({ x: adjustedX, y: adjustedY });
+        }
+        prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
         setIsGridRefDragging(false);
-        setSeparatorX(gridRef.current.scrollLeft);
         dragTimeoutRef.current = null;
       }
     }, 80);
-  }, []);
+  }, [canGridRefDrag, cellWidth, indicatorPosition.y, wbsWidth]);
 
   const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -130,14 +138,15 @@ function App() {
       sourceRef.current.scrollTop = scrollTop;
       resetDragTimeout();
 
-      const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - extraRows;
-      const rawEndIndex = rawStartIndex + visibleRows + (extraRows * 2);
-      const startIndex = Math.max(0, rawStartIndex);
+      const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval;
+      const adjustedStartIndex = Math.max(0, rawStartIndex);
+      const startIndex = adjustedStartIndex >= renderRowsInterval ? adjustedStartIndex : 0;
+      const rawEndIndex = startIndex + visibleRows + (renderRowsInterval * 2);
       const endIndex = Math.min(totalRows - 1, rawEndIndex);
-      if (startIndex != prevVisibleRowRef.current) {
+      if ((Math.abs(startIndex - prevStartIndexRef.current) >= renderRowsInterval)) {
         setVisibleRange({ startIndex, endIndex });
+        prevStartIndexRef.current = startIndex;
       }
-      prevVisibleRowRef.current = startIndex;
     }
   }, [isGridRefDragging, resetDragTimeout, totalRows, visibleRows]);
 
@@ -348,7 +357,6 @@ function App() {
                       <SeparatorRowComponent
                         key={key}
                         entry={entry}
-                        separatorX={separatorX}
                       />
                     );
                   } else if (isEventRow(entry)) {
