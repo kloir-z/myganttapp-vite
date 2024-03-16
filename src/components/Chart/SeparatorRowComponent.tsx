@@ -14,7 +14,7 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry }) => {
 
   return (
     <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px`, backgroundColor: '#ddedff', alignItems: 'center' }} >
-      <span style={{ position: 'sticky', left: `0px`, color: '#000000ec', padding: '0px 6px' }}>{entry.displayName}</span>
+      <span style={{ position: 'sticky', left: `0px`, color: '#000000ec', padding: '0px 6px', whiteSpace: 'nowrap' }}>{entry.displayName}</span>
     </GanttRow>
   );
 });
