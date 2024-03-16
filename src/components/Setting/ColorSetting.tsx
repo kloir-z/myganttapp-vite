@@ -87,7 +87,7 @@ const ColorSetting: React.FC = memo(() => {
             >
             </div>
             {displayColorPicker[colorInfo.id] ? (
-              <div style={{ position: 'absolute', left: '63px', zIndex: '9999' }}>
+              <div style={{ position: 'absolute', top: '29px', left: '33px', zIndex: '9999' }}>
                 <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose(colorInfo.id)} />
                 <div onClick={(e) => e.stopPropagation()}>
                   <ChromePicker

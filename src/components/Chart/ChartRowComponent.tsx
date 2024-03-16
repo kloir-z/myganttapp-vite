@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { GanttRow } from '../../styles/GanttStyles';
-import { throttle } from 'lodash';
 import { cdate } from 'cdate';
 
 interface ChartRowProps {
@@ -259,13 +258,6 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       }
     }
   }, [isEditing, isBarDragging, isBarEndDragging, isBarStartDragging, localPlannedStartDate, localPlannedEndDate, localActualStartDate, localActualEndDate, dispatch, entry.id]);
-
-  const throttledSyncToStore = useMemo(() => throttle(syncToStore, 20), [syncToStore]);
-
-  useEffect(() => {
-    throttledSyncToStore();
-    return () => throttledSyncToStore.cancel();
-  }, [throttledSyncToStore]);
 
   const handleMouseUp = useCallback(() => {
     const isPlannedDrag = isBarDragging === 'planned' || isBarStartDragging === 'planned' || isBarEndDragging === 'planned';

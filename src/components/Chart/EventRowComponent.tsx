@@ -8,7 +8,6 @@ import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
-// import { throttle } from 'lodash';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
@@ -174,67 +173,64 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   }, [calculateDateFromX, dispatch, localEvents.length, setCanGridRefDrag]);
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    const update = () => {
-      if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
-        const currentMouseX = event.clientX;
-        let deltaX
-        if (isBarDragging) {
-          deltaX = currentMouseX - initialMouseX;
-        } else if (isBarEndDragging) {
-          deltaX = currentMouseX - initialMouseX + cellWidth;
-        } else { // (isBarStartDragging)
-          deltaX = currentMouseX - initialMouseX - cellWidth;
-        }
-        const gridSteps = Math.floor(deltaX / cellWidth);
-
-        let newStartDateCdate = originalStartDate ? cdate(originalStartDate) : null;
-        let newEndDateCdate = originalEndDate ? cdate(originalEndDate) : null;
-
-        if (isBarDragging && newStartDateCdate && newEndDateCdate) {
-          newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
-          newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
-        } else if (isBarEndDragging && newEndDateCdate && newStartDateCdate) {
-          newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
-          if (+newEndDateCdate < +newStartDateCdate) {
-            newEndDateCdate = newStartDateCdate;
-          }
-        } else if (isBarStartDragging && newStartDateCdate && newEndDateCdate) {
-          newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
-          if (+newStartDateCdate > +newEndDateCdate) {
-            newStartDateCdate = newEndDateCdate;
-          }
-        }
-
-        localDispatch({
-          type: 'UPDATE_EVENT_DATES',
-          payload: {
-            index: activeEventIndex,
-            startDate: newStartDateCdate ? newStartDateCdate.format('YYYY/MM/DD') : null,
-            endDate: newEndDateCdate ? newEndDateCdate.format('YYYY/MM/DD') : null
-          }
-        });
-      } else if (isEditing) {
-        const gridRect = gridRef.current?.getBoundingClientRect();
-        if (!gridRect || !currentDate || activeEventIndex === null) return;
-
-        const scrollLeft = gridRef.current?.scrollLeft || 0;
-        const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
-        const newDateCdate = calculateDateFromX(relativeX);
-
-        const isEndDate = +newDateCdate > + currentDate;
-        const newStartDateCdate = isEndDate ? currentDate : newDateCdate;
-        const newEndDateCdate = isEndDate ? newDateCdate : currentDate;
-        localDispatch({
-          type: 'UPDATE_EVENT_DATES',
-          payload: {
-            index: activeEventIndex,
-            startDate: newStartDateCdate.format('YYYY/MM/DD'),
-            endDate: newEndDateCdate.format('YYYY/MM/DD')
-          }
-        });
+    if ((isBarDragging || isBarEndDragging || isBarStartDragging) && initialMouseX !== null && activeEventIndex !== null) {
+      const currentMouseX = event.clientX;
+      let deltaX
+      if (isBarDragging) {
+        deltaX = currentMouseX - initialMouseX;
+      } else if (isBarEndDragging) {
+        deltaX = currentMouseX - initialMouseX + cellWidth;
+      } else { // (isBarStartDragging)
+        deltaX = currentMouseX - initialMouseX - cellWidth;
       }
-    };
-    requestAnimationFrame(update);
+      const gridSteps = Math.floor(deltaX / cellWidth);
+
+      let newStartDateCdate = originalStartDate ? cdate(originalStartDate) : null;
+      let newEndDateCdate = originalEndDate ? cdate(originalEndDate) : null;
+
+      if (isBarDragging && newStartDateCdate && newEndDateCdate) {
+        newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
+        newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
+      } else if (isBarEndDragging && newEndDateCdate && newStartDateCdate) {
+        newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
+        if (+newEndDateCdate < +newStartDateCdate) {
+          newEndDateCdate = newStartDateCdate;
+        }
+      } else if (isBarStartDragging && newStartDateCdate && newEndDateCdate) {
+        newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
+        if (+newStartDateCdate > +newEndDateCdate) {
+          newStartDateCdate = newEndDateCdate;
+        }
+      }
+
+      localDispatch({
+        type: 'UPDATE_EVENT_DATES',
+        payload: {
+          index: activeEventIndex,
+          startDate: newStartDateCdate ? newStartDateCdate.format('YYYY/MM/DD') : null,
+          endDate: newEndDateCdate ? newEndDateCdate.format('YYYY/MM/DD') : null
+        }
+      });
+    } else if (isEditing) {
+      const gridRect = gridRef.current?.getBoundingClientRect();
+      if (!gridRect || !currentDate || activeEventIndex === null) return;
+
+      const scrollLeft = gridRef.current?.scrollLeft || 0;
+      const relativeX = event.clientX - gridRect.left + scrollLeft - 1;
+      const newDateCdate = calculateDateFromX(relativeX);
+
+      const isEndDate = +newDateCdate > + currentDate;
+      const newStartDateCdate = isEndDate ? currentDate : newDateCdate;
+      const newEndDateCdate = isEndDate ? newDateCdate : currentDate;
+      localDispatch({
+        type: 'UPDATE_EVENT_DATES',
+        payload: {
+          index: activeEventIndex,
+          startDate: newStartDateCdate.format('YYYY/MM/DD'),
+          endDate: newEndDateCdate.format('YYYY/MM/DD')
+        }
+      });
+    }
   }, [isBarDragging, isBarEndDragging, isBarStartDragging, initialMouseX, activeEventIndex, isEditing, cellWidth, originalStartDate, originalEndDate, gridRef, currentDate, calculateDateFromX]);
 
   useEffect(() => {
