@@ -56,7 +56,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
       return { type: "number", value: cellValue, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
     else {
-      return { type: "customText", text: cellValue, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } } as CustomTextCell;
+      return { type: "customText", text: cellValue, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
   });
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };
@@ -65,8 +65,8 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
 export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: number): Row<DefaultCellTypes | CustomTextCell> => {
   const rowCells: (NumberCell | CustomTextCell)[] = [
     { type: "number", value: separatorRow.no, style: { background: 'rgba(128, 128, 128, 0.1)' } },
+    { type: "customText", text: separatorRow.displayName, colspan: columnCount - 1, value: NaN, style: { background: '#ddedff' } } as CustomTextCell
   ];
-  rowCells.push({ type: "customText", text: separatorRow.displayName, colspan: 14, value: NaN, style: { background: '#ddedff' } } as CustomTextCell)
   fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });
   return { rowId: separatorRow.id, height: 21, cells: rowCells, reorderable: true };
 };
