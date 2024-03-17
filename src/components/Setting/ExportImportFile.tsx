@@ -11,7 +11,7 @@ type ExportImportFileProps = {
 
 const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose }) => {
   const dispatch = useDispatch();
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
+  const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
   const colors = useSelector((state: RootState) => state.color.colors);
   const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -32,7 +32,7 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
       columns,
       data,
       holidayInput,
-      regularHolidaySetting,
+      regularDaysOffSetting,
       wbsWidth,
       calendarWidth,
       cellWidth,

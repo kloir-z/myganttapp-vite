@@ -44,9 +44,9 @@ const createDummyChartRow = (): ChartRow => {
   const plannedStartDate = generateRandomDate();
   const holidays: string[] = updateHolidays(initialHolidayInput);
   const isIncludeHolidays = false;
-  const regularHolidays: number[] = [0, 6];
-  const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularHolidays);
-  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularHolidays);
+  const regularDaysOffs: number[] = [0, 6];
+  const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularDaysOffs);
+  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularDaysOffs);
 
   return {
     rowType: "Chart",

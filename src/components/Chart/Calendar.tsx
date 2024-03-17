@@ -19,7 +19,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
+  const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
   const calendarRef = useRef<HTMLDivElement>(null);
   const browserLocale = navigator.language.split('-')[0];
   let dateFormat: string;
@@ -113,8 +113,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const isMonthStart = date.get("date") === 1;
             const isFirstDate = index === 0;
             const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
-            const setting = regularHolidaySetting.find(setting => setting.days.includes(dayOfWeek));
-            const selectedSetting = setting || (isHoliday(date, holidays) ? regularHolidaySetting[1] : null);
+            const setting = regularDaysOffSetting.find(setting => setting.days.includes(dayOfWeek));
+            const selectedSetting = setting || (isHoliday(date, holidays) ? regularDaysOffSetting[1] : null);
             bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
             const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01");
             const firstDayOfWeek = firstDayOfMonth.get("day");

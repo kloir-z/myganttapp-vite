@@ -1,18 +1,18 @@
 import React, { useState, useCallback, memo } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
-import { updateRegularHolidaySetting } from "../../reduxStoreAndSlices/store";
+import { updateRegularDaysOffSetting } from "../../reduxStoreAndSlices/store";
 import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
-import { RegularHolidaySetting } from "../../types/DataTypes";
+import { RegularDaysOffSetting } from "../../types/DataTypes";
 import { adjustColorOpacity } from "../Chart/utils/CalendarUtil";
 
 const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 
-const ReguralHolidaySetting: React.FC = memo(() => {
+const RegularDaysOffSettings: React.FC = memo(() => {
   const dispatch = useDispatch();
-  const regularHolidaySetting = useSelector((state: RootState) => state.wbsData.regularHolidaySetting);
-  const [localRegularHolidaySettings, setLocalRegularHolidaySettings] = useState<RegularHolidaySetting[]>(regularHolidaySetting);
+  const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
+  const [localRegularDaysOffSettings, setLocalRegularDaysOffSettings] = useState<RegularDaysOffSetting[]>(regularDaysOffSetting);
 
   type DisplayColorPickerType = { [key: number]: boolean };
   const [displayColorPicker, setDisplayColorPicker] = useState<DisplayColorPickerType>({});
@@ -27,11 +27,11 @@ const ReguralHolidaySetting: React.FC = memo(() => {
   };
 
   const handleApplyChanges = useCallback(() => {
-    dispatch(updateRegularHolidaySetting(localRegularHolidaySettings));
-  }, [dispatch, localRegularHolidaySettings]);
+    dispatch(updateRegularDaysOffSetting(localRegularDaysOffSettings));
+  }, [dispatch, localRegularDaysOffSettings]);
 
   const handleColorChange = useCallback((id: number, color: string) => {
-    setLocalRegularHolidaySettings(current =>
+    setLocalRegularDaysOffSettings(current =>
       current.map(setting =>
         setting.id === id ? { ...setting, color, subColor: adjustColorOpacity(color) } : setting
       )
@@ -39,7 +39,7 @@ const ReguralHolidaySetting: React.FC = memo(() => {
   }, []);
 
   const handleDayChange = useCallback((id: number, changedDay: number) => {
-    setLocalRegularHolidaySettings(current => {
+    setLocalRegularDaysOffSettings(current => {
       const allDays = current.reduce((acc, setting) => [...acc, ...setting.days], [] as number[]);
       const newDays = current.map(setting => {
         if (setting.id !== id && setting.days.includes(changedDay)) {
@@ -62,7 +62,7 @@ const ReguralHolidaySetting: React.FC = memo(() => {
   }, []);
 
   return (
-    <SettingChildDiv text='Regular Holidays'>
+    <SettingChildDiv text='Regular Days Off'>
       <table style={{ borderCollapse: 'collapse', width: '278px' }}>
         <thead>
           <tr>
@@ -73,7 +73,7 @@ const ReguralHolidaySetting: React.FC = memo(() => {
           </tr>
         </thead>
         <tbody>
-          {localRegularHolidaySettings.map(setting => (
+          {localRegularDaysOffSettings.map(setting => (
             <tr key={setting.id}>
               <td style={{ position: 'relative', width: '62px', height: '26px', display: 'flex', alignItems: 'flex-start', padding: '2px' }}>
                 <div
@@ -121,4 +121,4 @@ const ReguralHolidaySetting: React.FC = memo(() => {
   );
 });
 
-export default ReguralHolidaySetting;
+export default RegularDaysOffSettings;

@@ -20,7 +20,7 @@ const WBSInfo: React.FC = memo(() => {
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
-  const regularHolidays = useSelector((state: RootState) => state.wbsData.regularHolidays);
+  const regularDaysOffs = useSelector((state: RootState) => state.wbsData.regularDaysOffs);
   const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
@@ -169,7 +169,7 @@ const WBSInfo: React.FC = memo(() => {
     <ReactGrid
       rows={rows}
       columns={visibleColumns}
-      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularHolidays)}
+      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularDaysOffs)}
       onColumnResized={onColumnResize}
       onContextMenu={simpleHandleContextMenu}
       stickyTopRows={1}

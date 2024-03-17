@@ -5,8 +5,8 @@ export const initialHolidayInput = '2023/1/1 日 元日\n2023/1/2 月 振替休�
 
 export const initialHolidays = updateHolidays(initialHolidayInput)
 
-export const initialRegularHolidaySetting = [
+export const initialRegularDaysOffSetting = [
     { id: 1, color: '#d9e6ff', subColor: adjustColorOpacity('#d9e6ff'), days: [6] },
     { id: 2, color: '#ffdcdc', subColor: adjustColorOpacity('#ffdcdc'), days: [0] },
-    { id: 3, color: '#00000010', subColor: adjustColorOpacity('#00000010'), days: [] },
+    { id: 3, color: '#EFEFEF', subColor: adjustColorOpacity('#EFEFEF'), days: [] },
 ]

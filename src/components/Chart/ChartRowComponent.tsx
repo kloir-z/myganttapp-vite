@@ -36,7 +36,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
-  const regularHolidays = useSelector((state: RootState) => state.wbsData.regularHolidays);
+  const regularDaysOffs = useSelector((state: RootState) => state.wbsData.regularDaysOffs);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? entry.plannedStartDate : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? entry.plannedEndDate : null);
   const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? entry.actualStartDate : null);
@@ -166,7 +166,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       if (newStartDateString !== prevDateRef.current) {
         if (isBarDragging === 'planned') {
           setLocalPlannedStartDate(newStartDateString);
-          const newEndDate = addPlannedDays(newStartDateString, plannedDays, holidays, isIncludeHolidays, true, regularHolidays);
+          const newEndDate = addPlannedDays(newStartDateString, plannedDays, holidays, isIncludeHolidays, true, regularDaysOffs);
           setLocalPlannedEndDate(newEndDate);
         } else if (isBarDragging === 'actual') {
           setLocalActualStartDate(newStartDateString);
@@ -176,7 +176,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       }
       prevDateRef.current = newStartDateString;
     }
-  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, originalEndDate, originalStartDate, plannedDays, regularHolidays]);
+  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, originalEndDate, originalStartDate, plannedDays, regularDaysOffs]);
 
   const handleMouseMoveBarEndDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (initialMouseX !== null && originalEndDate) {

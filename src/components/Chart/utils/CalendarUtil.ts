@@ -16,8 +16,8 @@ export const generateDates = (start: string, end: string): ReturnType<typeof cda
   return dateArray;
 };
 
-const isRegularHoliday = (dayOfWeek: number, regularHolidays: number[]): boolean => {
-  return regularHolidays.includes(dayOfWeek);
+const isRegularDaysOff = (dayOfWeek: number, regularDaysOffs: number[]): boolean => {
+  return regularDaysOffs.includes(dayOfWeek);
 };
 
 export const isHoliday = (date: cdate.CDate, holidays: string[]): boolean => {
@@ -25,7 +25,7 @@ export const isHoliday = (date: cdate.CDate, holidays: string[]): boolean => {
   return holidays.includes(dateString);
 };
 
-export const calculatePlannedDays = (startString: string, endString: string, holidays: string[], isIncludeHolidays: boolean, regularHolidays: number[]): number => {
+export const calculatePlannedDays = (startString: string, endString: string, holidays: string[], isIncludeHolidays: boolean, regularDaysOffs: number[]): number => {
   const start = cdate(startString);
   const end = cdate(endString);
 
@@ -37,7 +37,7 @@ export const calculatePlannedDays = (startString: string, endString: string, hol
 
   while (+currentDate <= +end.startOf('day')) {
     const dayOfWeek = currentDate.toDate().getDay();
-    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularDaysOff(dayOfWeek, regularDaysOffs) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       count++;
     }
     currentDate = currentDate.add(1, 'day');
@@ -46,7 +46,7 @@ export const calculatePlannedDays = (startString: string, endString: string, hol
   return count;
 };
 
-export const addPlannedDays = (startString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
+export const addPlannedDays = (startString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularDaysOffs: number[]): string => {
   if (days === null || days < 0 || startString === '') {
     return '';
   }
@@ -56,7 +56,7 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
 
   if (includeStartDay) {
     const startDayOfWeek = currentDate.toDate().getDay();
-    if ((!isRegularHoliday(startDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularDaysOff(startDayOfWeek, regularDaysOffs) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays = 1;
     }
   }
@@ -64,7 +64,7 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
   while (addedDays < days) {
     currentDate = currentDate.add(1, 'day');
     const dayOfWeek = currentDate.toDate().getDay();
-    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularDaysOff(dayOfWeek, regularDaysOffs) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays++;
     }
   }
@@ -72,7 +72,7 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
   return currentDate.format("YYYY/MM/DD");
 };
 
-export const subtractPlannedDays = (endString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularHolidays: number[]): string => {
+export const subtractPlannedDays = (endString: string, days: number | null, holidays: string[], isIncludeHolidays: boolean, includeStartDay: boolean = true, regularDaysOffs: number[]): string => {
   if (days === null || days < 0 || endString === '') {
     return '';
   }
@@ -82,7 +82,7 @@ export const subtractPlannedDays = (endString: string, days: number | null, holi
 
   if (includeStartDay) {
     const endDayOfWeek = currentDate.toDate().getDay();
-    if ((!isRegularHoliday(endDayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularDaysOff(endDayOfWeek, regularDaysOffs) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       subtractedDays = 1;
     }
   }
@@ -90,7 +90,7 @@ export const subtractPlannedDays = (endString: string, days: number | null, holi
   while (subtractedDays < days) {
     currentDate = currentDate.add(-1, 'day'); // Subtract days
     const dayOfWeek = currentDate.toDate().getDay();
-    if ((!isRegularHoliday(dayOfWeek, regularHolidays) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
+    if ((!isRegularDaysOff(dayOfWeek, regularDaysOffs) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       subtractedDays++;
     }
   }
@@ -105,10 +105,10 @@ export interface CalculateDependenciesParams {
   baseDate: string;
   calculationDirection: 'back' | 'forward';
   stateHolidays: string[];
-  stateRegularHolidays: number[];
+  stateRegularDaysOffs: number[];
 }
 
-export function calculateDependencies({ currentDependency, plannedDays, isIncludeHolidays, baseDate, calculationDirection, stateHolidays, stateRegularHolidays }: CalculateDependenciesParams): { startDate: string; endDate: string } {
+export function calculateDependencies({ currentDependency, plannedDays, isIncludeHolidays, baseDate, calculationDirection, stateHolidays, stateRegularDaysOffs }: CalculateDependenciesParams): { startDate: string; endDate: string } {
   const dependencyParts = currentDependency.toLowerCase().split(',');
   let startDateCdate;
   let endDateCdate;
@@ -121,19 +121,19 @@ export function calculateDependencies({ currentDependency, plannedDays, isInclud
       }
       if (calculationDirection === 'back') {
         const includeStartDay = false;
-        endDateCdate = subtractPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
-        startDateCdate = subtractPlannedDays(endDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularHolidays);
+        endDateCdate = subtractPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOffs);
+        startDateCdate = subtractPlannedDays(endDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularDaysOffs);
       } else { // if (calculationDirection === 'forward')
         const includeStartDay = false;
-        startDateCdate = addPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
-        endDateCdate = addPlannedDays(startDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularHolidays);
+        startDateCdate = addPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOffs);
+        endDateCdate = addPlannedDays(startDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularDaysOffs);
       }
       break;
     }
     case 'sameas': {
       startDateCdate = baseDate;
       const includeStartDay = true;
-      endDateCdate = addPlannedDays(baseDate, plannedDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularHolidays);
+      endDateCdate = addPlannedDays(baseDate, plannedDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOffs);
       break;
     }
     default:

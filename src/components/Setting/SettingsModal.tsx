@@ -5,7 +5,7 @@ import { RootState, setShowYear, resetStore } from '../../reduxStoreAndSlices/st
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
-import ReguralHolidaySetting from "./RegularHolidaySetting";
+import RegularDaysOffSettings from "./RegularDaysOffSetting";
 import DateRangeSetting from "./DateRangeSetting";
 import ExportImportFile from "./ExportImportFile";
 import CellWidthSetting from "./CellWidthSetting";
@@ -131,7 +131,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
             </div>
           </SettingChildDiv>
           <HolidaySetting />
-          <ReguralHolidaySetting />
+          <RegularDaysOffSettings />
           <CellWidthSetting />
           <ExportImportFile
             handleClose={handleClose}

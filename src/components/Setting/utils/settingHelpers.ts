@@ -1,9 +1,9 @@
 import { ExtendedColumn, setColumns, setShowYear } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
-import { WBSData, RegularHolidaySetting } from "../../../types/DataTypes";
+import { WBSData, RegularDaysOffSetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
-import { updateRegularHolidaySetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
+import { updateRegularDaysOffSetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
 import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setCalendarWidth, setCellWidth } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -14,7 +14,7 @@ export const handleExport = (
   columns: ExtendedColumn[],
   data: { [id: string]: WBSData },
   holidayInput: string,
-  regularHolidaySetting: RegularHolidaySetting[],
+  regularDaysOffSetting: RegularDaysOffSetting[],
   wbsWidth: number,
   calendarWidth: number,
   cellWidth: number,
@@ -27,7 +27,7 @@ export const handleExport = (
     columns,
     data,
     holidayInput,
-    regularHolidaySetting,
+    regularDaysOffSetting,
     wbsWidth,
     title,
     showYear,
@@ -104,8 +104,8 @@ export const handleImport = (
           if (parsedData.columns && Array.isArray(parsedData.columns)) {
             dispatch(setColumns(parsedData.columns));
           }
-          if (parsedData.regularHolidaySetting) {
-            dispatch(updateRegularHolidaySetting(parsedData.regularHolidaySetting));
+          if (parsedData.regularDaysOffSetting) {
+            dispatch(updateRegularDaysOffSetting(parsedData.regularDaysOffSetting));
           }
           if (parsedData.holidayInput) {
             const newHolidayInput = parsedData.holidayInput;
