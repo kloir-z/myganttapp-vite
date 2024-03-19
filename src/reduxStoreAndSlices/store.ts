@@ -213,6 +213,8 @@ export const wbsDataSlice = createSlice({
           updatedRowData.actualEndDate = validateDateString(chartRow.actualEndDate);
 
           if (chartRow.dependency) {
+            const isUserChanged = chartRow.dependency.endsWith('^^user^^');
+            let currentDependency = isUserChanged ? chartRow.dependency.slice(0, -8) : chartRow.dependency;
             const parts = chartRow.dependency.split(',');
             if (parts.length >= 2) {
               const refRowNo = parts[1].trim();
@@ -222,7 +224,6 @@ export const wbsDataSlice = createSlice({
                 const offset = parseInt(refRowNo, 10);
                 let currentIndex = Object.keys(data).indexOf(rowId);
                 let steps = Math.abs(offset);
-
                 while (steps > 0 && currentIndex >= 0 && currentIndex < Object.keys(data).length) {
                   currentIndex += (offset / Math.abs(offset));
                   if (currentIndex < 0 || currentIndex >= Object.keys(data).length) {
@@ -232,16 +233,25 @@ export const wbsDataSlice = createSlice({
                     steps--;
                   }
                 }
-
                 if (currentIndex >= 0 && currentIndex < Object.keys(data).length) {
                   refRowId = Object.keys(data)[currentIndex];
+                } else {
+                  refRowId = ''
+                  currentDependency = ''
                 }
-              } else if (refRowNo && chartRow.dependentId) {
+              } else if (refRowNo && chartRow.dependentId && isUserChanged) {
+                const targetNo = parseInt(refRowNo, 10);
+                refRowId = Object.keys(data).find(key => {
+                  const keyRowData = data[key];
+                  return isChartRow(keyRowData) && keyRowData.no === targetNo;
+                });
+              } else if (refRowNo && chartRow.dependentId && !isUserChanged) {
                 const matchingRow = Object.entries(data).find(([key, value]) => key === chartRow.dependentId && isChartRow(value)) as [string, ChartRow] | undefined;
                 if (matchingRow) {
                   const [, matchingRowData] = matchingRow;
                   parts[1] = matchingRowData.no.toString();
-                  updatedRowData.dependency = parts.join(',');
+                  refRowId = chartRow.dependentId;
+                  currentDependency = parts.join(',');
                 }
               } else {
                 const targetNo = parseInt(refRowNo, 10);
@@ -253,10 +263,22 @@ export const wbsDataSlice = createSlice({
               if (refRowId) {
                 updatedRowData = {
                   ...chartRow,
+                  dependency: currentDependency,
                   dependentId: refRowId,
-                  dependency: chartRow.dependency
+                };
+              } else {
+                updatedRowData = {
+                  ...chartRow,
+                  dependency: '',
+                  dependentId: ''
                 };
               }
+            } else {
+              updatedRowData = {
+                ...chartRow,
+                dependency: '',
+                dependentId: ''
+              };
             }
           } else {
             updatedRowData = {
@@ -272,15 +294,18 @@ export const wbsDataSlice = createSlice({
         return acc;
       }, {});
       state.dependencyMap = buildDependencyMap(updatedData);
+
       const visited = new Set<string>();
       const updateDependentRowsInline = (updatedData: { [id: string]: WBSData }, currentId: string, newStartDate: string, newEndDate: string) => {
-        if (visited.has(currentId)) return;
+        if (visited.has(currentId)) {
+          return;
+        }
         visited.add(currentId);
         const dependentRows = state.dependencyMap[currentId];
         if (dependentRows) {
           dependentRows.forEach((dependentRowId) => {
             const chartRow = updatedData[dependentRowId];
-            if (!visited.has(chartRow.id) && isChartRow(chartRow)) {
+            if (isChartRow(chartRow)) {
               const dependency = chartRow.dependency.toLowerCase();
               if (!dependency) return;
               const baseDate = dependency.startsWith('sameas') ? newStartDate : newEndDate;

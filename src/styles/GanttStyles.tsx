@@ -17,13 +17,16 @@ interface CellProps {
   $width?: number;
 }
 
-export const Cell = styled.div<CellProps>`
+export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
+  style: {
+    left: $left ? `${$left}px` : '',
+    width: $width ? `${$width}px` : '21.1px',
+  },
+}))<CellProps>`
   position: absolute;
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  left: ${props => props.$left ? `${props.$left}px` : ''};
-  width: ${props => props.$width ? `${props.$width}px` : '21.1px'};
   height: 22px;
   top: -1px;
   border: 0.2px solid transparent;

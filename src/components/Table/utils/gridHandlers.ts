@@ -87,6 +87,16 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
           plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularDaysOffs),
           plannedDays: plannedDays
         };
+      } else if (fieldName === "dependency") {
+        const customTextCell = newCell as CustomTextCell;
+        let updatedText = customTextCell.text.trim();
+        if (updatedText && !updatedText.includes("^^user^^")) {
+          updatedText += "^^user^^";
+        }
+        updatedData[rowId] = {
+          ...rowData,
+          [fieldName]: updatedText
+        };
       } else if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
         updatedData[rowId] = {
