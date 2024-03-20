@@ -35,6 +35,23 @@ interface StyledInputProps {
   $isEditingText?: boolean;
 }
 
+const StyledLabel = styled.label<StyledInputProps>`
+  position: absolute;
+  top: 0;
+  font-size: 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  left: 0;
+  color: #000000ef;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 2px 4px;
+  background: none;
+  border: none;
+  cursor: 'default';
+`;
+
 const StyledInput = styled.input<StyledInputProps>`
   position: absolute;
   top: 0;
@@ -50,7 +67,6 @@ const StyledInput = styled.input<StyledInputProps>`
   background: none;
   border: none;
   cursor: ${props => props.$isEditingText ? 'text' : 'default'};
-  user-select: ${props => props.$isEditingText ? 'text' : 'none'};
   &:focus {
     outline: none;
     text-decoration:underline;
@@ -60,11 +76,13 @@ const StyledInput = styled.input<StyledInputProps>`
 interface AutoWidthInputBoxProps {
   entryId: string;
   eventIndex?: number;
+  isPlannedBarDragging?: boolean;
 }
 
 const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   entryId,
-  eventIndex
+  eventIndex,
+  isPlannedBarDragging
 }) => {
   const storeDisplayName = useSelector((state: RootState) => {
     const rowData = state.wbsData.data[entryId];
@@ -138,18 +156,21 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
         ref={dummyRef}
         data-placeholder={placeholder}
       ></AutoWidthDiv>
-      <StyledInput
-        type="text"
-        placeholder={placeholder}
-        value={localDisplayName}
-        onChange={handleChange}
-        onFocus={handleForcus}
-        onBlur={handleBlur}
-        onDoubleClick={handleDoubleClick}
-        onKeyDown={handleKeyDown}
-        $isEditingText={isEditingText}
-      />
-    </InputWrapper>
+      {isPlannedBarDragging ? (
+        <StyledLabel>{localDisplayName || placeholder}</StyledLabel>
+      ) : (
+        <StyledInput
+          type="text"
+          placeholder={placeholder}
+          value={localDisplayName}
+          onChange={handleChange}
+          onFocus={handleForcus}
+          onBlur={handleBlur}
+          onDoubleClick={handleDoubleClick}
+          onKeyDown={handleKeyDown}
+          $isEditingText={isEditingText}
+        />
+      )}</InputWrapper>
   );
 });
 

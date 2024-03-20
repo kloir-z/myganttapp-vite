@@ -52,10 +52,12 @@ function App() {
   const totalRows = useMemo(() => Object.keys(data).length, [data]);
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
-    setIsMouseDown(true);
-    if (canGridRefDrag && gridRef.current) {
-      setStartX(event.clientX + gridRef.current.scrollLeft);
-      setStartY(event.clientY + gridRef.current.scrollTop);
+    if (event.button === 0) {
+      setIsMouseDown(true);
+      if (canGridRefDrag && gridRef.current) {
+        setStartX(event.clientX + gridRef.current.scrollLeft);
+        setStartY(event.clientY + gridRef.current.scrollTop);
+      }
     }
   }, [canGridRefDrag]);
 
@@ -85,7 +87,10 @@ function App() {
         const gridStartY = gridRef.current.scrollTop % 21;
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
-      prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
+      if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
+        setIndicatorPosition({ x: adjustedX, y: adjustedY });
+        prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
+      }
     } else if (!isGridRefDragging) {
       const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
@@ -96,8 +101,10 @@ function App() {
       }
       if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
         setIndicatorPosition({ x: adjustedX, y: adjustedY });
+        prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
       }
-      prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
+    } else if (isGridRefDragging && !isMouseDown) {
+      setIsGridRefDragging(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, startX, startY, wbsWidth]);
@@ -110,23 +117,9 @@ function App() {
       if (dragTimeoutRef.current !== null) {
         clearTimeout(dragTimeoutRef.current);
       }
-      if (gridRef.current) {
-        const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
-        const adjustedX = Math.floor((prevIndicatorRef.current.x + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
-        let adjustedY = indicatorPosition.y
-        if (canGridRefDrag) {
-          const gridStartY = gridRef.current.scrollTop % 21;
-          adjustedY = Math.floor((prevIndicatorRef.current.y + gridStartY + 1) / 21) * 21 - gridStartY;
-        }
-        if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
-          setIndicatorPosition({ x: adjustedX, y: adjustedY });
-        }
-        prevIndicatorRef.current = { x: adjustedX, y: adjustedY };
-        setIsGridRefDragging(false);
-        dragTimeoutRef.current = null;
-      }
+      setIsGridRefDragging(false);
     }, 80);
-  }, [canGridRefDrag, cellWidth, indicatorPosition.y, wbsWidth]);
+  }, []);
 
   const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -136,8 +129,9 @@ function App() {
       const scrollTop = Math.min(sourceRef.current.scrollTop, gridRef.current.scrollHeight - sourceRef.current.clientHeight);
       targetRef.current.scrollTop = scrollTop;
       sourceRef.current.scrollTop = scrollTop;
-      resetDragTimeout();
-
+      if (isMouseDown) {
+        resetDragTimeout();
+      }
       const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval;
       const adjustedStartIndex = Math.max(0, rawStartIndex);
       const startIndex = adjustedStartIndex >= renderRowsInterval ? adjustedStartIndex : 0;
@@ -148,7 +142,7 @@ function App() {
         prevStartIndexRef.current = startIndex;
       }
     }
-  }, [isGridRefDragging, resetDragTimeout, totalRows, visibleRows]);
+  }, [isGridRefDragging, isMouseDown, resetDragTimeout, totalRows, visibleRows]);
 
   const handleHorizontalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -160,9 +154,11 @@ function App() {
       const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
       targetRef.current.scrollLeft = scrollLeft;
       sourceRef.current.scrollLeft = scrollLeft;
-      resetDragTimeout();
+      if (isMouseDown) {
+        resetDragTimeout();
+      }
     }
-  }, [isGridRefDragging, resetDragTimeout]);
+  }, [isGridRefDragging, isMouseDown, resetDragTimeout]);
 
   useEffect(() => {
     const isChromiumBased = /Chrome/.test(navigator.userAgent) || /Chromium/.test(navigator.userAgent);
@@ -388,7 +384,7 @@ function App() {
               className="horizontal-indicator"
               style={{
                 width: '100vw',
-                height: '0.2px',
+                height: '0.5px',
                 backgroundColor: 'rgba(59, 42, 255, 0.609)',
                 position: 'absolute',
                 left: 0,
