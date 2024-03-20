@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, undo, redo } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
-import { isChartRow, isEventRow, isSeparatorRow } from './types/DataTypes';
+import { isChartRow, isEventRow, isSeparatorRow, WBSData } from './types/DataTypes';
 import Calendar from './components/Chart/Calendar';
 import GridVertical from './components/Chart/GridVertical';
 import ChartRowComponent from './components/Chart/ChartRowComponent';
@@ -16,7 +16,6 @@ import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
 import { generateDates } from './components/Chart/utils/CalendarUtil';
-import "./components/Table/css/ReactGrid.css";
 import "./components/Table/css/HiddenScrollBar.css";
 
 function App() {
@@ -50,6 +49,19 @@ function App() {
   const renderRowsInterval = 30;
   const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight]);
   const totalRows = useMemo(() => Object.keys(data).length, [data]);
+  const filteredData = useMemo(() => {
+    const result: [string, WBSData][] = [];
+    let skip = false;
+    Object.entries(data).forEach(([key, entry]) => {
+      if (isSeparatorRow(entry)) {
+        skip = entry.isCollapsed;
+        result.push([key, entry]);
+      } else if (!skip) {
+        result.push([key, entry]);
+      }
+    });
+    return result;
+  }, [data]);
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
     if (event.button === 0) {
@@ -240,10 +252,10 @@ function App() {
 
   useEffect(() => {
     const calculateGridHeight = () => {
-      const rowCount = Object.keys(data).length;
+      const rowCount = filteredData.length;
       const maxGridHeight = window.innerHeight - 41;
       const dynamicGridHeight = rowCount * 21;
-      return rowCount * 21 < window.innerHeight - 41 ? dynamicGridHeight : maxGridHeight;
+      return dynamicGridHeight < maxGridHeight ? dynamicGridHeight : maxGridHeight;
     };
     const updateGridHeight = () => {
       setGridHeight(calculateGridHeight());
@@ -251,7 +263,7 @@ function App() {
     window.addEventListener('resize', updateGridHeight);
     updateGridHeight();
     return () => window.removeEventListener('resize', updateGridHeight);
-  }, [data]);
+  }, [filteredData]);
 
   useEffect(() => {
     const gridElement = gridRef.current;
@@ -299,6 +311,7 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
+
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
@@ -317,18 +330,18 @@ function App() {
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
         <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
-          {Object.entries(data).map(([key, entry], index) => {
-            if (isSeparatorRow(entry) && gridRef.current) {
-              if (index >= visibleRange.startIndex && index <= visibleRange.endIndex) {
-                return (
-                  <SeparatorRowLabelComponent
-                    key={key}
-                    entry={entry}
-                  />
-                );
-              } else {
-                return null;
-              }
+          {filteredData.map(([key, entry], filteredIndex) => {
+            if (gridRef.current && isSeparatorRow(entry) && filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
+              const topPosition = filteredIndex * 21;
+              return (
+                <SeparatorRowLabelComponent
+                  key={key}
+                  entry={entry}
+                  topPosition={topPosition}
+                />
+              );
+            } else {
+              return null;
             }
           })}
           <WBSInfo />
@@ -337,10 +350,11 @@ function App() {
         <ResizeBar />
 
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
-          <div style={{ height: `${(Object.keys(data).length * rowHeight) - 31}px` }}>
-            {Object.entries(data).map(([key, entry], index) => {
+          <div style={{ height: `${(filteredData.length * rowHeight) - 31}px` }}>
+            {filteredData.map(([key, entry], filteredIndex) => {
               if (gridRef.current) {
-                if (index >= visibleRange.startIndex && index <= visibleRange.endIndex) {
+                if (filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
+                  const topPosition = filteredIndex * 21;
                   if (isChartRow(entry)) {
                     return (
                       <ChartRowComponent
@@ -349,6 +363,7 @@ function App() {
                         dateArray={dateArray}
                         gridRef={gridRef}
                         setCanGridRefDrag={setCanGridRefDrag}
+                        topPosition={topPosition}
                       />
                     );
                   } else if (isSeparatorRow(entry)) {
@@ -356,6 +371,7 @@ function App() {
                       <SeparatorRowComponent
                         key={key}
                         entry={entry}
+                        topPosition={topPosition}
                       />
                     );
                   } else if (isEventRow(entry)) {
@@ -366,6 +382,7 @@ function App() {
                         dateArray={dateArray}
                         gridRef={gridRef}
                         setCanGridRefDrag={setCanGridRefDrag}
+                        topPosition={topPosition}
                       />
                     );
                   }

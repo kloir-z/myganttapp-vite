@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, ChartRow, EventRow, RegularDaysOffSetting, isChartRow, isEventRow } from '../types/DataTypes';
+import { WBSData, ChartRow, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow } from '../types/DataTypes';
 import { calculatePlannedDays, addPlannedDays, calculateDependencies, CalculateDependenciesParams } from '../components/Chart/utils/CalendarUtil';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
@@ -406,6 +406,13 @@ export const wbsDataSlice = createSlice({
         state.data[id].displayName = displayName;
       }
     },
+    toggleSeparatorRowExpanded: (state, action: PayloadAction<{ id: string }>) => {
+      const { id } = action.payload;
+      const separatorRow = state.data[id];
+      if (isSeparatorRow(separatorRow)) {
+        separatorRow.isCollapsed = !separatorRow.isCollapsed
+      }
+    },
     setHolidays: (state, action: PayloadAction<string[]>) => {
       const newHolidays = action.payload;
       const oldHolidays = Array.from(state.holidays);
@@ -517,6 +524,7 @@ export const {
   setActualEndDate,
   setActualStartAndEndDate,
   setDisplayName,
+  toggleSeparatorRowExpanded,
   setHolidays,
   setEventDisplayName,
   updateEventRow,

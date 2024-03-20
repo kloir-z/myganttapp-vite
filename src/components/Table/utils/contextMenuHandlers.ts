@@ -83,7 +83,8 @@ export const handleAddSeparatorRow = (dispatch: Dispatch, selectedRowIds: Id[], 
       rowType: "Separator",
       no: 0,
       id: "",
-      displayName: ""
+      displayName: "",
+      isCollapsed: false
     };
     newDataArray.splice(minIndex + i, 0, newDataRow);
   }

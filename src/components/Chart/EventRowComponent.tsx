@@ -63,15 +63,15 @@ interface EventRowProps {
   entry: EventRow;
   dateArray: ReturnType<typeof cdate>[];
   gridRef: React.RefObject<HTMLDivElement>;
+  topPosition: number;
   setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
 
-const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, setCanGridRefDrag }) => {
+const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, topPosition, setCanGridRefDrag }) => {
   const dispatch = useDispatch();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const topPosition = (entry.no - 1) * 21;
   const colors = useSelector((state: RootState) => state.color.colors);
   const plannedChartBarColor = useMemo(() => {
     if (entry.color === '') { return '#76ff7051'; }

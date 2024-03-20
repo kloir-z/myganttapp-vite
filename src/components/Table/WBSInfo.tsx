@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, memo } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
+import "/src/components/Table/css/ReactGrid.css";
 import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
@@ -29,17 +30,19 @@ const WBSInfo: React.FC = memo(() => {
   const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
   const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
   const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell>[] => {
+    let collapseSection = false;
     return [
       headerRow,
-      ...data.map((item) => {
-        if (isChartRow(item)) {
-          return createChartRow(item, visibleColumns);
-        } else if (isSeparatorRow(item)) {
+      ...data.flatMap((item) => {
+        if (isSeparatorRow(item)) {
+          collapseSection = item.isCollapsed;
           return createSeparatorRow(item, visibleColumns.length);
-        } else if (isEventRow(item)) {
+        } else if (!collapseSection && isChartRow(item)) {
+          return createChartRow(item, visibleColumns);
+        } else if (!collapseSection && isEventRow(item)) {
           return createEventRow(item, visibleColumns);
         } else {
-          return { rowId: 'empty', height: 21, cells: [{ type: "customText", text: '' } as CustomTextCell], reorderable: true };
+          return [];
         }
       })
     ];
@@ -126,11 +129,26 @@ const WBSInfo: React.FC = memo(() => {
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
-    const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
+    let movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
+    const extendedIndexes: number[] = [];
+    for (const index of movingRowsIndexes) {
+      if (isSeparatorRow(dataArray[index])) {
+        let nextSeparatorIndex = dataArray.slice(index + 1).findIndex(data => isSeparatorRow(data));
+        if (nextSeparatorIndex !== -1) {
+          nextSeparatorIndex += index + 1;
+        } else {
+          nextSeparatorIndex = dataArray.length;
+        }
+        for (let i = index; i < nextSeparatorIndex; i++) {
+          if (!extendedIndexes.includes(i)) {
+            extendedIndexes.push(i);
+          }
+        }
+      }
+    }
+    movingRowsIndexes = [...new Set([...movingRowsIndexes, ...extendedIndexes])];
     const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
-
     const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
-
     dispatch(simpleSetData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 

@@ -14,12 +14,12 @@ interface ChartRowProps {
   entry: ChartRow;
   dateArray: ReturnType<typeof cdate>[];
   gridRef: React.RefObject<HTMLDivElement>;
+  topPosition: number;
   setCanGridRefDrag: (canGridRefDrag: boolean) => void;
 }
 
-const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, setCanGridRefDrag }) => {
+const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, topPosition, setCanGridRefDrag }) => {
   const dispatch = useDispatch();
-  const topPosition = (entry.no - 1) * 21;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);

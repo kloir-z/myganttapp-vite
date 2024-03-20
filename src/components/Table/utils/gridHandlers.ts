@@ -23,9 +23,10 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
 
       if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
+        const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
         updatedData[rowId] = {
           ...rowData,
-          displayName: customTextCell.text.trim()
+          displayName: updatedText
         };
       }
     }
@@ -42,9 +43,10 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
+        const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.text.trim()
+          [fieldName]: updatedText
         };
       }
     }
@@ -80,7 +82,8 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (fieldName === "plannedDays") {
         const customTextCell = newCell as CustomTextCell;
-        const plannedDays = Math.min(parseInt(customTextCell.text, 10), 9999);
+        const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
+        const plannedDays = Math.min(parseInt(updatedText, 10), 9999);
         const startDate = chartRow.plannedStartDate
         updatedData[rowId] = {
           ...rowData,
@@ -89,7 +92,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (fieldName === "dependency") {
         const customTextCell = newCell as CustomTextCell;
-        let updatedText = customTextCell.text.trim();
+        let updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
         if (updatedText && !updatedText.includes("^^user^^")) {
           updatedText += "^^user^^";
         }
@@ -99,9 +102,10 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         };
       } else if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
+        const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customTextCell.text.trim()
+          [fieldName]: updatedText
         };
       } else if (fieldName === "isIncludeHolidays" && newCell.type === 'checkbox') {
         const checkboxCell = newCell as CheckboxCell;

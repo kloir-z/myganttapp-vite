@@ -6,11 +6,11 @@ import { useSelector } from 'react-redux';
 
 interface SeparatorRowProps {
   entry: SeparatorRow;
+  topPosition: number;
 }
 
-const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry }) => {
+const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPosition, }) => {
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
-  const topPosition = (entry.no - 1) * 21;
 
   return (
     <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px`, backgroundColor: '#ddedff', alignItems: 'center' }} >
