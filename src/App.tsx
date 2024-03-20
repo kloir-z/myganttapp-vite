@@ -175,7 +175,9 @@ function App() {
       const newScrollLeft = (relativeMouseX * scale) - (mouseX - gridRef.current.getBoundingClientRect().left);
       gridRef.current.scrollLeft = newScrollLeft;
       prevCellWidthRef.current = cellWidth;
-      setIsGridRefDragging(true);
+      if (!isGridRefDragging) {
+        setIsGridRefDragging(true);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellWidth]);
