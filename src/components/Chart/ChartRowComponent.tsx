@@ -26,7 +26,9 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const colors = useSelector((state: RootState) => state.color.colors);
   const plannedChartBarColor = useMemo(() => {
     if (entry.color === '') { return '#76ff7051'; }
-    const colorInfo = colors.find(c => c.alias === entry.color);
+    const colorInfo = colors.find(c =>
+      c.alias.split(',').map(alias => alias.trim()).includes(entry.color)
+    );
     return colorInfo ? colorInfo.color : '#76ff7051';
   }, [entry.color, colors]);
   const actualChartBarColor = useMemo(() => {
