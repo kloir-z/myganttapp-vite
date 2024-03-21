@@ -28,7 +28,6 @@ const initialState: {
   holidays: string[],
   regularDaysOffSetting: RegularDaysOffSetting[],
   regularDaysOffs: number[],
-  isFixedData: boolean,
   columns: ExtendedColumn[],
   showYear: boolean,
   dependencyMap: { [id: string]: string[] },
@@ -39,7 +38,6 @@ const initialState: {
   holidays: initialHolidays,
   regularDaysOffSetting: initialRegularDaysOffSetting,
   regularDaysOffs: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
-  isFixedData: true,
   showYear: false,
   columns: initialColumns,
   dependencyMap: buildDependencyMap(initializedDummyData),
@@ -345,7 +343,6 @@ export const wbsDataSlice = createSlice({
       state.data = updatedData;
     },
     setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
-      state.isFixedData = false;
       const { id, startDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -355,7 +352,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     setPlannedEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
-      state.isFixedData = false;
       const { id, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -365,7 +361,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
-      state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -376,7 +371,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
-      state.isFixedData = false;
       const { id, startDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -384,7 +378,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     setActualEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
-      state.isFixedData = false;
       const { id, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -392,7 +385,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     setActualStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
-      state.isFixedData = false;
       const { id, startDate, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -435,7 +427,6 @@ export const wbsDataSlice = createSlice({
       }
     },
     updateEventRow: (state, action: PayloadAction<{ id: string; updatedEventRow: EventRow }>) => {
-      state.isFixedData = false;
       const { id, updatedEventRow } = action.payload;
       state.data[id] = updatedEventRow;
     },
@@ -444,9 +435,6 @@ export const wbsDataSlice = createSlice({
       state.regularDaysOffSetting = regularDaysOffSetting;
       state.regularDaysOffs = Array.from(new Set(regularDaysOffSetting.flatMap(setting => setting.days)));
       resetEndDate(state)
-    },
-    setIsFixedData: (state, action: PayloadAction<boolean>) => {
-      state.isFixedData = action.payload;
     },
     setShowYear(state, action: PayloadAction<boolean>) {
       state.showYear = action.payload;
@@ -529,7 +517,6 @@ export const {
   setEventDisplayName,
   updateEventRow,
   updateRegularDaysOffSetting,
-  setIsFixedData,
   setShowYear,
   setColumns,
   toggleColumnVisibility,

@@ -76,13 +76,13 @@ const StyledInput = styled.input<StyledInputProps>`
 interface AutoWidthInputBoxProps {
   entryId: string;
   eventIndex?: number;
-  isPlannedBarDragging?: boolean;
+  isBarDragged?: boolean;
 }
 
 const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   entryId,
   eventIndex,
-  isPlannedBarDragging
+  isBarDragged
 }) => {
   const storeDisplayName = useSelector((state: RootState) => {
     const rowData = state.wbsData.data[entryId];
@@ -156,7 +156,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
         ref={dummyRef}
         data-placeholder={placeholder}
       ></AutoWidthDiv>
-      {isPlannedBarDragging ? (
+      {isBarDragged ? (
         <StyledLabel>{localDisplayName || placeholder}</StyledLabel>
       ) : (
         <StyledInput

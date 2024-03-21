@@ -2,7 +2,7 @@
 import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow, setIsFixedData, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
+import { updateEventRow, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
@@ -95,6 +95,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const [currentDate, setCurrentDate] = useState<cdate.CDate | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isBarDragging, setIsBarDragging] = useState(false);
+  const [isBarDragged, setIsBarDragged] = useState(false);
   const [isBarEndDragging, setIsBarEndDragging] = useState(false);
   const [isBarStartDragging, setIsBarStartDragging] = useState(false);
   const [originalStartDate, setOriginalStartDate] = useState<string | null>(null);
@@ -193,6 +194,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
       if (isBarDragging && newStartDateCdate && newEndDateCdate) {
         newStartDateCdate = newStartDateCdate.add(gridSteps, 'days');
         newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
+        setIsBarDragged(true);
       } else if (isBarEndDragging && newEndDateCdate && newStartDateCdate) {
         newEndDateCdate = newEndDateCdate.add(gridSteps, 'days');
         if (+newEndDateCdate < +newStartDateCdate) {
@@ -281,11 +283,11 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     syncToStore();
     setIsEditing(false);
     setIsBarDragging(false);
+    setIsBarDragged(false);
     setIsBarEndDragging(false);
     setIsBarStartDragging(false);
     setInitialMouseX(null);
     setCanGridRefDrag(true);
-    dispatch(setIsFixedData(true))
   };
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
@@ -332,6 +334,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           entryId={entry.id}
           eventIndex={index}
           chartBarColor={event.isPlanned ? plannedChartBarColor : actualChartBarColor}
+          isBarDragged={isBarDragged}
           onBarMouseDown={(e) => handleBarMouseDown(e, index)}
           onBarEndMouseDown={(e) => handleBarEndMouseDown(e, index)}
           onBarStartMouseDown={(e) => handleBarStartMouseDown(e, index)}

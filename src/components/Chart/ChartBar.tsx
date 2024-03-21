@@ -14,14 +14,14 @@ interface ChartBarProps {
   entryId: string;
   eventIndex?: number;
   chartBarColor: string;
-  isPlannedBarDragging?: boolean;
+  isBarDragged?: boolean;
   onBarMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
   onBarEndMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
   onBarStartMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
   onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, isPlannedBarDragging, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
+const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, isBarDragged, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   if (!startDate || !endDate) {
     return null;
@@ -65,7 +65,7 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
             <AutoWidthInputBox
               entryId={entryId}
               eventIndex={eventIndex}
-              isPlannedBarDragging={isPlannedBarDragging}
+              isBarDragged={isBarDragged}
             />
           )}
         </Cell>
