@@ -147,11 +147,11 @@ export const wbsDataSlice = createSlice({
         state.data[id].displayName = displayName;
       }
     },
-    toggleSeparatorRowExpanded: (state, action: PayloadAction<{ id: string }>) => {
-      const { id } = action.payload;
+    toggleSeparatorRowExpanded: (state, action: PayloadAction<{ id: string; isCollapsed?: boolean }>) => {
+      const { id, isCollapsed } = action.payload;
       const separatorRow = state.data[id];
       if (isSeparatorRow(separatorRow)) {
-        separatorRow.isCollapsed = !separatorRow.isCollapsed
+        separatorRow.isCollapsed = isCollapsed !== undefined ? isCollapsed : !separatorRow.isCollapsed;
       }
     },
     setHolidays: (state, action: PayloadAction<string[]>) => {

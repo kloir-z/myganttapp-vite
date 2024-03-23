@@ -35,7 +35,7 @@ interface StyledInputProps {
   $isEditingText?: boolean;
 }
 
-const StyledLabel = styled.label<StyledInputProps>`
+const StyledReadOnlyInput = styled.input<StyledInputProps>`
   position: absolute;
   top: 0;
   font-size: 0.8rem;
@@ -51,6 +51,7 @@ const StyledLabel = styled.label<StyledInputProps>`
   background: none;
   border: none;
   cursor: 'default';
+  user-select: none;
 `;
 
 const StyledInput = styled.input<StyledInputProps>`
@@ -159,7 +160,11 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
         data-placeholder={placeholder}
       ></AutoWidthDiv>
       {isBarDragged ? (
-        <StyledLabel>{localDisplayName || placeholder}</StyledLabel>
+        <StyledReadOnlyInput
+          type="text"
+          readOnly={true}
+          value={localDisplayName}
+        />
       ) : (
         <StyledInput
           type="text"
@@ -173,18 +178,6 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
           $isEditingText={isEditingText}
         />
       )}
-         <StyledInput
-          type="text"
-          placeholder={placeholder}
-          value={localDisplayName}
-          onChange={handleChange}
-          onFocus={handleForcus}
-          onBlur={handleBlur}
-          onDoubleClick={handleDoubleClick}
-          onKeyDown={handleKeyDown}
-          $isEditingText={isEditingText}
-        />
-       <StyledLabel>{localDisplayName || placeholder}</StyledLabel>
     </InputWrapper>
   );
 });

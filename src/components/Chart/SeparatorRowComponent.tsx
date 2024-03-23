@@ -21,9 +21,18 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
     }
     const startDate = cdate(entry.minStartDate);
     const endDate = cdate(entry.maxEndDate);
-    const startCDate = dateArray.findIndex(date => date >= startDate);
-    const endCDate = dateArray.findIndex(date => date > endDate);
-
+    let startCDate = dateArray.findIndex(date => date >= startDate);
+    let endCDate = dateArray.findIndex(date => date > endDate);
+    if (startCDate === -1) {
+      startCDate = dateArray.length - 1;
+    } else if (startCDate < 0) {
+      startCDate = 0;
+    }
+    if (endCDate === -1) {
+      endCDate = dateArray.length;
+    } else if (endCDate < 0) {
+      endCDate = 0;
+    }
     const lineStart = startCDate * cellWidth;
     const lineWidth = (endCDate - startCDate) * cellWidth;
     return { lineStart, lineWidth };

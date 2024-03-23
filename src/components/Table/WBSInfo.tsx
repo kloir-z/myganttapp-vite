@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo, memo } from 'react';
+import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -8,7 +8,7 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
+import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState, toggleSeparatorRowExpanded } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
@@ -22,6 +22,7 @@ const WBSInfo: React.FC = memo(() => {
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
+  const isSeparatorRowFocusedRef = useRef<{ row: string, column: string }>();
   const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
@@ -49,7 +50,7 @@ const WBSInfo: React.FC = memo(() => {
   }, [visibleColumns, headerRow]);
   const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
 
-  const getSelectedIdsFromRanges = useCallback((selectedRanges: Array<Array<CellLocation>>) => {
+  const getSelectedIdsFromRanges = useCallback((selectedRanges: CellLocation[][]) => {
     const selectedRowIdsFromRanges = new Set<Id>();
     const selectedColIdsFromRanges = new Set<Id>();
 
@@ -69,7 +70,7 @@ const WBSInfo: React.FC = memo(() => {
     _selectedColIds: Id[],
     _selectionMode: SelectionMode,
     menuOptions: MenuOption[],
-    selectedRanges: Array<CellLocation[]>
+    selectedRanges: CellLocation[][]
   ): MenuOption[] => {
     const { selectedRowIdsFromRanges, selectedColIdsFromRanges } = getSelectedIdsFromRanges(selectedRanges);
 
@@ -183,6 +184,30 @@ const WBSInfo: React.FC = memo(() => {
     return targetRowId !== 'header';
   }, []);
 
+  const handleFocusLocationChanged = useCallback((location: CellLocation) => {
+    if (isSeparatorRow(data[location.rowId.toString()])) {
+      isSeparatorRowFocusedRef.current = { row: location.rowId.toString(), column: location.columnId.toString() }
+    } else {
+      isSeparatorRowFocusedRef.current = undefined;
+    }
+  }, [data]);
+
+  const handleFocusLocationChanging = useCallback((location: CellLocation) => {
+    const currentColumnIndex = columns.findIndex(column => column.columnId === isSeparatorRowFocusedRef.current?.column);
+    const newColumnIndex = columns.findIndex(column => column.columnId === location.columnId);
+    const rowData = data[location.rowId.toString()];
+    if (rowData && isSeparatorRowFocusedRef.current && isSeparatorRow(rowData)) {
+      if (newColumnIndex === 0 && currentColumnIndex === 1 && !rowData.isCollapsed) {
+        dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: true }));
+        return false;
+      } else if (newColumnIndex === 2 && currentColumnIndex === 1 && rowData.isCollapsed) {
+        dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
+        return false;
+      }
+    }
+    return true;
+  }, [columns, data, dispatch]);
+
   return (
     <ReactGrid
       rows={rows}
@@ -198,6 +223,8 @@ const WBSInfo: React.FC = memo(() => {
       onRowsReordered={handleRowsReorder}
       onColumnsReordered={handleColumnsReorder}
       canReorderRows={handleCanReorderRows}
+      onFocusLocationChanged={handleFocusLocationChanged}
+      onFocusLocationChanging={handleFocusLocationChanging}
       customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate }}
       minColumnWidth={10}
     />
