@@ -2,7 +2,7 @@ import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from '
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
-import { addPlannedDays } from './utils/CalendarUtil';
+import { addPlannedDays } from '../utils/CommonUtils';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
@@ -38,7 +38,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const plannedDays = entry.plannedDays;
   const isIncludeHolidays = entry.isIncludeHolidays
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
-  const regularDaysOffs = useSelector((state: RootState) => state.wbsData.regularDaysOffs);
+  const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? entry.plannedStartDate : null);
   const [localPlannedEndDate, setLocalPlannedEndDate] = useState(entry.plannedEndDate ? entry.plannedEndDate : null);
   const [localActualStartDate, setLocalActualStartDate] = useState(entry.actualStartDate ? entry.actualStartDate : null);
@@ -168,7 +168,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       if (newStartDateString !== prevDateRef.current) {
         if (isBarDragging === 'planned') {
           setLocalPlannedStartDate(newStartDateString);
-          const newEndDate = addPlannedDays(newStartDateString, plannedDays, holidays, isIncludeHolidays, true, regularDaysOffs);
+          const newEndDate = addPlannedDays(newStartDateString, plannedDays, holidays, isIncludeHolidays, true, regularDaysOff);
           setLocalPlannedEndDate(newEndDate);
           setIsPlannedBarDragged(true);
         } else if (isBarDragging === 'actual') {
@@ -179,7 +179,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       }
       prevDateRef.current = newStartDateString;
     }
-  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, plannedDays, regularDaysOffs]);
+  }, [cellWidth, holidays, initialMouseX, isBarDragging, isIncludeHolidays, plannedDays, regularDaysOff]);
 
   const handleMouseMoveBarEndDragging = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (initialMouseX !== null) {

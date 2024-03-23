@@ -1,7 +1,7 @@
 // utils/contextMenuHandlers.ts
 import { WBSData, ChartRow, SeparatorRow, EventRow } from '../../../types/DataTypes';
 import { assignIds } from './wbsHelpers';
-import { simpleSetData } from '../../../reduxStoreAndSlices/store';
+import { setEntireData } from '../../../reduxStoreAndSlices/store';
 import { Id } from "@silevis/reactgrid";
 import { Dispatch } from 'redux';
 import { setCopiedRows } from '../../../reduxStoreAndSlices/copiedRowsSlice';
@@ -27,7 +27,7 @@ export const handleInsertCopiedRows = (dispatch: Dispatch, targetRowId: Id, data
 
   const newDataArray = dataArray.slice();
   newDataArray.splice(targetIndex, 0, ...copiedRows);
-  dispatch(simpleSetData(assignIds(newDataArray)));
+  dispatch(setEntireData(assignIds(newDataArray)));
 };
 
 export const handleCutRows = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
@@ -39,7 +39,7 @@ export const handleCutRows = (dispatch: Dispatch, selectedRowIds: Id[], dataArra
   dispatch(setCopiedRows(copiedRows));
   const newDataArray = dataArray.filter(item =>
     !selectedRowIds.includes(item.id));
-  dispatch(simpleSetData(assignIds(newDataArray)));
+  dispatch(setEntireData(assignIds(newDataArray)));
 };
 
 export const handleAddChartRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
@@ -70,7 +70,7 @@ export const handleAddChartRow = (dispatch: Dispatch, selectedRowIds: Id[], data
     newDataArray.splice(minIndex + i, 0, newDataRow);
   }
 
-  dispatch(simpleSetData(assignIds(newDataArray)));
+  dispatch(setEntireData(assignIds(newDataArray)));
 };
 
 export const handleAddSeparatorRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
@@ -89,7 +89,7 @@ export const handleAddSeparatorRow = (dispatch: Dispatch, selectedRowIds: Id[], 
     newDataArray.splice(minIndex + i, 0, newDataRow);
   }
 
-  dispatch(simpleSetData(assignIds(newDataArray)));
+  dispatch(setEntireData(assignIds(newDataArray)));
 };
 
 export const handleAddEventRow = (dispatch: Dispatch, selectedRowIds: Id[], dataArray: WBSData[]) => {
@@ -118,5 +118,5 @@ export const handleAddEventRow = (dispatch: Dispatch, selectedRowIds: Id[], data
     newDataArray.splice(minIndex + i, 0, newDataRow);
   }
 
-  dispatch(simpleSetData(assignIds(newDataArray)));
+  dispatch(setEntireData(assignIds(newDataArray)));
 };

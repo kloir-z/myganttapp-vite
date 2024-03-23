@@ -3,7 +3,7 @@ import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
 import { WBSData, RegularDaysOffSetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
-import { updateRegularDaysOffSetting, simpleSetData, setHolidays } from "../../../reduxStoreAndSlices/store";
+import { updateRegularDaysOffSetting, setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
 import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setCalendarWidth, setCellWidth } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -67,7 +67,7 @@ export const handleAppend = (
               return acc;
             }, {} as { [id: string]: WBSData });
             const updatedData = { ...data, ...newData };
-            dispatch(simpleSetData(updatedData));
+            dispatch(setEntireData(updatedData));
           }
         } catch (error) {
           alert("Error: An error occurred while loading the file.");
@@ -113,7 +113,7 @@ export const handleImport = (
             dispatch(setHolidays(updateHolidays(newHolidayInput)));
           }
           if (parsedData.data) {
-            dispatch(simpleSetData(parsedData.data));
+            dispatch(setEntireData(parsedData.data));
           }
           if (parsedData.wbsWidth) {
             dispatch(setWbsWidth(parsedData.wbsWidth));

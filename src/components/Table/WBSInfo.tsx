@@ -8,7 +8,7 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, simpleSetData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
+import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
@@ -21,7 +21,7 @@ const WBSInfo: React.FC = memo(() => {
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
-  const regularDaysOffs = useSelector((state: RootState) => state.wbsData.regularDaysOffs);
+  const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
@@ -149,7 +149,7 @@ const WBSInfo: React.FC = memo(() => {
     movingRowsIndexes = [...new Set([...movingRowsIndexes, ...extendedIndexes])];
     const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
     const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
-    dispatch(simpleSetData(assignIds(reorderedData)));
+    dispatch(setEntireData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 
   const handleColumnsReorder = useCallback((targetColumnId: Id, columnIds: Id[]) => {
@@ -187,7 +187,7 @@ const WBSInfo: React.FC = memo(() => {
     <ReactGrid
       rows={rows}
       columns={visibleColumns}
-      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularDaysOffs)}
+      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularDaysOff)}
       onColumnResized={onColumnResize}
       onContextMenu={simpleHandleContextMenu}
       stickyTopRows={1}

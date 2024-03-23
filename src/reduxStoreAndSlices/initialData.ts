@@ -1,6 +1,6 @@
 import { assignIds } from "../components/Table/utils/wbsHelpers";
 import { WBSData, ChartRow, SeparatorRow, EventRow } from "../types/DataTypes";
-import { addPlannedDays, calculatePlannedDays } from "../components/Chart/utils/CalendarUtil";
+import { addPlannedDays, calculatePlannedDays } from "../components/utils/CommonUtils";
 import { initialHolidayInput } from "./initialHolidays";
 import { updateHolidays } from "../components/Setting/utils/settingHelpers";
 import { cdate } from "cdate";
@@ -45,9 +45,9 @@ const createDummyChartRow = (): ChartRow => {
   const plannedStartDate = generateRandomDate();
   const holidays: string[] = updateHolidays(initialHolidayInput);
   const isIncludeHolidays = false;
-  const regularDaysOffs: number[] = [0, 6];
-  const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularDaysOffs);
-  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularDaysOffs);
+  const regularDaysOff: number[] = [0, 6];
+  const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularDaysOff);
+  const plannedDays = calculatePlannedDays(plannedStartDate, plannedEndDate, holidays, false, regularDaysOff);
 
   return {
     rowType: "Chart",

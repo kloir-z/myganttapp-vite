@@ -15,7 +15,7 @@ import SeparatorRowLabelComponent from './components/Table/SeparatorRowLabel';
 import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
-import { generateDates } from './components/Chart/utils/CalendarUtil';
+import { generateDates } from './components/utils/CommonUtils';
 import "./components/Table/css/HiddenScrollBar.css";
 
 function App() {

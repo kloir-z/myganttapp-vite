@@ -2,14 +2,14 @@
 import { CellChange, TextCell, NumberCell, CheckboxCell, EmailCell, DropdownCell, ChevronCell, HeaderCell, TimeCell, DateCell } from "@silevis/reactgrid";
 import { WBSData, ChartRow, isChartRow, isEventRow, isSeparatorRow } from '../../../types/DataTypes';
 import { Dispatch } from 'redux';
-import { simpleSetData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
+import { setEntireData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
-import { calculatePlannedDays, addPlannedDays } from "../../Chart/utils/CalendarUtil";
+import { calculatePlannedDays, addPlannedDays } from "../../utils/CommonUtils";
 
 type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;
 
-export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[], regularDaysOffs: number[]) => {
+export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[], regularDaysOff: number[]) => {
   const updatedData = { ...data };
   const visibleColumns = columns.filter(column => column.visible);
   const secondVisibleColumnId = visibleColumns.length > 1 ? visibleColumns[1].columnId : null;
@@ -69,7 +69,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           plannedStartDate: customDateCell.text,
-          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOffs)
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOff)
         };
       } else if (fieldName === "plannedEndDate") {
         const customDateCell = newCell as CustomDateCell;
@@ -78,7 +78,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           plannedEndDate: customDateCell.text,
-          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOffs)
+          plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOff)
         };
       } else if (fieldName === "plannedDays") {
         const customTextCell = newCell as CustomTextCell;
@@ -87,7 +87,7 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         const startDate = chartRow.plannedStartDate
         updatedData[rowId] = {
           ...rowData,
-          plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularDaysOffs),
+          plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularDaysOff),
           plannedDays: plannedDays
         };
       } else if (fieldName === "dependency") {
@@ -113,11 +113,11 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         updatedData[rowId] = {
           ...rowData,
           isIncludeHolidays: checkboxCell.checked,
-          plannedEndDate: addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularDaysOffs),
+          plannedEndDate: addPlannedDays(startDate, chartRow.plannedDays, holidays, checkboxCell.checked, true, regularDaysOff),
         };
       }
     }
   });
 
-  dispatch(simpleSetData(updatedData));
+  dispatch(setEntireData(updatedData));
 };
