@@ -1,4 +1,4 @@
-// CalendarUtils.ts
+// CommonUtils.ts
 import { cdate } from "cdate";
 import { ChartRow, SeparatorRow, WBSData, isChartRow, isEventRow, isSeparatorRow } from "../types/DataTypes";
 
