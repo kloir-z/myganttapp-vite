@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow } from '../types/DataTypes';
-import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency } from '../utils/CommonUtils';
+import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
@@ -33,7 +33,7 @@ const initialState: {
   past: UndoableState[],
   future: UndoableState[]
 } = {
-  data: initializedDummyData,
+  data: updateSeparatorRowDates(initializedDummyData),
   holidays: initialHolidays,
   regularDaysOffSetting: initialRegularDaysOffSetting,
   regularDaysOff: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
@@ -59,7 +59,7 @@ export const wbsDataSlice = createSlice({
   reducers: {
     setEntireData: (state, action: PayloadAction<{ [id: string]: WBSData }>) => {
       const data = action.payload;
-      const updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
+      let updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
         const row = data[rowId];
         if (isChartRow(row) && row.dependency) {
           let updatedRowData = validateRowDates(row);
@@ -83,6 +83,7 @@ export const wbsDataSlice = createSlice({
           }, dependentId, row.plannedStartDate, row.plannedEndDate, visited);
         }
       });
+      updatedData = updateSeparatorRowDates(updatedData);
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
       if (state.past.length > 30) {
@@ -177,6 +178,12 @@ export const wbsDataSlice = createSlice({
     updateEventRow: (state, action: PayloadAction<{ id: string; updatedEventRow: EventRow }>) => {
       const { id, updatedEventRow } = action.payload;
       state.data[id] = updatedEventRow;
+      const updatedData = updateSeparatorRowDates(state.data);
+      state.data = updatedData;
+    },
+    updateSeparatorDates: (state) => {
+      const updatedData = updateSeparatorRowDates(state.data);
+      state.data = updatedData;
     },
     updateRegularDaysOffSetting: (state, action: PayloadAction<RegularDaysOffSetting[]>) => {
       const regularDaysOffSetting = action.payload;
@@ -218,7 +225,7 @@ export const wbsDataSlice = createSlice({
     pushPastState: (state) => {
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
-      if (state.past.length > 30) {
+      if (state.past.length > 31) {
         state.past.shift();
       }
     },
@@ -264,6 +271,7 @@ export const {
   setHolidays,
   setEventDisplayName,
   updateEventRow,
+  updateSeparatorDates,
   updateRegularDaysOffSetting,
   setShowYear,
   setColumns,

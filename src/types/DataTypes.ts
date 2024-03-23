@@ -28,6 +28,8 @@ export interface ChartRow extends BaseRow {
 export interface SeparatorRow extends BaseRow {
   rowType: "Separator";
   isCollapsed: boolean;
+  minStartDate?: string;
+  maxEndDate?: string;
 }
 
 export interface EventData {

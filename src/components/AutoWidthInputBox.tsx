@@ -45,6 +45,7 @@ const StyledLabel = styled.label<StyledInputProps>`
   left: 0;
   color: #000000ef;
   box-sizing: border-box;
+  height: 21px;
   width: 100%;
   padding: 2px 4px;
   background: none;
@@ -62,6 +63,7 @@ const StyledInput = styled.input<StyledInputProps>`
   left: 0;
   color: #000000ef;
   box-sizing: border-box;
+  height: 21px;
   width: 100%;
   padding: 2px 4px;
   background: none;
@@ -170,7 +172,20 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
           onKeyDown={handleKeyDown}
           $isEditingText={isEditingText}
         />
-      )}</InputWrapper>
+      )}
+         <StyledInput
+          type="text"
+          placeholder={placeholder}
+          value={localDisplayName}
+          onChange={handleChange}
+          onFocus={handleForcus}
+          onBlur={handleBlur}
+          onDoubleClick={handleDoubleClick}
+          onKeyDown={handleKeyDown}
+          $isEditingText={isEditingText}
+        />
+       <StyledLabel>{localDisplayName || placeholder}</StyledLabel>
+    </InputWrapper>
   );
 });
 

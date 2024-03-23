@@ -27,8 +27,8 @@ export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
   box-sizing: border-box;
   font-size: 0.8rem;
   text-align: center;
-  height: 22px;
-  top: -1px;
+  height: 21.5px;
+  top: -0.5px;
   border: 0.2px solid transparent;
   background-color: ${props => props.$chartBarColor ? props.$chartBarColor : '#99ff937e'};
   &:hover {

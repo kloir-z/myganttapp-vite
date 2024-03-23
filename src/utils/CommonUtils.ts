@@ -1,6 +1,6 @@
 // CalendarUtils.ts
 import { cdate } from "cdate";
-import { ChartRow, WBSData, isChartRow } from "../types/DataTypes";
+import { ChartRow, SeparatorRow, WBSData, isChartRow, isEventRow, isSeparatorRow } from "../types/DataTypes";
 
 export const generateDates = (start: string, end: string): ReturnType<typeof cdate>[] => {
   const startDate = cdate(start);
@@ -29,13 +29,11 @@ export const isHoliday = (date: cdate.CDate, holidays: string[]): boolean => {
 export const calculatePlannedDays = (startString: string, endString: string, holidays: string[], isIncludeHolidays: boolean, regularDaysOff: number[]): number => {
   const start = cdate(startString);
   const end = cdate(endString);
-
   if (+start > +end) {
     return 0;
   }
   let count = 0;
   let currentDate = start.startOf('day');
-
   while (+currentDate <= +end.startOf('day')) {
     const dayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularDaysOff(dayOfWeek, regularDaysOff) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
@@ -43,7 +41,6 @@ export const calculatePlannedDays = (startString: string, endString: string, hol
     }
     currentDate = currentDate.add(1, 'day');
   }
-
   return count;
 };
 
@@ -51,17 +48,14 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
   if (days === null || days < 0 || startString === '') {
     return '';
   }
-
   let currentDate = cdate(startString);
   let addedDays = 0;
-
   if (includeStartDay) {
     const startDayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularDaysOff(startDayOfWeek, regularDaysOff) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       addedDays = 1;
     }
   }
-
   while (addedDays < days) {
     currentDate = currentDate.add(1, 'day');
     const dayOfWeek = currentDate.toDate().getDay();
@@ -69,7 +63,6 @@ export const addPlannedDays = (startString: string, days: number | null, holiday
       addedDays++;
     }
   }
-
   return currentDate.format("YYYY/MM/DD");
 };
 
@@ -77,17 +70,14 @@ const subtractPlannedDays = (endString: string, days: number | null, holidays: s
   if (days === null || days < 0 || endString === '') {
     return '';
   }
-
   let currentDate = cdate(endString);
   let subtractedDays = 0;
-
   if (includeStartDay) {
     const endDayOfWeek = currentDate.toDate().getDay();
     if ((!isRegularDaysOff(endDayOfWeek, regularDaysOff) && !isHoliday(currentDate, holidays)) || isIncludeHolidays) {
       subtractedDays = 1;
     }
   }
-
   while (subtractedDays < days) {
     currentDate = currentDate.add(-1, 'day');
     const dayOfWeek = currentDate.toDate().getDay();
@@ -95,7 +85,6 @@ const subtractPlannedDays = (endString: string, days: number | null, holidays: s
       subtractedDays++;
     }
   }
-
   return currentDate.format("YYYY/MM/DD");
 };
 
@@ -113,7 +102,6 @@ function calculateDependencies({ currentDependency, plannedDays, isIncludeHolida
   const dependencyParts = currentDependency.toLowerCase().trim().split(',');
   let startDateCdate;
   let endDateCdate;
-
   switch (dependencyParts[0].trim()) {
     case 'after': {
       let offsetDays = parseInt(dependencyParts[2], 10);
@@ -140,7 +128,6 @@ function calculateDependencies({ currentDependency, plannedDays, isIncludeHolida
     default:
       throw new Error('Unsupported dependency type');
   }
-
   return {
     startDate: startDateCdate,
     endDate: endDateCdate
@@ -319,7 +306,6 @@ function validateDateString(dateString: string | undefined): string {
   return dateString;
 }
 
-
 export function validateRowDates(chartRow: ChartRow) {
   return {
     ...chartRow,
@@ -394,3 +380,70 @@ export function updateDependency(chartRow: ChartRow, data: { [id: string]: WBSDa
     };
   }
 }
+
+export const updateSeparatorRowDates = (data: { [id: string]: WBSData }): { [id: string]: WBSData } => {
+  const dataArray: WBSData[] = Object.values(data);
+  let updatedData: { [id: string]: WBSData } = {};
+  let lastSeparatorIndex = -1;
+  dataArray.forEach((row, index) => {
+    if (isSeparatorRow(row)) {
+      if (lastSeparatorIndex !== -1) {
+        const { minStartDate, maxEndDate } = calculateDateRange(dataArray.slice(lastSeparatorIndex + 1, index));
+        const updatedSeparatorRow: SeparatorRow = {
+          ...dataArray[lastSeparatorIndex] as SeparatorRow,
+          minStartDate,
+          maxEndDate,
+        };
+        dataArray[lastSeparatorIndex] = updatedSeparatorRow;
+      }
+      lastSeparatorIndex = index;
+    }
+  });
+  if (lastSeparatorIndex !== -1) {
+    const { minStartDate, maxEndDate } = calculateDateRange(dataArray.slice(lastSeparatorIndex + 1));
+    const updatedSeparatorRow: SeparatorRow = {
+      ...dataArray[lastSeparatorIndex] as SeparatorRow,
+      minStartDate,
+      maxEndDate,
+    };
+    dataArray[lastSeparatorIndex] = updatedSeparatorRow;
+  }
+  updatedData = dataArray.reduce((acc, cur) => ({ ...acc, [cur.id]: cur }), {});
+  return updatedData;
+};
+
+const calculateDateRange = (rows: WBSData[]): { minStartDate?: string; maxEndDate?: string } => {
+  let minStartDate: cdate.CDate | undefined;
+  let maxEndDate: cdate.CDate | undefined;
+  rows.forEach(row => {
+    if (isChartRow(row)) {
+      if (row.plannedStartDate && row.plannedEndDate) {
+        const startDate = cdate(row.plannedStartDate);
+        const endDate = cdate(row.plannedEndDate);
+        if (!minStartDate || +startDate < +minStartDate) {
+          minStartDate = startDate;
+        }
+        if (!maxEndDate || +endDate > +maxEndDate) {
+          maxEndDate = endDate;
+        }
+      }
+    } else if (isEventRow(row)) {
+      row.eventData.forEach(event => {
+        if (event.startDate && event.endDate) {
+          const startDate = cdate(event.startDate);
+          const endDate = cdate(event.endDate);
+          if (!minStartDate || +startDate < +minStartDate) {
+            minStartDate = startDate;
+          }
+          if (!maxEndDate || +endDate > +maxEndDate) {
+            maxEndDate = endDate;
+          }
+        }
+      });
+    }
+  });
+  return {
+    minStartDate: minStartDate ? minStartDate.format('YYYY-MM-DD') : '',
+    maxEndDate: maxEndDate ? maxEndDate.format('YYYY-MM-DD') : '',
+  };
+};

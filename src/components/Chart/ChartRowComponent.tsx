@@ -1,7 +1,7 @@
 import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
+import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, pushPastState, removePastState, updateSeparatorDates } from '../../reduxStoreAndSlices/store';
 import { addPlannedDays } from '../../utils/CommonUtils';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
@@ -294,6 +294,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     setIsBarStartDragging(null);
     setInitialMouseX(null);
     setCanGridRefDrag(true);
+    dispatch(updateSeparatorDates());
   }, [dispatch, isBarDragging, isBarEndDragging, isBarStartDragging, localActualEndDate, localActualStartDate, localPlannedEndDate, localPlannedStartDate, setCanGridRefDrag, syncToStore]);
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
@@ -315,6 +316,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         setLocalPlannedEndDate(null);
         dispatch(setPlannedStartDate({ id: entry.id, startDate: '' }));
         dispatch(setPlannedEndDate({ id: entry.id, endDate: '' }));
+        dispatch(updateSeparatorDates());
       } else if (barType === 'actual') {
         setLocalActualStartDate(null);
         setLocalActualEndDate(null);

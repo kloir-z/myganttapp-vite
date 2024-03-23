@@ -2,7 +2,7 @@
 import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
+import { updateEventRow, pushPastState, removePastState, updateSeparatorDates } from '../../reduxStoreAndSlices/store';
 import { ChartBar } from './ChartBar';
 import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
@@ -288,6 +288,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setIsBarStartDragging(false);
     setInitialMouseX(null);
     setCanGridRefDrag(true);
+    dispatch(updateSeparatorDates());
   };
 
   const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {

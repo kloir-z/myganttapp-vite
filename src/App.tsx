@@ -372,6 +372,7 @@ function App() {
                         key={key}
                         entry={entry}
                         topPosition={topPosition}
+                        dateArray={dateArray}
                       />
                     );
                   } else if (isEventRow(entry)) {
@@ -404,7 +405,7 @@ function App() {
               className="horizontal-indicator"
               style={{
                 width: '100vw',
-                height: '0.5px',
+                height: '0.6px',
                 backgroundColor: 'rgba(59, 42, 255, 0.609)',
                 position: 'absolute',
                 left: 0,
