@@ -193,16 +193,23 @@ const WBSInfo: React.FC = memo(() => {
   }, [data]);
 
   const handleFocusLocationChanging = useCallback((location: CellLocation) => {
-    const currentColumnIndex = columns.findIndex(column => column.columnId === isSeparatorRowFocusedRef.current?.column);
-    const newColumnIndex = columns.findIndex(column => column.columnId === location.columnId);
-    const rowData = data[location.rowId.toString()];
-    if (rowData && isSeparatorRowFocusedRef.current && isSeparatorRow(rowData)) {
-      if (newColumnIndex === 0 && currentColumnIndex === 1 && !rowData.isCollapsed) {
-        dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: true }));
-        return false;
-      } else if (newColumnIndex === 2 && currentColumnIndex === 1 && rowData.isCollapsed) {
-        dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
-        return false;
+    if (isSeparatorRowFocusedRef.current?.row === location.rowId) {
+      const currentColumnIndex = columns.findIndex(column => column.columnId === isSeparatorRowFocusedRef.current?.column);
+      const newColumnIndex = columns.findIndex(column => column.columnId === location.columnId);
+      const rowData = data[location.rowId.toString()];
+      if (rowData && isSeparatorRowFocusedRef.current && isSeparatorRow(rowData)) {
+        if (newColumnIndex === 0 && currentColumnIndex === 1 && !rowData.isCollapsed) {
+          dispatch(pushPastState());
+          dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: true }));
+          return false;
+        } else if (newColumnIndex > currentColumnIndex && currentColumnIndex === 1 && rowData.isCollapsed) {
+          if (newColumnIndex === 2) {
+          console.log(newColumnIndex)
+            dispatch(pushPastState());
+            dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
+          }
+          return false;
+        }
       }
     }
     return true;
