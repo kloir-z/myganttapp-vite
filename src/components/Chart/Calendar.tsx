@@ -31,12 +31,10 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
-      if (event.shiftKey) {
-        const delta = event.deltaY < 0 ? 0.5 : -0.5;
-        const newCellWidth = Math.min(Math.max(cellWidth + delta, 3), 21);
-        dispatch(setCellWidth(newCellWidth));
-        event.preventDefault();
-      }
+      const delta = event.deltaY < 0 ? 0.5 : -0.5;
+      const newCellWidth = Math.min(Math.max(cellWidth + delta, 3), 21);
+      dispatch(setCellWidth(newCellWidth));
+      event.preventDefault();
     };
 
     const calendarElement = calendarRef.current;
@@ -57,7 +55,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
         <>
           {`Current Cell Width: ${cellWidth}px`}
           <br />
-          {'Shift + MouseWheel to change size(3-21px).'}
+          {'MouseWheel to change size(3-21px).'}
         </>
       }
       plugins={[followCursor]}
