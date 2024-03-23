@@ -2,7 +2,7 @@ import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from '
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
 import { setPlannedStartDate, setPlannedEndDate, setPlannedStartAndEndDate, setActualStartDate, setActualEndDate, setActualStartAndEndDate, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
-import { addPlannedDays } from '../utils/CommonUtils';
+import { addPlannedDays } from '../../utils/CommonUtils';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';

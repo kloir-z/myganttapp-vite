@@ -1,6 +1,6 @@
 // CalendarUtils.ts
 import { cdate } from "cdate";
-import { ChartRow, WBSData, isChartRow } from "../../types/DataTypes";
+import { ChartRow, WBSData, isChartRow } from "../types/DataTypes";
 
 export const generateDates = (start: string, end: string): ReturnType<typeof cdate>[] => {
   const startDate = cdate(start);

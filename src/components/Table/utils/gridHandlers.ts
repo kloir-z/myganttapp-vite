@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import { setEntireData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
-import { calculatePlannedDays, addPlannedDays } from "../../utils/CommonUtils";
+import { calculatePlannedDays, addPlannedDays } from "../../../utils/CommonUtils";
 
 type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;
 

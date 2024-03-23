@@ -1,6 +1,6 @@
 import { assignIds } from "../components/Table/utils/wbsHelpers";
 import { WBSData, ChartRow, SeparatorRow, EventRow } from "../types/DataTypes";
-import { addPlannedDays, calculatePlannedDays } from "../components/utils/CommonUtils";
+import { addPlannedDays, calculatePlannedDays } from "../utils/CommonUtils";
 import { initialHolidayInput } from "./initialHolidays";
 import { updateHolidays } from "../components/Setting/utils/settingHelpers";
 import { cdate } from "cdate";

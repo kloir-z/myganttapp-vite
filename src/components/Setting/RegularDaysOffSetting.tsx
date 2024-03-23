@@ -5,7 +5,7 @@ import { updateRegularDaysOffSetting } from "../../reduxStoreAndSlices/store";
 import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
 import { RegularDaysOffSetting } from "../../types/DataTypes";
-import { adjustColorOpacity } from "../utils/CommonUtils";
+import { adjustColorOpacity } from "../../utils/CommonUtils";
 
 const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
 

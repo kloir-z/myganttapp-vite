@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { generateDates } from '../components/utils/CommonUtils';
+import { generateDates } from '../utils/CommonUtils';
 import { initialHolidayInput } from './initialHolidays';
 import { subWeeks, addMonths, format } from 'date-fns';
 

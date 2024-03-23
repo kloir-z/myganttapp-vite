@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { RootState } from '../../reduxStoreAndSlices/store';
-import { isHoliday } from '../utils/CommonUtils';
+import { isHoliday } from '../../utils/CommonUtils';
 import { GanttRow, CalendarCell } from '../../styles/GanttStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
