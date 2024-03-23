@@ -203,11 +203,8 @@ const WBSInfo: React.FC = memo(() => {
           dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: true }));
           return false;
         } else if (newColumnIndex > currentColumnIndex && currentColumnIndex === 1 && rowData.isCollapsed) {
-          if (newColumnIndex === 2) {
-          console.log(newColumnIndex)
-            dispatch(pushPastState());
-            dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
-          }
+          dispatch(pushPastState());
+          dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
           return false;
         }
       }
