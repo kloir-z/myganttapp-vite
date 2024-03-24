@@ -8,7 +8,7 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState, toggleSeparatorRowExpanded } from '../../reduxStoreAndSlices/store';
+import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState, toggleSeparatorCollapsed } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
@@ -200,11 +200,11 @@ const WBSInfo: React.FC = memo(() => {
       if (rowData && isSeparatorRowFocusedRef.current && isSeparatorRow(rowData)) {
         if (newColumnIndex === 0 && currentColumnIndex === 1 && !rowData.isCollapsed) {
           dispatch(pushPastState());
-          dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: true }));
+          dispatch(toggleSeparatorCollapsed({ id: location.rowId.toString(), isCollapsed: true }));
           return false;
         } else if (newColumnIndex > currentColumnIndex && currentColumnIndex === 1 && rowData.isCollapsed) {
           dispatch(pushPastState());
-          dispatch(toggleSeparatorRowExpanded({ id: location.rowId.toString(), isCollapsed: false }));
+          dispatch(toggleSeparatorCollapsed({ id: location.rowId.toString(), isCollapsed: false }));
           return false;
         }
       }

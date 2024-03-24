@@ -91,25 +91,7 @@ export const wbsDataSlice = createSlice({
       }
       state.data = updatedData;
     },
-    setPlannedStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
-      const { id, startDate } = action.payload;
-      const chartRow = state.data[id];
-      if (isChartRow(chartRow)) {
-        chartRow.plannedStartDate = startDate;
-        chartRow.plannedDays = calculatePlannedDays(startDate, chartRow.plannedEndDate, state.holidays, chartRow.isIncludeHolidays, state.regularDaysOff);
-        updateDependentRows(state, id, startDate, chartRow.plannedEndDate);
-      }
-    },
-    setPlannedEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
-      const { id, endDate } = action.payload;
-      const chartRow = state.data[id];
-      if (isChartRow(chartRow)) {
-        chartRow.plannedEndDate = endDate;
-        chartRow.plannedDays = calculatePlannedDays(chartRow.plannedStartDate, endDate, state.holidays, chartRow.isIncludeHolidays, state.regularDaysOff);
-        updateDependentRows(state, id, chartRow.plannedStartDate, endDate);
-      }
-    },
-    setPlannedStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+    setPlannedDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       const { id, startDate, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -117,23 +99,11 @@ export const wbsDataSlice = createSlice({
         chartRow.plannedEndDate = endDate;
         chartRow.plannedDays = calculatePlannedDays(startDate, endDate, state.holidays, chartRow.isIncludeHolidays, state.regularDaysOff);
         updateDependentRows(state, id, startDate, endDate);
+        const updatedData = updateSeparatorRowDates(state.data);
+        state.data = updatedData;
       }
     },
-    setActualStartDate: (state, action: PayloadAction<{ id: string; startDate: string }>) => {
-      const { id, startDate } = action.payload;
-      const chartRow = state.data[id];
-      if (isChartRow(chartRow)) {
-        chartRow.actualStartDate = startDate;
-      }
-    },
-    setActualEndDate: (state, action: PayloadAction<{ id: string; endDate: string }>) => {
-      const { id, endDate } = action.payload;
-      const chartRow = state.data[id];
-      if (isChartRow(chartRow)) {
-        chartRow.actualEndDate = endDate;
-      }
-    },
-    setActualStartAndEndDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
+    setActualDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       const { id, startDate, endDate } = action.payload;
       const chartRow = state.data[id];
       if (isChartRow(chartRow)) {
@@ -147,7 +117,7 @@ export const wbsDataSlice = createSlice({
         state.data[id].displayName = displayName;
       }
     },
-    toggleSeparatorRowExpanded: (state, action: PayloadAction<{ id: string; isCollapsed?: boolean }>) => {
+    toggleSeparatorCollapsed: (state, action: PayloadAction<{ id: string; isCollapsed?: boolean }>) => {
       const { id, isCollapsed } = action.payload;
       const separatorRow = state.data[id];
       if (isSeparatorRow(separatorRow)) {
@@ -260,14 +230,10 @@ export const wbsDataSlice = createSlice({
 
 export const {
   setEntireData,
-  setPlannedStartDate,
-  setPlannedEndDate,
-  setPlannedStartAndEndDate,
-  setActualStartDate,
-  setActualEndDate,
-  setActualStartAndEndDate,
+  setPlannedDate,
+  setActualDate,
   setDisplayName,
-  toggleSeparatorRowExpanded,
+  toggleSeparatorCollapsed,
   setHolidays,
   setEventDisplayName,
   updateEventRow,

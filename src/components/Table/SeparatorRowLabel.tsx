@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { SeparatorRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { toggleSeparatorRowExpanded } from '../../reduxStoreAndSlices/store';
+import { toggleSeparatorCollapsed } from '../../reduxStoreAndSlices/store';
 import { MdExpandMore, MdChevronRight } from 'react-icons/md';
 
 interface SeparatorRowLabelProps {
@@ -24,7 +24,7 @@ const SeparatorRowLabelComponent: React.FC<SeparatorRowLabelProps> = memo(({ ent
           cursor: 'pointer',
           zIndex: '1',
         }}
-        onClick={() => dispatch(toggleSeparatorRowExpanded({ id: entry.id }))}
+        onClick={() => dispatch(toggleSeparatorCollapsed({ id: entry.id }))}
       >
         {isCollapsed ? <MdChevronRight /> : <MdExpandMore />}
       </div>
