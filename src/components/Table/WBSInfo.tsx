@@ -130,26 +130,11 @@ const WBSInfo: React.FC = memo(() => {
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
-    let movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
-    const extendedIndexes: number[] = [];
-    for (const index of movingRowsIndexes) {
-      if (isSeparatorRow(dataArray[index])) {
-        let nextSeparatorIndex = dataArray.slice(index + 1).findIndex(data => isSeparatorRow(data));
-        if (nextSeparatorIndex !== -1) {
-          nextSeparatorIndex += index + 1;
-        } else {
-          nextSeparatorIndex = dataArray.length;
-        }
-        for (let i = index; i < nextSeparatorIndex; i++) {
-          if (!extendedIndexes.includes(i)) {
-            extendedIndexes.push(i);
-          }
-        }
-      }
-    }
-    movingRowsIndexes = [...new Set([...movingRowsIndexes, ...extendedIndexes])];
+    const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
     const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
+
     const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
+
     dispatch(setEntireData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 
