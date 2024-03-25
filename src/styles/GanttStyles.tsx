@@ -22,7 +22,7 @@ export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
     left: $left ? `${$left}px` : '',
     width: $width ? `${$width}px` : '21.1px',
   },
-}))<CellProps>`
+})) <CellProps>`
   position: absolute;
   box-sizing: border-box;
   font-size: 0.8rem;
@@ -50,6 +50,7 @@ export const CalendarCell = styled.div<CalendarCellProps>`
   justify-content: center;
   box-sizing: border-box;
   font-size: 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   height: 20px;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';

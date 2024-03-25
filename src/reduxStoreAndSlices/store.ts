@@ -165,7 +165,7 @@ export const wbsDataSlice = createSlice({
       state.showYear = action.payload;
       state.columns = state.columns.map(column => {
         if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(column.columnId)) {
-          return { ...column, width: action.payload ? 75 : 40 };
+          return { ...column, width: action.payload ? 90 : 50 };
         }
         return column;
       });
