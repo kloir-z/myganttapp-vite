@@ -1,5 +1,5 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo, memo, useRef } from 'react';
+import React, { useCallback, useMemo, memo } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
@@ -8,9 +8,10 @@ import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAdd
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState, toggleSeparatorCollapsed } from '../../reduxStoreAndSlices/store';
+import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
+import { SeparatorCell, SeparatorCellTemplate } from './utils/SeparatorCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
 import { useWBSData } from './hooks/useWBSData';
 
@@ -22,7 +23,6 @@ const WBSInfo: React.FC = memo(() => {
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
-  const isSeparatorRowFocusedRef = useRef<{ row: string, column: string }>();
   const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
@@ -30,14 +30,15 @@ const WBSInfo: React.FC = memo(() => {
 
   const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
   const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
-  const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell>[] => {
+  const separatorCellTemplate = useMemo(() => new SeparatorCellTemplate(), [])
+  const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell | SeparatorCell>[] => {
     let collapseSection = false;
     return [
       headerRow,
       ...data.flatMap((item) => {
         if (isSeparatorRow(item)) {
           collapseSection = item.isCollapsed;
-          return createSeparatorRow(item, visibleColumns.length);
+          return createSeparatorRow(item, visibleColumns);
         } else if (!collapseSection && isChartRow(item)) {
           return createChartRow(item, visibleColumns);
         } else if (!collapseSection && isEventRow(item)) {
@@ -169,34 +170,6 @@ const WBSInfo: React.FC = memo(() => {
     return targetRowId !== 'header';
   }, []);
 
-  const handleFocusLocationChanged = useCallback((location: CellLocation) => {
-    if (isSeparatorRow(data[location.rowId.toString()])) {
-      isSeparatorRowFocusedRef.current = { row: location.rowId.toString(), column: location.columnId.toString() }
-    } else {
-      isSeparatorRowFocusedRef.current = undefined;
-    }
-  }, [data]);
-
-  const handleFocusLocationChanging = useCallback((location: CellLocation) => {
-    if (isSeparatorRowFocusedRef.current?.row === location.rowId) {
-      const currentColumnIndex = columns.findIndex(column => column.columnId === isSeparatorRowFocusedRef.current?.column);
-      const newColumnIndex = columns.findIndex(column => column.columnId === location.columnId);
-      const rowData = data[location.rowId.toString()];
-      if (rowData && isSeparatorRowFocusedRef.current && isSeparatorRow(rowData)) {
-        if (newColumnIndex === 0 && currentColumnIndex === 1 && !rowData.isCollapsed) {
-          dispatch(pushPastState());
-          dispatch(toggleSeparatorCollapsed({ id: location.rowId.toString(), isCollapsed: true }));
-          return false;
-        } else if (newColumnIndex > currentColumnIndex && currentColumnIndex === 1 && rowData.isCollapsed) {
-          dispatch(pushPastState());
-          dispatch(toggleSeparatorCollapsed({ id: location.rowId.toString(), isCollapsed: false }));
-          return false;
-        }
-      }
-    }
-    return true;
-  }, [columns, data, dispatch]);
-
   return (
     <ReactGrid
       rows={rows}
@@ -212,9 +185,7 @@ const WBSInfo: React.FC = memo(() => {
       onRowsReordered={handleRowsReorder}
       onColumnsReordered={handleColumnsReorder}
       canReorderRows={handleCanReorderRows}
-      onFocusLocationChanged={handleFocusLocationChanged}
-      onFocusLocationChanging={handleFocusLocationChanging}
-      customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate }}
+      customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate, separator: separatorCellTemplate }}
       minColumnWidth={10}
     />
   );

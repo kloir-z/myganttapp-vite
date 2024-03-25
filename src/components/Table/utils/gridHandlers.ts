@@ -6,8 +6,9 @@ import { setEntireData, ExtendedColumn } from '../../../reduxStoreAndSlices/stor
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
 import { calculatePlannedDays, addPlannedDays } from "../../../utils/CommonUtils";
+import { SeparatorCell } from "./SeparatorCell";
 
-type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell;
+type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell | SeparatorCell;
 
 export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSData }, changes: CellChange<AllCellTypes>[], columns: ExtendedColumn[], holidays: string[], regularDaysOff: number[]) => {
   const updatedData = { ...data };
@@ -21,12 +22,13 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
     if (isSeparatorRow(rowData) && change.columnId === secondVisibleColumnId) {
       const newCell = change.newCell;
 
-      if (newCell.type === 'customText') {
-        const customTextCell = newCell as CustomTextCell;
-        const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
+      if (newCell.type === 'separator') {
+        const separatorCell = newCell as SeparatorCell;
+        const updatedText = typeof separatorCell.text === 'string' ? separatorCell.text.trim() : separatorCell.text;
         updatedData[rowId] = {
           ...rowData,
-          displayName: updatedText
+          displayName: updatedText,
+          isCollapsed: newCell.isCollapsed
         };
       }
     }

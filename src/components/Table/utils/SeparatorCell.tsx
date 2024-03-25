@@ -1,50 +1,58 @@
-// CustomTextCellTemplate.tsx
+// SeparatorCell.tsx
 import * as React from "react";
 import { CellTemplate, Compatible, Uncertain, UncertainCompatible, keyCodes, Cell } from "@silevis/reactgrid";
 import { isAlphaNumericKey, isNavigationKey, inNumericKey } from "@silevis/reactgrid";
 import "../css/CustomTextCellTemplate.css";
 
-export interface CustomTextCell extends Cell {
-  type: 'customText';
+export interface SeparatorCell extends Cell {
+  type: 'separator';
   text: string;
   value: number;
   columnWidth?: number;
+  isCollapsed: boolean;
 }
 
-export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
+export class SeparatorCellTemplate implements CellTemplate<SeparatorCell> {
   private wasEscKeyPressed = false;
 
-  getCompatibleCell(uncertainCell: Uncertain<CustomTextCell>): Compatible<CustomTextCell> {
+  getCompatibleCell(uncertainCell: Uncertain<SeparatorCell>): Compatible<SeparatorCell> {
     const text = uncertainCell.text || '';
     const value = text.length;
-    return { ...uncertainCell, text, value };
+    const isCollapsed = uncertainCell.isCollapsed || false;
+    return { ...uncertainCell, text, value, isCollapsed };
   }
 
   handleKeyDown(
-    cell: Compatible<CustomTextCell>,
+    cell: Compatible<SeparatorCell>,
     keyCode: number,
     _ctrl: boolean,
     _shift: boolean,
     _alt: boolean,
     key?: string
-  ): { cell: Compatible<CustomTextCell>; enableEditMode: boolean } {
+  ): { cell: Compatible<SeparatorCell>; enableEditMode: boolean } {
     if (keyCode === keyCodes.POINTER || keyCode === keyCodes.F2) {
       return { cell, enableEditMode: true };
     }
     if (key && inNumericKey(keyCode)) {
       return { cell: { ...cell, text: key }, enableEditMode: true };
     }
+    if (keyCode === keyCodes.RIGHT_ARROW && cell.isCollapsed) {
+      return { cell: { ...cell, isCollapsed: false }, enableEditMode: false };
+    }
+    if (keyCode === keyCodes.LEFT_ARROW && !cell.isCollapsed) {
+      return { cell: { ...cell, isCollapsed: true }, enableEditMode: false };
+    }
     return { cell, enableEditMode: false };
   }
 
-  update(cell: Compatible<CustomTextCell>, cellToMerge: UncertainCompatible<CustomTextCell>): Compatible<CustomTextCell> {
-    return this.getCompatibleCell({ ...cell, text: cellToMerge.text });
+  update(cell: Compatible<SeparatorCell>, cellToMerge: UncertainCompatible<SeparatorCell>): Compatible<SeparatorCell> {
+    return this.getCompatibleCell({ ...cell, text: cellToMerge.text, isCollapsed: cellToMerge.isCollapsed });
   }
 
   render(
-    cell: Compatible<CustomTextCell>,
+    cell: Compatible<SeparatorCell>,
     isInEditMode: boolean,
-    onCellChanged: (cell: Compatible<CustomTextCell>, commit: boolean) => void
+    onCellChanged: (cell: Compatible<SeparatorCell>, commit: boolean) => void
   ): React.ReactNode {
     if (isInEditMode) {
       const columnWidth = cell.columnWidth ? cell.columnWidth - 21 : 80;

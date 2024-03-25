@@ -3,9 +3,10 @@ import { ChartRow, SeparatorRow, EventRow } from '../../../types/DataTypes';
 import { Row, DefaultCellTypes, NumberCell, CheckboxCell, Column } from "@silevis/reactgrid";
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from './CustomTextCell';
+import { SeparatorCell } from './SeparatorCell';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fillEmptyCells = (cells: (NumberCell | CheckboxCell | CustomTextCell | CustomDateCell)[], columnCount: number, style?: any) => {
+const fillEmptyCells = (cells: (NumberCell | CheckboxCell | CustomTextCell | CustomDateCell | SeparatorCell)[], columnCount: number, style?: any) => {
   while (cells.length < columnCount) {
     const emptyCell: CustomTextCell = { type: "customText", text: "", value: NaN, style };
     cells.push(emptyCell);
@@ -62,11 +63,11 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
   return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };
 };
 
-export const createSeparatorRow = (separatorRow: SeparatorRow, columnCount: number): Row<DefaultCellTypes | CustomTextCell> => {
-  const rowCells: (NumberCell | CustomTextCell)[] = [
+export const createSeparatorRow = (separatorRow: SeparatorRow, columns: Column[]): Row<DefaultCellTypes | SeparatorCell> => {
+  const rowCells: (NumberCell | SeparatorCell)[] = [
     { type: "number", value: separatorRow.no, style: { background: 'rgba(128, 128, 128, 0.1)' } },
-    { type: "customText", text: separatorRow.displayName, value: NaN, style: { color: 'transparent', background: '#ddedff' } }
+    { type: "separator", text: separatorRow.displayName, value: NaN, isCollapsed: separatorRow.isCollapsed, style: { color: 'transparent', background: '#ddedff' } }
   ];
-  fillEmptyCells(rowCells, columnCount, { background: '#ddedff' });
+  fillEmptyCells(rowCells, columns.length, { background: '#ddedff' });
   return { rowId: separatorRow.id, height: 21, cells: rowCells, reorderable: true };
 };

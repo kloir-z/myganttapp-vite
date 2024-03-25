@@ -36,6 +36,12 @@
   font-size: 0.8rem;
 }
 
+.rg-separator-celleditor {
+  width: auto !important;
+  left: 55px !important;
+  background-color: aliceblue;
+}
+
 .rg-customText-celleditor {
   width: auto !important;
   background-color: aliceblue;
