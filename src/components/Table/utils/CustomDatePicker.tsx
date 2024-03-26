@@ -84,9 +84,10 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
             '& .MuiInputBase-input': {
               zIndex: '9',
               height: '18px',
-              fontSize: '0.8rem',
               padding: '2px 4px',
-              width: '80px',
+              width: '77px',
+              fontSize: '0.73rem',
+              fontFamily: 'Meiryo'
             },
             '& .MuiButtonBase-root': {
               zIndex: '9',
@@ -95,6 +96,12 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
             },
             '& .MuiSvgIcon-root': {
               fontSize: '1.1rem',
+            },
+            '& .MuiInputAdornment-root': {
+              marginLeft: '0px',
+            },
+            '& .MuiInputBase-root': {
+              paddingRight: '8px'
             },
           }}
         />

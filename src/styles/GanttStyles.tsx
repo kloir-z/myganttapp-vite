@@ -8,7 +8,6 @@ export const GanttRow = styled.div`
   height: 21px;
   border-bottom: solid 1px #00000016;
   user-select: none;
-  font-size: 0.8em;
 `;
 
 interface CellProps {
@@ -25,7 +24,6 @@ export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
 })) <CellProps>`
   position: absolute;
   box-sizing: border-box;
-  font-size: 0.8rem;
   text-align: center;
   height: 21.5px;
   top: -0.5px;
@@ -49,8 +47,6 @@ export const CalendarCell = styled.div<CalendarCellProps>`
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  font-size: 0.8rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   height: 20px;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
@@ -93,23 +89,8 @@ export const ModalContainer = styled.div<{ fadeStatus: 'in' | 'out' }>`
   background: #ffffff;
   border: solid 1px rgb(83 87 97);
   border-radius: 5px;
-  font-size: 0.8rem;
   z-index: 15;
   ${props => props.fadeStatus === 'out' ? fadeAnimation(1, 0) : fadeAnimation(0, 1)}
   color: #1b1b1b;
   max-height: 90svh;
-`;
-
-export const CloseButton = styled.button`
-  position: absolute;
-  top: 0px;
-  right: 1px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #252525;
-  border: none;
-  background: transparent;
-  &:hover {
-    color: #9b9b9b;
-  }
 `;

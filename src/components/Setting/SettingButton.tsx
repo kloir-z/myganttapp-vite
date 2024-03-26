@@ -26,7 +26,7 @@ export const AnimatedCog = styled(FaCog)`
 `;
 
 export const StyledSettingButton = styled.button`
-  font-size: 0.9em;
+  font-size: 0.9rem;
   padding: 2px;
   background: none;
   border: none;

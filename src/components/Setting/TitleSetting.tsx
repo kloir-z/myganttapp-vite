@@ -15,10 +15,6 @@ const AutoWidthDiv = styled.div`
   box-sizing: border-box;
   overflow: hidden;
   min-width: 2em;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  font-size: 0.8rem;
   font-weight: 600;
   padding: 2px 5px;
   white-space: nowrap;
@@ -34,11 +30,6 @@ const AutoWidthDiv = styled.div`
 const StyledInput = styled.input`
   position: absolute;
   top: 2px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   left: 0;
   color: #000000ed;
   box-sizing: border-box;

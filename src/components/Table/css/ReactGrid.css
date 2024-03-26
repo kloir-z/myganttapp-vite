@@ -1,15 +1,4 @@
-.reactgrid {
-  font-size: 0.8rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .rg-celleditor input {
-  font-size: 0.8rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   border: none;
 }
 

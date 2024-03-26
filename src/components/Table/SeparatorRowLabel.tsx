@@ -23,6 +23,7 @@ const SeparatorRowLabelComponent: React.FC<SeparatorRowLabelProps> = memo(({ ent
           left: '40px', 
           cursor: 'pointer',
           zIndex: '1',
+          fontSize: '1rem'
         }}
         onClick={() => dispatch(toggleSeparatorCollapsed({ id: entry.id }))}
       >
@@ -36,7 +37,6 @@ const SeparatorRowLabelComponent: React.FC<SeparatorRowLabelProps> = memo(({ ent
           padding: '0px 6px', 
           zIndex: '1', 
           pointerEvents: 'none', 
-          fontSize: '0.8rem', 
           whiteSpace: 'nowrap' 
         }}
       >

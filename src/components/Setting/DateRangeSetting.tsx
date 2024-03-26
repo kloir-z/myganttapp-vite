@@ -86,12 +86,12 @@ const DateRangeSetting: React.FC = memo(() => {
                 marginRight: '20px'
               },
               '& .MuiInputBase-input': {
-                fontSize: '0.8rem',
                 padding: '5px',
                 width: '70px',
+                fontSize: '0.73rem',
+                fontFamily: 'Meiryo'
               },
               '& .MuiButtonBase-root': {
-                fontSize: '0.8rem',
                 padding: '3px',
                 margin: '0px'
               },
@@ -107,9 +107,10 @@ const DateRangeSetting: React.FC = memo(() => {
                 padding: '3px'
               },
               '& .MuiInputBase-input': {
-                fontSize: '0.8rem',
                 padding: '5px',
-                width: '70px'
+                width: '70px',
+                fontSize: '0.73rem',
+                fontFamily: 'Meiryo'
               },
               '& .MuiButtonBase-root': {
                 padding: '3px',

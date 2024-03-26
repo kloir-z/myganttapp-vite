@@ -16,10 +16,6 @@ const AutoWidthDiv = styled.div`
   box-sizing: border-box;
   overflow: hidden;
   min-width: 2em;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  font-size: 0.8rem;
   padding: 2px 5px;
   white-space: nowrap;
   opacity: 0;
@@ -38,10 +34,6 @@ interface StyledInputProps {
 const StyledReadOnlyInput = styled.input<StyledInputProps>`
   position: absolute;
   top: 0;
-  font-size: 0.8rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   left: 0;
   color: #000000ef;
   box-sizing: border-box;
@@ -57,10 +49,6 @@ const StyledReadOnlyInput = styled.input<StyledInputProps>`
 const StyledInput = styled.input<StyledInputProps>`
   position: absolute;
   top: 0;
-  font-size: 0.8rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Meiryo', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   left: 0;
   color: #000000ef;
   box-sizing: border-box;
@@ -100,24 +88,35 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   });
   const dispatch = useDispatch();
   const [localDisplayName, setLocalDisplayName] = useState(storeDisplayName);
-  const [originalDisplayName, setOriginalDisplayName] = useState('');
   const [isEditingText, setIsEditingText] = useState(false);
+  const originalDisplayNameRef = useRef<string | undefined>(undefined);
   const dummyRef = useRef<HTMLDivElement>(null);
   const placeholder = '    '
 
-  const handleForcus = () => {
+  const handleFocus = () => {
     setIsEditingText(true);
-    setOriginalDisplayName(localDisplayName);
+    originalDisplayNameRef.current = localDisplayName;
     dispatch(pushPastState());
   };
 
   const handleBlur = () => {
-    setIsEditingText(false);
-    if (originalDisplayName === localDisplayName) {
+    if (originalDisplayNameRef.current === localDisplayName) {
       dispatch(removePastState(1));
+      originalDisplayNameRef.current = undefined;
     }
+    setIsEditingText(false);
     syncToStore();
   };
+
+  useEffect(() => {
+    if (isBarDragged && originalDisplayNameRef.current === localDisplayName) {
+      dispatch(removePastState(1));
+      originalDisplayNameRef.current = undefined;
+    }
+    setIsEditingText(false);
+    syncToStore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBarDragged]);
 
   useEffect(() => {
     if (dummyRef.current) {
@@ -130,7 +129,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   };
 
   useEffect(() => {
-    if (!isEditingText) { setLocalDisplayName(storeDisplayName) }
+    setLocalDisplayName(storeDisplayName)
   }, [storeDisplayName, isEditingText]);
 
   const syncToStore = useCallback(() => {
@@ -164,6 +163,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
           type="text"
           readOnly={true}
           value={localDisplayName}
+          onBlur={handleBlur}
         />
       ) : (
         <StyledInput
@@ -171,7 +171,7 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
           placeholder={placeholder}
           value={localDisplayName}
           onChange={handleChange}
-          onFocus={handleForcus}
+          onFocus={handleFocus}
           onBlur={handleBlur}
           onDoubleClick={handleDoubleClick}
           onKeyDown={handleKeyDown}
