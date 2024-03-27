@@ -105,16 +105,18 @@ function calculateDependencies({ currentDependency, plannedDays, isIncludeHolida
   switch (dependencyParts[0].trim()) {
     case 'after': {
       let offsetDays = parseInt(dependencyParts[2], 10);
-      if (isNaN(offsetDays) || offsetDays <= 0) {
+      if (isNaN(offsetDays)) {
         offsetDays = 1;
       }
       if (calculationDirection === 'back') {
         const includeStartDay = false;
-        endDateCdate = subtractPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff);
+        endDateCdate = offsetDays < 0 ? addPlannedDays(baseDate, -offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff) :
+          subtractPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff);
         startDateCdate = subtractPlannedDays(endDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularDaysOff);
       } else { // if (calculationDirection === 'forward')
         const includeStartDay = false;
-        startDateCdate = addPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff);
+        startDateCdate = offsetDays < 0 ? subtractPlannedDays(baseDate, -offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff) :
+          addPlannedDays(baseDate, offsetDays, stateHolidays, isIncludeHolidays, includeStartDay, stateRegularDaysOff);
         endDateCdate = addPlannedDays(startDateCdate, plannedDays, stateHolidays, isIncludeHolidays, !includeStartDay, stateRegularDaysOff);
       }
       break;
