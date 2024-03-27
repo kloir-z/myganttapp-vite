@@ -78,6 +78,19 @@ function App() {
     if (!gridRef.current) return;
   }, []);
 
+  const updateVisibleRange = useCallback(() => {
+    if (!gridRef.current) return;
+    const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval;
+    const adjustedStartIndex = Math.max(0, rawStartIndex);
+    const startIndex = adjustedStartIndex >= renderRowsInterval ? adjustedStartIndex : 0;
+    const rawEndIndex = startIndex + visibleRows + (renderRowsInterval * 2);
+    const endIndex = Math.min(totalRows - 1, rawEndIndex);
+    if (Math.abs(startIndex - prevStartIndexRef.current) >= renderRowsInterval || visibleRange.endIndex < endIndex) {
+      setVisibleRange({ startIndex, endIndex });
+      prevStartIndexRef.current = startIndex;
+    }
+  }, [visibleRows, totalRows, visibleRange.endIndex]);
+
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!gridRef.current) return;
 
@@ -144,17 +157,9 @@ function App() {
       if (isMouseDown) {
         resetDragTimeout();
       }
-      const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval;
-      const adjustedStartIndex = Math.max(0, rawStartIndex);
-      const startIndex = adjustedStartIndex >= renderRowsInterval ? adjustedStartIndex : 0;
-      const rawEndIndex = startIndex + visibleRows + (renderRowsInterval * 2);
-      const endIndex = Math.min(totalRows - 1, rawEndIndex);
-      if ((Math.abs(startIndex - prevStartIndexRef.current) >= renderRowsInterval)) {
-        setVisibleRange({ startIndex, endIndex });
-        prevStartIndexRef.current = startIndex;
-      }
+      updateVisibleRange();
     }
-  }, [isGridRefDragging, isMouseDown, resetDragTimeout, totalRows, visibleRows]);
+  }, [isGridRefDragging, isMouseDown, resetDragTimeout, updateVisibleRange]);
 
   const handleHorizontalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
     if (!isGridRefDragging) {
@@ -264,6 +269,10 @@ function App() {
     updateGridHeight();
     return () => window.removeEventListener('resize', updateGridHeight);
   }, [filteredData]);
+
+  useEffect(() => {
+    updateVisibleRange();
+  }, [gridHeight, updateVisibleRange]);
 
   useEffect(() => {
     const gridElement = gridRef.current;
