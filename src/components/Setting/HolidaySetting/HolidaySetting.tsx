@@ -20,8 +20,9 @@ const HolidaySetting: React.FC = memo(() => {
         value={holidayInput}
         onChange={(e) => dispatch(setHolidayInput(e.target.value))}
         onBlur={handleBlur}
-        style={{ padding: '10px', minWidth: '256px', minHeight: '300px', overflow: 'auto', whiteSpace: 'nowrap', backgroundColor: '#FFF', zIndex: '15', fontSize: '0.73rem', fontFamily: 'Meiryo' }}
+        style={{ position:'absolute', padding: '10px', minWidth: '256px', minHeight: '300px', overflow: 'auto', whiteSpace: 'nowrap', backgroundColor: '#FFF', zIndex: '15', fontSize: '0.73rem', fontFamily: 'Meiryo' }}
       />
+      <div style={{height: '320px'}}></div>
     </SettingChildDiv>
   );
 });

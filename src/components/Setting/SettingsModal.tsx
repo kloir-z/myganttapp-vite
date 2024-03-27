@@ -25,25 +25,24 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   show, onClose
 }) => {
   const dispatch = useDispatch();
-  const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
+  const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
+  const [isDragging, setIsGridRefDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 100, y: 50 });
 
-  const handleShowYearChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleShowYearChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = event.target.checked;
     dispatch(setShowYear(isChecked));
-  };
+  }, [dispatch]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setFadeStatus('out');
     setTimeout(() => {
       setFadeStatus('in');
       onClose();
     }, 210);
-  };
-
-  const [isDragging, setIsGridRefDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
-  const [modalPosition, setModalPosition] = useState<{ x: number, y: number }>({ x: 100, y: 50 });
+  }, [onClose]);
 
   const startDrag = useCallback((e: React.MouseEvent) => {
     setIsGridRefDragging(true);
@@ -68,15 +67,22 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
       newY = Math.min(newY, windowHeight - 50);
 
       setModalPosition({
-        x: Math.round(newX),
-        y: Math.round(newY),
+        x: newX,
+        y: newY,
       });
     }
-  }, [isDragging, dragStart.x, dragStart.y]);
+  }, [isDragging, dragStart]);
 
   const endDrag = useCallback(() => {
     setIsGridRefDragging(false);
   }, []);
+
+  const handleReset = useCallback(() => {
+    dispatch(resetStore());
+    dispatch(resetBaseSettings());
+    dispatch(resetColor());
+    handleClose();
+  }, [dispatch, handleClose]);
 
   useEffect(() => {
     if (isDragging) {
@@ -89,13 +95,6 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     }
   }, [isDragging, onDrag, endDrag]);
 
-  const handleReset = () => {
-    dispatch(resetStore());
-    dispatch(resetBaseSettings());
-    dispatch(resetColor());
-    handleClose();
-  };
-
   return (
     show ?
       <Overlay fadeStatus={fadeStatus} onMouseDown={handleClose}>
@@ -103,7 +102,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           fadeStatus={fadeStatus}
           onMouseDown={e => e.stopPropagation()}
           style={{
-            transform: `translate(${modalPosition.x}px, ${modalPosition.y}px)`
+            left: `${modalPosition.x}px`,
+            top: `${modalPosition.y}px`,
+            position: 'absolute',
           }}
         >
           <div
