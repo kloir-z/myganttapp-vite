@@ -41,7 +41,7 @@ const initialState: {
   columns: initialColumns,
   dependencyMap: buildDependencyMap(initializedDummyData),
   past: [{
-    data: initializedDummyData,
+    data: updateSeparatorRowDates(initializedDummyData),
     columns: initialColumns
   }],
   future: []

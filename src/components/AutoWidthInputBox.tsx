@@ -93,20 +93,40 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
   const dummyRef = useRef<HTMLDivElement>(null);
   const placeholder = '    '
 
-  const handleFocus = () => {
+  const syncToStore = useCallback(() => {
+    if (isEditingText) {
+      if (typeof eventIndex === 'number') {
+        dispatch(setEventDisplayName({ id: entryId, eventIndex, displayName: localDisplayName }));
+      } else {
+        dispatch(setDisplayName({ id: entryId, displayName: localDisplayName }));
+      }
+    }
+  }, [entryId, eventIndex, localDisplayName, dispatch, isEditingText]);
+
+  const handleFocus = useCallback(() => {
     setIsEditingText(true);
     originalDisplayNameRef.current = localDisplayName;
     dispatch(pushPastState());
-  };
+  }, [dispatch, localDisplayName]);
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     if (originalDisplayNameRef.current === localDisplayName) {
       dispatch(removePastState(1));
       originalDisplayNameRef.current = undefined;
     }
     setIsEditingText(false);
     syncToStore();
-  };
+  }, [dispatch, localDisplayName, syncToStore]);
+
+  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleBlur();
+    }
+  }, [handleBlur]);
 
   useEffect(() => {
     if (isBarDragged && originalDisplayNameRef.current === localDisplayName) {
@@ -124,33 +144,13 @@ const AutoWidthInputBox: React.FC<AutoWidthInputBoxProps> = memo(({
     }
   }, [localDisplayName, placeholder]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setLocalDisplayName(e.target.value);
-  };
+  }, []);
 
   useEffect(() => {
     setLocalDisplayName(storeDisplayName)
   }, [storeDisplayName, isEditingText]);
-
-  const syncToStore = useCallback(() => {
-    if (isEditingText) {
-      if (typeof eventIndex === 'number') {
-        dispatch(setEventDisplayName({ id: entryId, eventIndex, displayName: localDisplayName }));
-      } else {
-        dispatch(setDisplayName({ id: entryId, displayName: localDisplayName }));
-      }
-    }
-  }, [entryId, eventIndex, localDisplayName, dispatch, isEditingText]);
-
-  const handleDoubleClick = (e: React.MouseEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleBlur();
-    }
-  };
 
   return (
     <InputWrapper>
