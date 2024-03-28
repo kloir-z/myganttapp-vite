@@ -61,7 +61,7 @@ export const wbsDataSlice = createSlice({
       const data = action.payload;
       let updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
         const row = data[rowId];
-        if (isChartRow(row) && row.dependency) {
+        if (isChartRow(row) && (row.dependency || row.dependentId)) {
           let updatedRowData = validateRowDates(row);
           updatedRowData = updateDependency(row, data, rowId);
           acc[rowId] = updatedRowData;
