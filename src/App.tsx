@@ -151,8 +151,9 @@ function App() {
       setIsGridRefDragging(true);
     }
     if (sourceRef.current && targetRef.current && gridRef.current) {
-      const gridRefScrollTopMax = gridRef.current.scrollHeight - gridRef.current.clientHeight;
-      const scrollTop = Math.min(sourceRef.current.scrollTop, gridRefScrollTopMax);
+      // const gridRefScrollTopMax = gridRef.current.scrollHeight - gridRef.current.clientHeight;
+      // const scrollTop = Math.min(sourceRef.current.scrollTop, gridRefScrollTopMax);
+      const scrollTop = sourceRef.current.scrollTop;
       targetRef.current.scrollTop = scrollTop;
       sourceRef.current.scrollTop = scrollTop;
       if (isMouseDown) {
@@ -319,7 +320,6 @@ function App() {
     setIsSettingsModalOpen(false);
   };
 
-
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
@@ -332,7 +332,7 @@ function App() {
           <Calendar dateArray={dateArray} />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
-        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 24px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
           {filteredData.map(([key, entry], filteredIndex) => {
             if (gridRef.current && isSeparatorRow(entry) && filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
               const topPosition = filteredIndex * 21;
@@ -396,7 +396,7 @@ function App() {
             })}
           </div>
         </div>
-        <div style={{ position: 'fixed', bottom: '0px', left: '3px', fontSize: '0.6rem' }}>
+        <div style={{ position: 'fixed', bottom: '0px', right: '50px', fontSize: '0.6rem' }}>
           <div>Undo: {pastLength - 1}, Redo: {futureLength}</div>
         </div>
       </div>

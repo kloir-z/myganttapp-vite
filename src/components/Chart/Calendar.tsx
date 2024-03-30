@@ -71,7 +71,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          width: `${calendarWidth + 50}px`
+          width: `${calendarWidth + 70}px`
         }}>
         <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
           {dateArray.map((dateString, index) => {
