@@ -332,10 +332,10 @@ function App() {
           <Calendar dateArray={dateArray} />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
-        <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 24px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
+        <div className="hiddenScrollbar" style={{ position: 'absolute', top: `${rowHeight}px`, width: `${wbsWidth}px`, height: `calc(100vh - 31px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
           {filteredData.map(([key, entry], filteredIndex) => {
             if (gridRef.current && isSeparatorRow(entry) && filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
-              const topPosition = filteredIndex * 21;
+              const topPosition = filteredIndex * rowHeight;
               return (
                 <SeparatorRowLabelComponent
                   key={key}
@@ -352,7 +352,7 @@ function App() {
 
         <ResizeBar />
 
-        <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
+        <div style={{ position: 'absolute', top: `${rowHeight * 2}px`, left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - ${rowHeight * 2}px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
           <div style={{ height: `${(filteredData.length * rowHeight)}px`, width: `${(dateArray.length * cellWidth)}px` }}>
             {filteredData.map(([key, entry], filteredIndex) => {
               if (gridRef.current) {
