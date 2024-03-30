@@ -151,7 +151,8 @@ function App() {
       setIsGridRefDragging(true);
     }
     if (sourceRef.current && targetRef.current && gridRef.current) {
-      const scrollTop = Math.min(sourceRef.current.scrollTop, gridRef.current.scrollHeight - sourceRef.current.clientHeight);
+      const gridRefScrollTopMax = gridRef.current.scrollHeight - gridRef.current.clientHeight;
+      const scrollTop = Math.min(sourceRef.current.scrollTop, gridRefScrollTopMax);
       targetRef.current.scrollTop = scrollTop;
       sourceRef.current.scrollTop = scrollTop;
       if (isMouseDown) {
@@ -166,9 +167,7 @@ function App() {
       setIsGridRefDragging(true);
     }
     if (sourceRef.current && targetRef.current) {
-      const maxScrollLeftSource = sourceRef.current.scrollWidth - sourceRef.current.clientWidth;
-      const maxScrollLeftTarget = targetRef.current.scrollWidth - targetRef.current.clientWidth;
-      const scrollLeft = Math.min(sourceRef.current.scrollLeft, maxScrollLeftSource, maxScrollLeftTarget);
+      const scrollLeft = sourceRef.current.scrollLeft;
       targetRef.current.scrollLeft = scrollLeft;
       sourceRef.current.scrollLeft = scrollLeft;
       if (isMouseDown) {
@@ -324,18 +323,13 @@ function App() {
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden' }} ref={calendarRef}>
+        <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden' }}>
           <SettingButton onClick={openSettingsModal} />
-          <SettingsModal
-            show={isSettingsModalOpen}
-            onClose={closeSettingsModal}
-          />
+          <SettingsModal show={isSettingsModalOpen} onClose={closeSettingsModal} />
           <TitleSetting />
         </div>
         <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden', borderLeft: '1px solid #00000066', scrollBehavior: 'auto' }} ref={calendarRef}>
-          <Calendar
-            dateArray={dateArray}
-          />
+          <Calendar dateArray={dateArray} />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
         <div className="hiddenScrollbar" style={{ position: 'absolute', top: '21px', width: `${wbsWidth}px`, height: `calc(100vh - 33px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
@@ -359,7 +353,7 @@ function App() {
         <ResizeBar />
 
         <div style={{ position: 'absolute', top: '42px', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: `calc(100vh - 41px)`, overflow: 'scroll', borderLeft: '1px solid transparent', scrollBehavior: 'auto' }} ref={gridRef}>
-          <div style={{ height: `${(filteredData.length * rowHeight) - 31}px` }}>
+          <div style={{ height: `${(filteredData.length * rowHeight)}px`, width: `${(dateArray.length * cellWidth)}px` }}>
             {filteredData.map(([key, entry], filteredIndex) => {
               if (gridRef.current) {
                 if (filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
