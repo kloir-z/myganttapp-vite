@@ -98,10 +98,18 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         if (updatedText && !updatedText.includes("^^user^^")) {
           updatedText += "^^user^^";
         }
-        updatedData[rowId] = {
-          ...rowData,
-          [fieldName]: updatedText
-        };
+        if (updatedText === '') {
+          updatedData[rowId] = {
+            ...rowData,
+            [fieldName]: updatedText,
+            dependentId: ''
+          };
+        } else {
+          updatedData[rowId] = {
+            ...rowData,
+            [fieldName]: updatedText
+          };
+        }
       } else if (newCell.type === 'customText') {
         const customTextCell = newCell as CustomTextCell;
         const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
