@@ -1,7 +1,7 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo, memo } from 'react';
+import React, { useCallback, useMemo, memo, useState } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
-import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode } from "@silevis/reactgrid";
+import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode, Highlight } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "/src/components/Table/css/ReactGrid.css";
 import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
@@ -24,6 +24,7 @@ const WBSInfo: React.FC = memo(() => {
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
+  const [highlights, setHighlights] = useState<Highlight[]>([]);
   const { headerRow, visibleColumns } = useWBSData();
   const dataArray = useMemo(() => {
     return Object.values(data);
@@ -171,6 +172,33 @@ const WBSInfo: React.FC = memo(() => {
     return targetRowId !== 'header';
   }, []);
 
+  const handleFocusLocationChanged = (location: CellLocation) => {
+    if (location.columnId === "dependency") {
+      const focusedRow = dataArray.find(row => row.id === location.rowId);
+      if (focusedRow && isChartRow(focusedRow)) {
+        const dependentRowId = focusedRow.dependentId;
+        const dependentRow = dataArray.find(row => row.id === dependentRowId);
+        if (dependentRow && isChartRow(dependentRow)) {
+          const dependencyValue = focusedRow.dependency.split(',')[0].toLowerCase().trim();
+          let columnIdToHighlight = "dependency";
+          if (dependencyValue === "after") {
+            columnIdToHighlight = "plannedEndDate";
+          } else if (dependencyValue === "sameas") {
+            columnIdToHighlight = "plannedStartDate";
+          }
+          const newHighlights = [
+            { columnId: columnIdToHighlight, rowId: dependentRow.id, borderColor: "#ff00007f" }
+          ];
+          setHighlights(newHighlights);
+        } else {
+          setHighlights([]);
+        }
+      }
+    } else {
+      setHighlights([]);
+    }
+  };
+
   return (
     <ReactGrid
       rows={rows}
@@ -185,6 +213,8 @@ const WBSInfo: React.FC = memo(() => {
       enableRowSelection
       onRowsReordered={handleRowsReorder}
       onColumnsReordered={handleColumnsReorder}
+      highlights={highlights}
+      onFocusLocationChanged={handleFocusLocationChanged}
       canReorderRows={handleCanReorderRows}
       customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate, separator: separatorCellTemplate }}
       minColumnWidth={10}
