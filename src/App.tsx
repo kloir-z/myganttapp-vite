@@ -228,7 +228,9 @@ function App() {
           /* empty */
         } else {
           const newScrollTop = wbsRef.current.scrollTop + event.deltaY;
+          const newScrollLeft = wbsRef.current.scrollLeft + event.deltaX;
           wbsRef.current.scrollTop = newScrollTop;
+          wbsRef.current.scrollLeft = newScrollLeft;
           event.preventDefault();
         }
       }
@@ -243,7 +245,9 @@ function App() {
           /* empty */
         } else {
           const newScrollTop = gridRef.current.scrollTop + event.deltaY;
+          const newScrollLeft = gridRef.current.scrollLeft + event.deltaX;
           gridRef.current.scrollTop = newScrollTop;
+          gridRef.current.scrollLeft = newScrollLeft;
           event.preventDefault();
         }
       }
