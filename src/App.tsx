@@ -149,12 +149,8 @@ function App() {
     if (!isGridRefDragging) {
       setIsGridRefDragging(true);
     }
-    if (sourceRef.current && targetRef.current && gridRef.current) {
-      // const gridRefScrollTopMax = gridRef.current.scrollHeight - gridRef.current.clientHeight;
-      // const scrollTop = Math.min(sourceRef.current.scrollTop, gridRefScrollTopMax);
-      const scrollTop = sourceRef.current.scrollTop;
-      targetRef.current.scrollTop = scrollTop;
-      sourceRef.current.scrollTop = scrollTop;
+    if (sourceRef.current && targetRef.current) {
+      targetRef.current.scrollTop = sourceRef.current.scrollTop;
       if (isMouseDown) {
         resetDragTimeout();
       }
@@ -167,9 +163,7 @@ function App() {
       setIsGridRefDragging(true);
     }
     if (sourceRef.current && targetRef.current) {
-      const scrollLeft = sourceRef.current.scrollLeft;
-      targetRef.current.scrollLeft = scrollLeft;
-      sourceRef.current.scrollLeft = scrollLeft;
+      targetRef.current.scrollLeft = sourceRef.current.scrollLeft;
       if (isMouseDown) {
         resetDragTimeout();
       }
