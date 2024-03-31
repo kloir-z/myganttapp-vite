@@ -11,38 +11,34 @@ interface SeparatorRowLabelProps {
 
 const SeparatorRowLabelComponent: React.FC<SeparatorRowLabelProps> = memo(({ entry, topPosition }) => {
   const dispatch = useDispatch();
-  const adjustedTopPosition = topPosition + 22;
+  const adjustedTopPosition = topPosition;
   const isCollapsed: boolean = entry.isCollapsed;
 
   return (
-    <>
+    <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: `${adjustedTopPosition}px`, left: '40px', height: '21px' }}>
       <div
-        style={{ 
-          position: 'absolute', 
-          top: `${adjustedTopPosition + 1}px`, 
-          left: '40px', 
+        style={{
+          display: 'flex',
+          alignItems: 'center',
           cursor: 'pointer',
           zIndex: '1',
-          fontSize: '1rem'
+          fontSize: '0.73rem',
         }}
         onClick={() => dispatch(toggleSeparatorCollapsed({ id: entry.id }))}
       >
         {isCollapsed ? <MdChevronRight /> : <MdExpandMore />}
       </div>
-      <span 
-        style={{ 
-          position: 'absolute', 
-          top: `${adjustedTopPosition}px`, 
-          left: '53px', 
-          padding: '0px 6px', 
-          zIndex: '1', 
-          pointerEvents: 'none', 
-          whiteSpace: 'nowrap' 
+      <span
+        style={{
+          padding: '0px 6px',
+          zIndex: '1',
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap'
         }}
       >
         {entry.displayName}
       </span>
-    </>
+    </div>
   );
 });
 

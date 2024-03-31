@@ -16,7 +16,6 @@ import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
 import { generateDates } from './utils/CommonUtils';
-import "./components/Table/css/HiddenScrollBar.css";
 
 function App() {
   const dispatch = useDispatch();
@@ -225,7 +224,39 @@ function App() {
     const gridHandleVertical = () => {
       handleVerticalScroll(gridRef, wbsRef);
     };
+    const wbsHandleWheel = (event: WheelEvent) => {
+      if (wbsRef.current) {
+        if (event.shiftKey) {
+          const newScrollLeft = wbsRef.current.scrollLeft + event.deltaY;
+          wbsRef.current.scrollLeft = newScrollLeft;
+          event.preventDefault();
+        } else if (event.ctrlKey) {
+          /* empty */
+        } else {
+          const newScrollTop = wbsRef.current.scrollTop + event.deltaY;
+          wbsRef.current.scrollTop = newScrollTop;
+          event.preventDefault();
+        }
+      }
+    };
+    const gridHandleWheel = (event: WheelEvent) => {
+      if (gridRef.current) {
+        if (event.shiftKey) {
+          const newScrollLeft = gridRef.current.scrollLeft + event.deltaY;
+          gridRef.current.scrollLeft = newScrollLeft;
+          event.preventDefault();
+        } else if (event.ctrlKey) {
+          /* empty */
+        } else {
+          const newScrollTop = gridRef.current.scrollTop + event.deltaY;
+          gridRef.current.scrollTop = newScrollTop;
+          event.preventDefault();
+        }
+      }
+    };
     if (wbsElement && gridElement) {
+      wbsElement.addEventListener('wheel', wbsHandleWheel, { passive: false });
+      gridElement.addEventListener('wheel', gridHandleWheel, { passive: false });
       wbsElement.addEventListener('scroll', wbsHandleVertical);
       gridElement.addEventListener('scroll', gridHandleVertical);
     }
@@ -235,9 +266,10 @@ function App() {
     if (calendarElement && gridElement) {
       gridElement.addEventListener('scroll', gridHandleHorizontal);
     }
-
     return () => {
       if (wbsElement && gridElement) {
+        wbsElement.removeEventListener('wheel', wbsHandleWheel);
+        gridElement.removeEventListener('wheel', gridHandleWheel);
         wbsElement.removeEventListener('scroll', wbsHandleVertical);
         gridElement.removeEventListener('scroll', gridHandleVertical);
       }
@@ -332,10 +364,10 @@ function App() {
           <Calendar dateArray={dateArray} />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
-        <div className="hiddenScrollbar" style={{ position: 'absolute', top: `${rowHeight}px`, width: `${wbsWidth}px`, height: `calc(100vh - 31px)`, overflowX: 'scroll', scrollBehavior: 'auto' }} ref={wbsRef}>
+        <div style={{ position: 'absolute', top: `${rowHeight}px`, width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll', overflowY: 'hidden', scrollBehavior: 'auto' }} ref={wbsRef}>
           {filteredData.map(([key, entry], filteredIndex) => {
             if (gridRef.current && isSeparatorRow(entry) && filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
-              const topPosition = filteredIndex * rowHeight;
+              const topPosition = (filteredIndex * rowHeight) + rowHeight;
               return (
                 <SeparatorRowLabelComponent
                   key={key}
@@ -396,7 +428,7 @@ function App() {
             })}
           </div>
         </div>
-        <div style={{ position: 'fixed', bottom: '0px', right: '50px', fontSize: '0.6rem' }}>
+        <div style={{ position: 'fixed', bottom: '0px', right: '50px', fontSize: '0.6rem', pointerEvents: 'none' }}>
           <div>Undo: {pastLength - 1}, Redo: {futureLength}</div>
         </div>
       </div>
