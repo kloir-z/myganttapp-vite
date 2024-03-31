@@ -2,7 +2,7 @@
 import CustomDatePicker from "./CustomDatePicker";
 import { CellTemplate, Compatible, Uncertain, UncertainCompatible, keyCodes, Cell } from "@silevis/reactgrid";
 import { standardizeLongDateFormat, standardizeLongDateFormatText, standardizeShortDateFormat } from "./wbsHelpers";
-import { DateFormatType } from "../../../reduxStoreAndSlices/store";
+import { DateFormatType } from "../../../types/DataTypes";
 import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';

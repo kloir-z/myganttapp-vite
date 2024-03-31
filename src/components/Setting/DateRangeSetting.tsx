@@ -63,7 +63,7 @@ const DateRangeSetting: React.FC = memo(() => {
         <LocalizationProvider
           dateFormats={dateFormat === 'yyyy/MM/dd' ? { monthAndYear: 'YYYY / MM' } : undefined}
           dateAdapter={AdapterDayjs}
-          adapterLocale={dateFormat === 'dd/MM/yyyy' ? "en-in" : dateFormat === 'yyyy/MM/dd' ? "en-ca" : "en"}
+          adapterLocale={(dateFormat === 'dd/MM/yyyy' || dateFormat === 'd/M/yyyy') ? "en-in" : (dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? "en-ca" : "en"}
         >
           <DatePicker
             label="Clendar Start"

@@ -1,8 +1,7 @@
 // utils/wbsHelpers.ts
 import { v4 as uuidv4 } from 'uuid';
-import { WBSData } from '../../../types/DataTypes';
+import { DateFormatType, WBSData } from '../../../types/DataTypes';
 import { parse, format } from 'date-fns';
-import { DateFormatType } from '../../../reduxStoreAndSlices/store';
 
 export const assignIds = (data: WBSData[]): { [id: string]: WBSData } => {
   const dataWithIdsAndNos: { [id: string]: WBSData } = {};
@@ -45,9 +44,12 @@ export function standardizeShortDateFormat(dateStr: string, dateFormat: DateForm
     return dateCache.shortFormat.get(dateStr);
   }
   const formatMap = {
-    'yyyy/MM/dd': 'M/d',
-    'MM/dd/yyyy': 'M/d',
-    'dd/MM/yyyy': 'd/M',
+    'yyyy/MM/dd': 'MM/dd',
+    'MM/dd/yyyy': 'MM/dd',
+    'dd/MM/yyyy': 'dd/MM',
+    'yyyy/M/d': 'M/d',
+    'M/d/yyyy': 'M/d',
+    'd/M/yyyy': 'd/M',
   };
 
   const targetFormat = formatMap[dateFormat];
@@ -68,9 +70,12 @@ export function standardizeLongDateFormatText(dateStr: string, dateFormat: DateF
   }
 
   const formatMap = {
-    'yyyy/MM/dd': ['yyyy/M/d', 'yyyy-M-d'],
-    'MM/dd/yyyy': ['M/d/yyyy', 'M-d-yyyy'],
-    'dd/MM/yyyy': ['d/M/yyyy', 'd-M-yyyy']
+    'yyyy/MM/dd': ['yyyy/MM/dd', 'yyyy-MM-dd'],
+    'MM/dd/yyyy': ['MM/dd/yyyy', 'MM-dd-yyyy'],
+    'dd/MM/yyyy': ['dd/MM/yyyy', 'dd-MM-yyyy'],
+    'yyyy/M/d': ['yyyy/M/d', 'yyyy-M-d'],
+    'M/d/yyyy': ['M/d/yyyy', 'M-d-yyyy'],
+    'd/M/yyyy': ['d/M/yyyy', 'd-M-yyyy']
   };
   const targetFormats = formatMap[dateFormat] || [];
   let result = dateStr;
@@ -97,14 +102,17 @@ export function standardizeLongDateFormat(dateStr: string, dateFormat: DateForma
     return dateCache.longFormat.get(dateStr);
   }
   const formatMap = {
-    'yyyy/MM/dd': 'yyyy/M/d',
-    'MM/dd/yyyy': 'M/d/yyyy',
-    'dd/MM/yyyy': 'd/M/yyyy'
+    'yyyy/MM/dd': 'yyyy/MM/dd',
+    'MM/dd/yyyy': 'MM/dd/yyyy',
+    'dd/MM/yyyy': 'dd/MM/yyyy',
+    'yyyy/M/d': 'yyyy/M/d',
+    'M/d/yyyy': 'M/d/yyyy',
+    'd/M/yyyy': 'd/M/yyyy'
   };
   const targetFormat = formatMap[dateFormat];
   let result = dateStr;
 
-  const parsedDate = parse(dateStr, 'yyyy/mm/dd', new Date());
+  const parsedDate = parse(dateStr, 'yyyy/MM/dd', new Date());
   if (!isNaN(parsedDate.getTime())) {
     result = format(parsedDate, targetFormat);
   }

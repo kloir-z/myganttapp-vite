@@ -1,7 +1,7 @@
 // SettingsModal.tsx
 import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setShowYear, resetStore, DateFormatType, setDateFormat } from '../../reduxStoreAndSlices/store';
+import { RootState, setShowYear, resetStore, setDateFormat } from '../../reduxStoreAndSlices/store';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
@@ -15,6 +15,7 @@ import SettingChildDiv from "./SettingChildDiv";
 import { MdOutlineDragIndicator } from "react-icons/md";
 import { resetBaseSettings } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { resetColor } from "../../reduxStoreAndSlices/colorSlice";
+import { DateFormatType } from "../../types/DataTypes";
 
 type SettingsModalProps = {
   show: boolean;
@@ -27,7 +28,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   const dispatch = useDispatch();
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDayFormatChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setDateFormat(event.target.value as DateFormatType));
   };
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
@@ -126,9 +127,12 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <ColumnSetting />
           <SettingChildDiv text='Date Format'>
             <div>
-              <select value={currentFormat} onChange={handleChange}>
+              <select value={currentFormat} onChange={handleDayFormatChange}>
+                <option value="yyyy/M/d">yyyy/M/d</option>
                 <option value="yyyy/MM/dd">yyyy/MM/dd</option>
+                <option value="M/d/yyyy">M/d/yyyy</option>
                 <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+                <option value="d/M/yyyy">d/M/yyyy</option>
                 <option value="dd/MM/yyyy">dd/MM/yyyy</option>
               </select>
             </div>

@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow } from '../types/DataTypes';
+import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType } from '../types/DataTypes';
 import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
@@ -15,7 +15,6 @@ export interface ExtendedColumn extends Column {
   visible: boolean;
 }
 
-export type DateFormatType = "yyyy/MM/dd" | "MM/dd/yyyy" | "dd/MM/yyyy";
 
 interface UndoableState {
   data: { [id: string]: WBSData },

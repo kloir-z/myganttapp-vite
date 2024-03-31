@@ -74,3 +74,5 @@ export type RegularDaysOffSetting = {
   subColor: string;
   days: number[];
 };
+
+export type DateFormatType = "yyyy/MM/dd" | "MM/dd/yyyy" | "dd/MM/yyyy" | "yyyy/M/d" | "M/d/yyyy" | "d/M/yyyy";
