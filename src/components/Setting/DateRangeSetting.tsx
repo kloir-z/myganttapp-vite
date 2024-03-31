@@ -6,9 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/en-ca';
-import 'dayjs/locale/en-in';
-import 'dayjs/locale/en';
 import { setDateRange } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import SettingChildDiv from "./SettingChildDiv";
 
@@ -16,15 +13,8 @@ const DateRangeSetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const { startDate, endDate } = useSelector((state: RootState) => state.baseSettings.dateRange);
-  const browserLocale = navigator.language;
-  let locale;
-  if (["ja", "zh", "ko", "hu"].includes(browserLocale)) {
-    locale = 'en-ca';
-  } else if (["in", "sa", "eu", "au"].includes(browserLocale)) {
-    locale = 'en-in';
-  } else {
-    locale = 'en';
-  }
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
+
   const handleStartDateChange = (date: Dayjs | null) => {
     if (!date || !isValidDateRange(date)) {
       return;
@@ -71,9 +61,9 @@ const DateRangeSetting: React.FC = memo(() => {
     <SettingChildDiv text='Date Range'>
       <div>
         <LocalizationProvider
-          dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
+          dateFormats={dateFormat === 'yyyy/MM/dd' ? { monthAndYear: 'YYYY / MM' } : undefined}
           dateAdapter={AdapterDayjs}
-          adapterLocale={locale}
+          adapterLocale={dateFormat === 'dd/MM/yyyy' ? "en-in" : dateFormat === 'yyyy/MM/dd' ? "en-ca" : "en"}
         >
           <DatePicker
             label="Clendar Start"

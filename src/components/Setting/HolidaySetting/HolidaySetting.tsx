@@ -10,8 +10,9 @@ import SettingChildDiv from "../SettingChildDiv";
 const HolidaySetting: React.FC = memo(() => {
   const dispatch = useDispatch();
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const handleBlur = () => {
-    dispatch(setHolidays(updateHolidays(holidayInput)))
+    dispatch(setHolidays(updateHolidays(holidayInput, dateFormat)))
   };
 
   return (
@@ -20,9 +21,9 @@ const HolidaySetting: React.FC = memo(() => {
         value={holidayInput}
         onChange={(e) => dispatch(setHolidayInput(e.target.value))}
         onBlur={handleBlur}
-        style={{ position:'absolute', padding: '10px', minWidth: '256px', minHeight: '300px', overflow: 'auto', whiteSpace: 'nowrap', backgroundColor: '#FFF', zIndex: '15', fontSize: '0.73rem', fontFamily: 'Meiryo' }}
+        style={{ position: 'absolute', padding: '10px', minWidth: '256px', minHeight: '300px', overflow: 'auto', whiteSpace: 'nowrap', backgroundColor: '#FFF', zIndex: '15', fontSize: '0.73rem', fontFamily: 'Meiryo' }}
       />
-      <div style={{height: '320px'}}></div>
+      <div style={{ height: '320px' }}></div>
     </SettingChildDiv>
   );
 });

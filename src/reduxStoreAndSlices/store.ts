@@ -15,6 +15,8 @@ export interface ExtendedColumn extends Column {
   visible: boolean;
 }
 
+export type DateFormatType = "yyyy/MM/dd" | "MM/dd/yyyy" | "dd/MM/yyyy";
+
 interface UndoableState {
   data: { [id: string]: WBSData },
   columns: ExtendedColumn[],
@@ -29,6 +31,7 @@ const initialState: {
   regularDaysOff: number[],
   columns: ExtendedColumn[],
   showYear: boolean,
+  dateFormat: DateFormatType,
   dependencyMap: { [id: string]: string[] },
   past: UndoableState[],
   future: UndoableState[]
@@ -38,6 +41,8 @@ const initialState: {
   regularDaysOffSetting: initialRegularDaysOffSetting,
   regularDaysOff: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
   showYear: false,
+  // dateFormat: "MM/dd/yyyy",
+  dateFormat: "yyyy/MM/dd",
   columns: initialColumns,
   dependencyMap: buildDependencyMap(initializedDummyData),
   past: [{
@@ -161,6 +166,9 @@ export const wbsDataSlice = createSlice({
       state.regularDaysOff = Array.from(new Set(regularDaysOffSetting.flatMap(setting => setting.days)));
       resetEndDate(state)
     },
+    setDateFormat(state, action: PayloadAction<DateFormatType>) {
+      state.dateFormat = action.payload;
+    },
     setShowYear(state, action: PayloadAction<boolean>) {
       state.showYear = action.payload;
       state.columns = state.columns.map(column => {
@@ -240,6 +248,7 @@ export const {
   updateSeparatorDates,
   updateRegularDaysOffSetting,
   setShowYear,
+  setDateFormat,
   setColumns,
   toggleColumnVisibility,
   handleColumnResize,

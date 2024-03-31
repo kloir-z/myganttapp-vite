@@ -5,10 +5,14 @@ import { RootState } from '../../reduxStoreAndSlices/store';
 import { Cell } from '../../styles/GanttStyles';
 import AutoWidthInputBox from '../AutoWidthInputBox';
 import { cdate } from 'cdate';
+import Tippy from '@tippyjs/react';
+import { followCursor } from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 
 interface ChartBarProps {
   startDate: string | null;
   endDate: string | null;
+  plannedDays?: number | null;
   dateArray: ReturnType<typeof cdate>[];
   isActual: boolean;
   entryId: string;
@@ -21,7 +25,7 @@ interface ChartBarProps {
   onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray, isActual, entryId, eventIndex, chartBarColor, isBarDragged, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
+const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, plannedDays, dateArray, isActual, entryId, eventIndex, chartBarColor, isBarDragged, onBarMouseDown, onBarEndMouseDown, onBarStartMouseDown, onContextMenu }) => {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   if (!startDate || !endDate) {
     return null;
@@ -55,20 +59,35 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, dateArray
           style={{ position: 'absolute', left: `${leftPosition - 6}px`, width: '5px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarStartMouseDown }}
         ></div>
-        <Cell
-          $chartBarColor={chartBarColor}
-          $width={width}
-          $left={leftPosition}
-          {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
+        <Tippy
+          content={
+            <>
+              {`${plannedDays} days`}
+            </>
+          }
+          plugins={[followCursor]}
+          followCursor={true}
+          interactive={true}
+          allowHTML={true}
+          delay={[500, 0]}
+          animation="fade"
+          offset={[0, 20]}
         >
-          {(!isActual && entryId) && (
-            <AutoWidthInputBox
-              entryId={entryId}
-              eventIndex={eventIndex}
-              isBarDragged={isBarDragged}
-            />
-          )}
-        </Cell>
+          <Cell
+            $chartBarColor={chartBarColor}
+            $width={width}
+            $left={leftPosition}
+            {...{ onMouseDown: onBarMouseDown, onContextMenu: onContextMenu }}
+          >
+            {(!isActual && entryId) && (
+              <AutoWidthInputBox
+                entryId={entryId}
+                eventIndex={eventIndex}
+                isBarDragged={isBarDragged}
+              />
+            )}
+          </Cell>
+        </Tippy>
         <div
           style={{ position: 'absolute', left: `${leftPosition + width + 1.5}px`, width: '5px', height: '21px', cursor: 'ew-resize', opacity: 0 }}
           {...{ onMouseDown: onBarEndMouseDown }}

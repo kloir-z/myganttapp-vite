@@ -1,4 +1,4 @@
-import { ExtendedColumn, setColumns, setShowYear } from "../../../reduxStoreAndSlices/store";
+import { DateFormatType, ExtendedColumn, setColumns, setDateFormat, setShowYear } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
 import { WBSData, RegularDaysOffSetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
@@ -20,6 +20,7 @@ export const handleExport = (
   cellWidth: number,
   title: string,
   showYear: boolean,
+  dateFormat: DateFormatType
 ) => {
   const settingsData = {
     colors,
@@ -31,6 +32,7 @@ export const handleExport = (
     wbsWidth,
     title,
     showYear,
+    dateFormat,
     calendarWidth,
     cellWidth,
   };
@@ -107,10 +109,14 @@ export const handleImport = (
           if (parsedData.regularDaysOffSetting) {
             dispatch(updateRegularDaysOffSetting(parsedData.regularDaysOffSetting));
           }
+          if (parsedData.dateFormat) {
+            dispatch(setDateFormat(parsedData.dateFormat));
+          }
           if (parsedData.holidayInput) {
             const newHolidayInput = parsedData.holidayInput;
+            const dateFormat = parsedData.dateFormat;
             dispatch(setHolidayInput(newHolidayInput));
-            dispatch(setHolidays(updateHolidays(newHolidayInput)));
+            dispatch(setHolidays(updateHolidays(newHolidayInput, dateFormat)));
           }
           if (parsedData.data) {
             dispatch(setEntireData(parsedData.data));
@@ -139,17 +145,23 @@ export const handleImport = (
   }
 };
 
-export const updateHolidays = (holidayInput: string) => {
+export const updateHolidays = (holidayInput: string, dateFormat: DateFormatType) => {
+  const regexPatterns = {
+    "yyyy/MM/dd": /(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/,
+    "MM/dd/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/,
+    "dd/MM/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/
+  };
   const newHolidays = holidayInput.split("\n").map(holiday => {
-    const match = holiday.match(/(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/);
+    const match = holiday.match(regexPatterns[dateFormat]);
     if (match) {
-      const [, year, month, day] = match;
+      const [year, month, day] = dateFormat === "yyyy/MM/dd" ? [match[1], match[2], match[3]] :
+        dateFormat === "MM/dd/yyyy" ? [match[3], match[1], match[2]] :
+          [match[3], match[2], match[1]]; // "dd/MM/yyyy"
       const formattedMonth = month.padStart(2, '0');
       const formattedDay = day.padStart(2, '0');
       return `${year}/${formattedMonth}/${formattedDay}`;
     }
     return null;
   }).filter((holiday): holiday is string => holiday !== null);
-
-  return newHolidays
+  return newHolidays;
 };

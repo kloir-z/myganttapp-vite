@@ -43,7 +43,7 @@ const generateRandomDate = (): string => {
 
 const createDummyChartRow = (): ChartRow => {
   const plannedStartDate = generateRandomDate();
-  const holidays: string[] = updateHolidays(initialHolidayInput);
+  const holidays: string[] = updateHolidays(initialHolidayInput, 'yyyy/MM/dd');
   const isIncludeHolidays = false;
   const regularDaysOff: number[] = [0, 6];
   const plannedEndDate = addPlannedDays(plannedStartDate, 5, holidays, isIncludeHolidays, true, regularDaysOff);

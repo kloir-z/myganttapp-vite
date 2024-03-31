@@ -21,6 +21,7 @@ const WBSInfo: React.FC = memo(() => {
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const { headerRow, visibleColumns } = useWBSData();
@@ -28,7 +29,7 @@ const WBSInfo: React.FC = memo(() => {
     return Object.values(data);
   }, [data]);
 
-  const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear), [showYear]);
+  const customDateCellTemplate = useMemo(() => new CustomDateCellTemplate(showYear, dateFormat), [showYear, dateFormat]);
   const customTextCellTemplate = useMemo(() => new CustomTextCellTemplate(), []);
   const separatorCellTemplate = useMemo(() => new SeparatorCellTemplate(), [])
   const getRows = useCallback((data: WBSData[]): Row<DefaultCellTypes | CustomDateCell | CustomTextCell | SeparatorCell>[] => {

@@ -23,7 +23,7 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
     }
     const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, shortDate: '', value: NaN };
+      return { type: "customDate", text: cellValue, longDate: '', shortDate: '', value: NaN };
     }
     else if (columnId === "no") {
       return { type: "number", value: cellValue, style: { background: 'rgba(128, 128, 128, 0.1)' } };
@@ -51,7 +51,7 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
     }
     const columnWidth = column.width || 80;
     if (["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"].includes(columnId)) {
-      return { type: "customDate", text: cellValue, shortDate: '', value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)' } };
+      return { type: "customDate", text: cellValue, longDate: '', shortDate: '', value: NaN, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
     else if (columnId === "no") {
       return { type: "number", value: cellValue, style: { background: 'rgba(128, 128, 128, 0.1)' } };

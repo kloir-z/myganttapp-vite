@@ -20,6 +20,7 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const data = useSelector((state: RootState) => state.wbsData.data);
   const title = useSelector((state: RootState) => state.baseSettings.title);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
@@ -37,7 +38,8 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
       calendarWidth,
       cellWidth,
       title,
-      showYear
+      showYear,
+      dateFormat
     );
   };
 

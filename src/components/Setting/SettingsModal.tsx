@@ -1,7 +1,7 @@
 // SettingsModal.tsx
 import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setShowYear, resetStore } from '../../reduxStoreAndSlices/store';
+import { RootState, setShowYear, resetStore, DateFormatType, setDateFormat } from '../../reduxStoreAndSlices/store';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
@@ -26,6 +26,10 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
 }) => {
   const dispatch = useDispatch();
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
+  const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setDateFormat(event.target.value as DateFormatType));
+  };
   const [fadeStatus, setFadeStatus] = useState<'in' | 'out'>('in');
   const [isDragging, setIsGridRefDragging] = useState(false);
   const [dragStart, setDragStart] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
@@ -120,6 +124,15 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <DateRangeSetting />
           <ColorSetting />
           <ColumnSetting />
+          <SettingChildDiv text='Date Format'>
+            <div>
+              <select value={currentFormat} onChange={handleChange}>
+                <option value="yyyy/MM/dd">yyyy/MM/dd</option>
+                <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+                <option value="dd/MM/yyyy">dd/MM/yyyy</option>
+              </select>
+            </div>
+          </SettingChildDiv>
           <SettingChildDiv text='Date Cell Format'>
             <div>
               <label>M/d</label>

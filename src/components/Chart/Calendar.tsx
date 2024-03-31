@@ -20,14 +20,9 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const calendarRef = useRef<HTMLDivElement>(null);
-  const browserLocale = navigator.language.split('-')[0];
-  let dateFormat: string;
-  if (["ja", "zh", "ko", "hu"].includes(browserLocale)) {
-    dateFormat = 'YYYY/MM';
-  } else {
-    dateFormat = 'MM/YYYY';
-  }
+
 
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
@@ -81,7 +76,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
               previousMonth = month;
               const left = cellWidth * index;
               const isFirstDate = index === 0;
-              const displayDate = dateFormat === 'YYYY/MM' ?
+              const displayDate = dateFormat === 'yyyy/MM/dd' ?
                 `${date.format("YYYY")}/${date.format("MM")}` :
                 `${date.format("MM")}/${date.format("YYYY")}`;
               return (

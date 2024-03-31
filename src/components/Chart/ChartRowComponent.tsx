@@ -35,8 +35,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     const colorInfo = colors.find(c => c.id === 999);
     return colorInfo ? colorInfo.color : '#0000003d';
   }, [colors]);
-  const plannedDays = entry.plannedDays;
-  const isIncludeHolidays = entry.isIncludeHolidays
+  const plannedDays = useMemo(() => { return entry.plannedDays }, [entry.plannedDays]);
+  const isIncludeHolidays = useMemo(() => { return entry.isIncludeHolidays }, [entry.isIncludeHolidays]);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const [localPlannedStartDate, setLocalPlannedStartDate] = useState(entry.plannedStartDate ? entry.plannedStartDate : null);
@@ -332,6 +332,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         <ChartBar
           startDate={localPlannedStartDate}
           endDate={localPlannedEndDate}
+          plannedDays={plannedDays}
           dateArray={dateArray}
           isActual={false}
           entryId={entry.id}

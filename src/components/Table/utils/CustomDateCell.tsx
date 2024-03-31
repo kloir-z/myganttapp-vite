@@ -1,7 +1,8 @@
 // CustomDateCellTemplate.tsx
 import CustomDatePicker from "./CustomDatePicker";
 import { CellTemplate, Compatible, Uncertain, UncertainCompatible, keyCodes, Cell } from "@silevis/reactgrid";
-import { standardizeLongDateFormat, standardizeShortDateFormat } from "./wbsHelpers";
+import { standardizeLongDateFormat, standardizeLongDateFormatText, standardizeShortDateFormat } from "./wbsHelpers";
+import { DateFormatType } from "../../../reduxStoreAndSlices/store";
 import 'dayjs/locale/en-ca';
 import 'dayjs/locale/en-in';
 import 'dayjs/locale/en';
@@ -9,22 +10,27 @@ import 'dayjs/locale/en';
 export interface CustomDateCell extends Cell {
   type: 'customDate';
   text: string;
+  longDate: string;
   shortDate: string;
   value: number;
 }
 
 export class CustomDateCellTemplate implements CellTemplate<CustomDateCell> {
   showYear: boolean;
-  constructor(showYear: boolean) {
+  dateFormat: DateFormatType;
+  constructor(showYear: boolean, dateFormat: DateFormatType) {
     this.showYear = showYear;
+    this.dateFormat = dateFormat;
   }
   getCompatibleCell(uncertainCell: Uncertain<CustomDateCell>): Compatible<CustomDateCell> {
     let text = uncertainCell.text || '';
+    let longDate = ''
     let shortDate = ''
-    text = standardizeLongDateFormat(text) || '';
-    shortDate = standardizeShortDateFormat(text) || '';
+    text = standardizeLongDateFormatText(text, this.dateFormat) || '';
+    longDate = standardizeLongDateFormat(text, this.dateFormat) || '';
+    shortDate = standardizeShortDateFormat(text, this.dateFormat) || '';
     const value = NaN;
-    return { ...uncertainCell, text, shortDate, value };
+    return { ...uncertainCell, text, longDate, shortDate, value };
   }
 
   handleKeyDown(
@@ -56,6 +62,6 @@ export class CustomDateCellTemplate implements CellTemplate<CustomDateCell> {
         />
       );
     }
-    return <span>{this.showYear ? cell.text : cell.shortDate}</span>;
+    return <span>{this.showYear ? cell.longDate : cell.shortDate}</span>;
   }
 }

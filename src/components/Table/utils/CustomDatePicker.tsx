@@ -1,17 +1,17 @@
 // CustomDateCellTemplate.tsx
-import { useState, useEffect, useRef, memo, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { Compatible, Cell } from "@silevis/reactgrid";
 import { isAlphaNumericKey, isNavigationKey } from "@silevis/reactgrid";
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import 'dayjs/locale/en-ca';
-import 'dayjs/locale/en-in';
-import 'dayjs/locale/en';
+import { RootState } from "../../../reduxStoreAndSlices/store";
+import { useSelector } from "react-redux";
 
 export interface CustomDateCell extends Cell {
   type: 'customDate';
   text: string;
+  longDate: string;
   shortDate: string;
   value: number;
 }
@@ -22,19 +22,10 @@ interface CustomDatePickerProps {
 }
 
 const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) => {
+  const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(cell.text));
   const [open, setOpen] = useState(false);
   const datePickerInputRef = useRef<HTMLInputElement>(null);
-  const locale = useMemo(() => {
-    const browserLocale = navigator.language;
-    if (["ja", "zh", "ko", "hu"].includes(browserLocale)) {
-      return 'en-ca';
-    } else if (["in", "sa", "eu", "au"].includes(browserLocale)) {
-      return 'en-in';
-    } else {
-      return 'en';
-    }
-  }, []);
 
   useEffect(() => {
     if (datePickerInputRef.current) {
@@ -46,7 +37,7 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
   const handleClose = useCallback(() => setOpen(false), []);
   const onChange = useCallback((newDate: Dayjs | null) => {
     setSelectedDate(newDate);
-    const newDateString = newDate ? newDate.format("YYYY-MM-DD") : "";
+    const newDateString = newDate ? newDate.format("YYYY/MM/DD") : "";
     onCellChanged({ ...cell, text: newDateString }, false);
   }, [cell, onCellChanged]);
 
@@ -61,9 +52,9 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
       style={{ position: 'absolute', top: '-2px', left: '-2px' }}
     >
       <LocalizationProvider
-        dateFormats={locale === 'en-ca' ? { monthAndYear: 'YYYY / MM' } : undefined}
+        dateFormats={dateFormat === 'yyyy/MM/dd' ? { monthAndYear: 'YYYY / MM' } : undefined}
         dateAdapter={AdapterDayjs}
-        adapterLocale={locale}
+        adapterLocale={dateFormat === 'dd/MM/yyyy' ? "en-in" : dateFormat === 'yyyy/MM/dd' ? "en-ca" : "en"}
       >
         <DatePicker
           inputRef={datePickerInputRef}

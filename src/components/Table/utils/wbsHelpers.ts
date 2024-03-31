@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { WBSData } from '../../../types/DataTypes';
 import { parse, format } from 'date-fns';
+import { DateFormatType } from '../../../reduxStoreAndSlices/store';
 
 export const assignIds = (data: WBSData[]): { [id: string]: WBSData } => {
   const dataWithIdsAndNos: { [id: string]: WBSData } = {};
@@ -34,91 +35,80 @@ export const reorderArray = <T extends { id: string }>(arr: T[], indexesToMove: 
 };
 
 const dateCache = {
+  text: new Map<string, string>(),
   longFormat: new Map<string, string>(),
   shortFormat: new Map<string, string>()
 };
 
-export function standardizeShortDateFormat(dateStr: string) {
+export function standardizeShortDateFormat(dateStr: string, dateFormat: DateFormatType) {
   if (dateCache.shortFormat.has(dateStr)) {
     return dateCache.shortFormat.get(dateStr);
   }
+  const formatMap = {
+    'yyyy/MM/dd': 'M/d',
+    'MM/dd/yyyy': 'M/d',
+    'dd/MM/yyyy': 'd/M',
+  };
 
-  const formats = [
-    'yyyy/MM/dd', 'yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy',
-    'yy/MM/dd', 'yy-MM-dd', 'M/d/yy', 'd/M/yy'
-  ];
+  const targetFormat = formatMap[dateFormat];
   let result = dateStr;
 
-  function getCountryCode(locale: string) {
-    return locale.includes('-') ? locale.split('-')[1].toLowerCase() : locale.toLowerCase();
+  const parsedDate = parse(dateStr, 'yyyy/MM/dd', new Date());
+  if (!isNaN(parsedDate.getTime())) {
+    result = format(parsedDate, targetFormat);
   }
 
-  const browserLocale = navigator.language || 'ja-JP';
-  const countryCode = getCountryCode(browserLocale);
-
-  const ddMMYYYYCountries = ['fr', 'de', 'it', 'es', 'pt', 'ru',
-    'br', 'ar', 'mx', 'pe', 'za', 'ng',
-    'ke', 'in', 'th', 'id', 'au', 'nz'];
-
-  let dateFormat;
-  if (ddMMYYYYCountries.includes(countryCode)) {
-    dateFormat = 'd/M';
-  } else {
-    dateFormat = 'M/d';
-  }
-
-  for (const fmt of formats) {
-    try {
-      let parsedDate = parse(dateStr, fmt, new Date());
-      if (fmt.includes('yy') && !fmt.includes('yyyy')) {
-        parsedDate = adjustCenturyForTwoDigitYear(parsedDate);
-      }
-      if (!isNaN(parsedDate.getTime())) {
-        result = format(parsedDate, dateFormat);
-        break;
-      }
-    } catch (e) {
-      continue;
-    }
-  }
-
-  dateCache.shortFormat.set(dateStr, result);
+  dateCache.shortFormat.set(`${dateFormat}${dateStr}`, result);
   return result;
 }
 
-export function standardizeLongDateFormat(dateStr: string) {
-  if (dateCache.longFormat.has(dateStr)) {
-    return dateCache.longFormat.get(dateStr);
+export function standardizeLongDateFormatText(dateStr: string, dateFormat: DateFormatType) {
+  if (dateCache.text.has(dateStr)) {
+    return dateCache.text.get(dateStr);
   }
 
-  const formats = [
-    'yyyy/MM/dd', 'yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy',
-    'yy/MM/dd', 'yy-MM-dd', 'M/d/yy', 'd/M/yy'
-  ];
+  const formatMap = {
+    'yyyy/MM/dd': ['yyyy/M/d', 'yyyy-M-d'],
+    'MM/dd/yyyy': ['M/d/yyyy', 'M-d-yyyy'],
+    'dd/MM/yyyy': ['d/M/yyyy', 'd-M-yyyy']
+  };
+  const targetFormats = formatMap[dateFormat] || [];
   let result = dateStr;
 
-  for (const fmt of formats) {
+  for (const fmt of targetFormats) {
     try {
-      let parsedDate = parse(dateStr, fmt, new Date());
-      if (fmt.includes('yy') && !fmt.includes('yyyy')) {
-        parsedDate = adjustCenturyForTwoDigitYear(parsedDate);
-      }
+      const parsedDate = parse(dateStr, fmt, new Date());
       if (!isNaN(parsedDate.getTime())) {
         result = format(parsedDate, 'yyyy/M/d');
         break;
       }
     } catch (e) {
+      result = '';
       continue;
     }
   }
 
-  dateCache.longFormat.set(dateStr, result);
+  dateCache.text.set(`${dateFormat}${dateStr}`, result);
   return result;
 }
 
-function adjustCenturyForTwoDigitYear(date: Date) {
-  const currentYear = new Date().getFullYear();
-  const twoDigitYear = date.getFullYear() % 100;
-  const century = Math.floor(currentYear / 100) * 100;
-  return new Date(date.setFullYear(century + twoDigitYear));
+export function standardizeLongDateFormat(dateStr: string, dateFormat: DateFormatType) {
+  if (dateCache.longFormat.has(dateStr)) {
+    return dateCache.longFormat.get(dateStr);
+  }
+  const formatMap = {
+    'yyyy/MM/dd': 'yyyy/M/d',
+    'MM/dd/yyyy': 'M/d/yyyy',
+    'dd/MM/yyyy': 'd/M/yyyy'
+  };
+  const targetFormat = formatMap[dateFormat];
+  let result = dateStr;
+
+  const parsedDate = parse(dateStr, 'yyyy/mm/dd', new Date());
+  if (!isNaN(parsedDate.getTime())) {
+    result = format(parsedDate, targetFormat);
+  }
+
+  dateCache.longFormat.set(`${dateFormat}${dateStr}`, result);
+  return result;
 }
