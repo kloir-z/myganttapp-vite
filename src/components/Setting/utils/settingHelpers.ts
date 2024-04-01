@@ -1,6 +1,6 @@
-import { DateFormatType, ExtendedColumn, setColumns, setDateFormat, setShowYear } from "../../../reduxStoreAndSlices/store";
+import { ExtendedColumn, setColumns, setDateFormat, setShowYear } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
-import { WBSData, RegularDaysOffSetting } from "../../../types/DataTypes";
+import { WBSData, DateFormatType, RegularDaysOffSetting } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularDaysOffSetting, setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
@@ -109,12 +109,15 @@ export const handleImport = (
           if (parsedData.regularDaysOffSetting) {
             dispatch(updateRegularDaysOffSetting(parsedData.regularDaysOffSetting));
           }
+          let dateFormat: DateFormatType;
           if (parsedData.dateFormat) {
             dispatch(setDateFormat(parsedData.dateFormat));
+            dateFormat = parsedData.dateFormat;
+          } else {
+            dateFormat = 'yyyy/M/d'
           }
           if (parsedData.holidayInput) {
             const newHolidayInput = parsedData.holidayInput;
-            const dateFormat = parsedData.dateFormat;
             dispatch(setHolidayInput(newHolidayInput));
             dispatch(setHolidays(updateHolidays(newHolidayInput, dateFormat)));
           }
@@ -149,7 +152,10 @@ export const updateHolidays = (holidayInput: string, dateFormat: DateFormatType)
   const regexPatterns = {
     "yyyy/MM/dd": /(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/,
     "MM/dd/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/,
-    "dd/MM/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/
+    "dd/MM/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/,
+    "yyyy/M/d": /(\d{4})[/-]?(\d{1,2})[/-]?(\d{1,2})/,
+    "M/d/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/,
+    "d/M/yyyy": /(\d{1,2})[/-]?(\d{1,2})[/-]?(\d{4})/
   };
   const newHolidays = holidayInput.split("\n").map(holiday => {
     const match = holiday.match(regexPatterns[dateFormat]);

@@ -72,6 +72,7 @@ const MemoedChartBar: React.FC<ChartBarProps> = ({ startDate, endDate, plannedDa
           delay={[500, 0]}
           animation="fade"
           offset={[0, 20]}
+          disabled={!plannedDays}
         >
           <Cell
             $chartBarColor={chartBarColor}

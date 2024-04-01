@@ -61,7 +61,7 @@ const DateRangeSetting: React.FC = memo(() => {
     <SettingChildDiv text='Date Range'>
       <div>
         <LocalizationProvider
-          dateFormats={dateFormat === 'yyyy/MM/dd' ? { monthAndYear: 'YYYY / MM' } : undefined}
+          dateFormats={(dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? { monthAndYear: 'YYYY / MM' } : undefined}
           dateAdapter={AdapterDayjs}
           adapterLocale={(dateFormat === 'dd/MM/yyyy' || dateFormat === 'd/M/yyyy') ? "en-in" : (dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? "en-ca" : "en"}
         >

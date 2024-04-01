@@ -40,8 +40,7 @@ const initialState: {
   regularDaysOffSetting: initialRegularDaysOffSetting,
   regularDaysOff: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
   showYear: false,
-  // dateFormat: "MM/dd/yyyy",
-  dateFormat: "yyyy/MM/dd",
+  dateFormat: "yyyy/M/d",
   columns: initialColumns,
   dependencyMap: buildDependencyMap(initializedDummyData),
   past: [{

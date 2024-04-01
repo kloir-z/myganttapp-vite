@@ -52,9 +52,9 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
       style={{ position: 'absolute', top: '-2px', left: '-2px' }}
     >
       <LocalizationProvider
-        dateFormats={dateFormat === 'yyyy/MM/dd' ? { monthAndYear: 'YYYY / MM' } : undefined}
+        dateFormats={(dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? { monthAndYear: 'YYYY / MM' } : undefined}
         dateAdapter={AdapterDayjs}
-        adapterLocale={dateFormat === 'dd/MM/yyyy' ? "en-in" : dateFormat === 'yyyy/MM/dd' ? "en-ca" : "en"}
+        adapterLocale={(dateFormat === 'dd/MM/yyyy' || dateFormat === 'd/M/yyyy') ? "en-in" : (dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? "en-ca" : "en"}
       >
         <DatePicker
           inputRef={datePickerInputRef}
