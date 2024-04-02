@@ -16,8 +16,8 @@ const AutoWidthDiv = styled.div`
   box-sizing: border-box;
   overflow: hidden;
   min-width: 2em;
-  padding: 2px 5px;
-  white-space: nowrap;
+  padding: 2px 4px;
+  white-space: pre;
   opacity: 0;
   &::before {
     content: '';

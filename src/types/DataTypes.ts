@@ -68,6 +68,11 @@ export function isEventRow(entry: WBSData): entry is EventRow {
   return entry.rowType === "Event";
 }
 
+export type HolidayColor = {
+  color: string;
+  subColor: string;
+};
+
 export type RegularDaysOffSetting = {
   id: number;
   color: string;

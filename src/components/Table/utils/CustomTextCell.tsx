@@ -89,6 +89,6 @@ export class CustomTextCellTemplate implements CellTemplate<CustomTextCell> {
         </div>
       );
     }
-    return <span>{cell.text}</span>;
+    return <span style={{ whiteSpace: 'pre' }}>{cell.text}</span>;
   }
 }

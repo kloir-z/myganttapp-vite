@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType } from '../types/DataTypes';
-import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates } from '../utils/CommonUtils';
+import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor } from '../types/DataTypes';
+import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates, adjustColorOpacity } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
@@ -26,6 +26,7 @@ const initialState: {
     [id: string]: WBSData
   },
   holidays: string[],
+  holidayColor: HolidayColor,
   regularDaysOffSetting: RegularDaysOffSetting[],
   regularDaysOff: number[],
   columns: ExtendedColumn[],
@@ -37,6 +38,7 @@ const initialState: {
 } = {
   data: updateSeparatorRowDates(initializedDummyData),
   holidays: initialHolidays,
+  holidayColor: { color: '#ffdcdc', subColor: adjustColorOpacity('#ffdcdc') },
   regularDaysOffSetting: initialRegularDaysOffSetting,
   regularDaysOff: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
   showYear: false,
@@ -138,6 +140,13 @@ export const wbsDataSlice = createSlice({
       state.holidays = newHolidays;
 
       resetEndDate(state, affectedHolidays)
+    },
+    updateHolidayColor: (state, action: PayloadAction<string>) => {
+      const updatedHolidayColor: HolidayColor = { color: '', subColor: '' };
+      updatedHolidayColor.color = action.payload;
+      updatedHolidayColor.subColor = adjustColorOpacity(updatedHolidayColor.color);
+      state.holidayColor = updatedHolidayColor;
+
     },
     setEventDisplayName: (state, action: PayloadAction<{ id: string; eventIndex: number; displayName: string }>) => {
       const { id, eventIndex, displayName } = action.payload;
@@ -241,6 +250,7 @@ export const {
   setDisplayName,
   toggleSeparatorCollapsed,
   setHolidays,
+  updateHolidayColor,
   setEventDisplayName,
   updateEventRow,
   updateSeparatorDates,

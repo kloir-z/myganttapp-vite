@@ -6,8 +6,8 @@
 .input-text__dummy {
   display: inline-block;
   overflow: hidden;
-  padding: 3px 5px;
-  white-space: nowrap;
+  padding: 1px 0px;
+  white-space: pre;
   opacity: 0;
 }
 

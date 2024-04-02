@@ -39,8 +39,8 @@ const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, to
         checked={column.visible}
         onChange={() => toggleColumnVisibility(column.columnId)}
       />
-      <span onClick={() => toggleColumnVisibility(column.columnId)} style={{ width: '100px', marginRight: '10px', cursor: 'pointer' }}>
-        {column.columnId.charAt(0).toUpperCase() + column.columnId.slice(1)}:
+      <span onClick={() => toggleColumnVisibility(column.columnId)} style={{ width: '110px', marginRight: '10px', cursor: 'pointer' }}>
+        {column.columnId.charAt(0).toUpperCase() + column.columnId.slice(1)}
       </span>
       <input
         type="text"
@@ -49,7 +49,7 @@ const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, to
         onBlur={handleBlur}
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}
-        style={{ marginRight: '10px' }}
+        style={{ width: '100px', marginRight: '10px' }}
       />
     </div>
   );

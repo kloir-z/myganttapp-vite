@@ -160,8 +160,8 @@ export const updateHolidays = (holidayInput: string, dateFormat: DateFormatType)
   const newHolidays = holidayInput.split("\n").map(holiday => {
     const match = holiday.match(regexPatterns[dateFormat]);
     if (match) {
-      const [year, month, day] = dateFormat === "yyyy/MM/dd" ? [match[1], match[2], match[3]] :
-        dateFormat === "MM/dd/yyyy" ? [match[3], match[1], match[2]] :
+      const [year, month, day] = (dateFormat === "yyyy/MM/dd" || dateFormat === "yyyy/M/d") ? [match[1], match[2], match[3]] :
+        (dateFormat === "MM/dd/yyyy" || dateFormat === "M/d/yyyy") ? [match[3], match[1], match[2]] :
           [match[3], match[2], match[1]]; // "dd/MM/yyyy"
       const formattedMonth = month.padStart(2, '0');
       const formattedDay = day.padStart(2, '0');

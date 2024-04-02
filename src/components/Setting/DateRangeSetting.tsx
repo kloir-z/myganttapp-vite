@@ -58,7 +58,7 @@ const DateRangeSetting: React.FC = memo(() => {
   }, [startDate, endDate, dispatch]);
 
   return (
-    <SettingChildDiv text='Date Range'>
+    <SettingChildDiv text='Calendar Date Range'>
       <div>
         <LocalizationProvider
           dateFormats={(dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? { monthAndYear: 'YYYY / MM' } : undefined}

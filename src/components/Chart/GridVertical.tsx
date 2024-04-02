@@ -13,6 +13,7 @@ interface CalendarProps {
 
 const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) => {
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
+  const holidayColor = useSelector((state: RootState) => state.wbsData.holidayColor);
   const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
 
@@ -25,7 +26,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const isFirstDate = index === 0;
         const borderLeft = cellWidth > 3 || dayOfWeek === 0 ? true : false;
         const setting = regularDaysOffSetting.find(setting => setting.days.includes(dayOfWeek));
-        const selectedSetting = setting || (isHoliday(date, holidays) ? regularDaysOffSetting[1] : null);
+        const selectedSetting = setting || (isHoliday(date, holidays) ? holidayColor : null);
         const bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
         const left = cellWidth * index;
         const today = cdate();
