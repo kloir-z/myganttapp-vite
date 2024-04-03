@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { ExtendedColumn } from '../../../reduxStoreAndSlices/store';
+import { useTranslation } from 'react-i18next';
 
 type ColumnRowProps = {
   column: ExtendedColumn;
@@ -8,6 +9,7 @@ type ColumnRowProps = {
 };
 
 const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, toggleColumnVisibility }) => {
+  const { t } = useTranslation();
   const [localColumnName, setLocalColumnName] = useState(column.columnName ?? '');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -40,7 +42,7 @@ const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, to
         onChange={() => toggleColumnVisibility(column.columnId)}
       />
       <span onClick={() => toggleColumnVisibility(column.columnId)} style={{ width: '110px', marginRight: '10px', cursor: 'pointer' }}>
-        {column.columnId.charAt(0).toUpperCase() + column.columnId.slice(1)}
+        {t(column.columnId)}
       </span>
       <input
         type="text"

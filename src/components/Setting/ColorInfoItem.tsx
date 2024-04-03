@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 import { ColorInfo } from "../../reduxStoreAndSlices/colorSlice";
+import { useTranslation } from 'react-i18next';
 
 type ColorInfoItemProps = {
   colorInfo: ColorInfo;
@@ -18,6 +19,7 @@ const ColorInfoItem: React.FC<ColorInfoItemProps> = React.memo(({ colorInfo,
   makeColorChangeHandler,
   displayColorPicker
 }) => {
+  const { t } = useTranslation();
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       <div
@@ -58,7 +60,7 @@ const ColorInfoItem: React.FC<ColorInfoItemProps> = React.memo(({ colorInfo,
         )}
       </div>
       {colorInfo.id === 999 ? (
-        <span style={{ margin: 'auto 0', marginLeft: '10px' }}>Actual Chart Color</span>
+        <span style={{ margin: 'auto 0', marginLeft: '10px' }}>{t('Actual Chart Color')}</span>
       ) : (
         <input
           type="text"

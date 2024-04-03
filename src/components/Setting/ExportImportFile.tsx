@@ -4,12 +4,14 @@ import { setFileName } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { useSelector, useDispatch } from 'react-redux';
 import SettingChildDiv from "./SettingChildDiv";
+import { useTranslation } from "react-i18next";
 
 type ExportImportFileProps = {
   handleClose: () => void;
 };
 
 const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
   const colors = useSelector((state: RootState) => state.color.colors);
@@ -71,26 +73,26 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
 
   return (
     <>
-      <SettingChildDiv text='Export JSON File'>
+      <SettingChildDiv text={t('Export JSON File')}>
         <div>
           <input
             type="text"
             value={fileName}
             onChange={(e) => dispatch(setFileName(e.target.value))}
-            placeholder="Enter File Name"
+            placeholder={t('Enter File Name')}
           />
-          <button onClick={handleExportClick}>Export</button>
+          <button onClick={handleExportClick}>{t('Export')}</button>
         </div>
       </SettingChildDiv>
-      <SettingChildDiv text='Import From JSON File'>
+      <SettingChildDiv text={t('Import From JSON File')}>
         <div style={{ display: 'flex', justifyContent: 'start' }}>
-          <button onClick={() => fileInputRefImport.current?.click()}>Import</button>
+          <button onClick={() => fileInputRefImport.current?.click()}>{t('Import')}</button>
           <input type="file" ref={fileInputRefImport} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
         </div>
       </SettingChildDiv>
-      <SettingChildDiv text='Append to Table from JSON File'>
+      <SettingChildDiv text={t('Append to Table from JSON File')}>
         <div style={{ display: 'flex', justifyContent: 'start' }}>
-          <button onClick={() => fileInputRefAppend.current?.click()}>Append</button>
+          <button onClick={() => fileInputRefAppend.current?.click()}>{t('Append')}</button>
           <input type="file" ref={fileInputRefAppend} style={{ display: 'none' }} onChange={handleAppendClick} accept=".json" />
         </div>
       </SettingChildDiv>

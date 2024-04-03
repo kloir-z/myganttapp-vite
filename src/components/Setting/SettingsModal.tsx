@@ -16,6 +16,7 @@ import { MdOutlineDragIndicator } from "react-icons/md";
 import { resetBaseSettings } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { resetColor } from "../../reduxStoreAndSlices/colorSlice";
 import { DateFormatType } from "../../types/DataTypes";
+import { useTranslation } from "react-i18next";
 
 type SettingsModalProps = {
   show: boolean;
@@ -25,6 +26,7 @@ type SettingsModalProps = {
 const SettingsModal: React.FC<SettingsModalProps> = memo(({
   show, onClose
 }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
@@ -125,7 +127,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <DateRangeSetting />
           <ColorSetting />
           <ColumnSetting />
-          <SettingChildDiv text='Date Format'>
+          <SettingChildDiv text={t('Date Format')}>
             <div>
               <select value={currentFormat} onChange={handleDayFormatChange}>
                 <option value="yyyy/M/d">yyyy/M/d</option>
@@ -137,7 +139,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
               </select>
             </div>
           </SettingChildDiv>
-          <SettingChildDiv text='Date Cell Format'>
+          <SettingChildDiv text={t('Date Cell Format')}>
             <div>
               <label>M/d</label>
               <Switch
@@ -154,9 +156,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
           <ExportImportFile
             handleClose={handleClose}
           />
-          <SettingChildDiv text='Reset & Clear'>
+          <SettingChildDiv text={t('Reset & Clear')}>
             <div style={{ display: 'flex', justifyContent: 'start' }}>
-              <button onClick={handleReset}>Reset & Clear</button>
+              <button onClick={handleReset}>{t('Reset & Clear')}</button>
             </div>
           </SettingChildDiv>
         </ModalContainer>

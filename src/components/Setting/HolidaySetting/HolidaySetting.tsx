@@ -7,8 +7,10 @@ import { RootState, updateHolidayColor } from "../../../reduxStoreAndSlices/stor
 import { setHolidays } from "../../../reduxStoreAndSlices/store";
 import SettingChildDiv from "../SettingChildDiv";
 import { ChromePicker, ColorResult } from "react-color";
+import { useTranslation } from "react-i18next";
 
 const HolidaySetting: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const holidayColor = useSelector((state: RootState) => state.wbsData.holidayColor);
@@ -31,7 +33,7 @@ const HolidaySetting: React.FC = memo(() => {
   }, [dispatch]);
 
   return (
-    <SettingChildDiv text='Public Holidays / Irregular Days Off'>
+    <SettingChildDiv text={t('Public Holidays / Irregular Days Off')}>
       <div
         style={{
           width: '60px',

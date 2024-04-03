@@ -5,8 +5,10 @@ import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { Slider } from '@mui/material';
 import SettingChildDiv from "./SettingChildDiv";
 import { store } from "../../reduxStoreAndSlices/store";
+import { useTranslation } from "react-i18next";
 
 const CellWidthSetting: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [sliderValue, setSliderValue] = useState(store.getState().baseSettings.cellWidth);
 
@@ -20,7 +22,7 @@ const CellWidthSetting: React.FC = memo(() => {
   };
 
   return (
-    <SettingChildDiv text='Chart Cell Width'>
+    <SettingChildDiv text={t('Chart Cell Width')}>
       <Slider
         aria-labelledby="cell-width-slider"
         value={sliderValue}

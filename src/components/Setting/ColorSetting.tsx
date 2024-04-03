@@ -6,6 +6,7 @@ import SettingChildDiv from "./SettingChildDiv";
 import { store } from "../../reduxStoreAndSlices/store";
 import { ColorState } from "../../reduxStoreAndSlices/colorSlice";
 import ColorInfoItem from "./ColorInfoItem";
+import { useTranslation } from "react-i18next";
 
 type ColorAction =
   | { type: 'UPDATE_COLOR'; payload: { id: number; color: string } }
@@ -33,6 +34,7 @@ function colorReducer(state: ColorState, action: ColorAction): ColorState {
 }
 
 const ColorSetting: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [state, localDispatch] = useReducer(colorReducer, store.getState().color);
 
@@ -63,7 +65,7 @@ const ColorSetting: React.FC = memo(() => {
   }, [handleColorChange]);
 
   return (
-    <SettingChildDiv text='Chart Color (Alias)'>
+    <SettingChildDiv text={t('Chart Color (Alias)')}>
       {state.colors.map(colorInfo => (
         <ColorInfoItem
           key={colorInfo.id}

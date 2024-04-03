@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { setTitle } from '../../reduxStoreAndSlices/baseSettingsSlice';
+import { useTranslation } from 'react-i18next';
 
 const InputWrapper = styled.div`
   position: absolute;
@@ -48,12 +49,13 @@ const StyledInput = styled.input`
 `;
 
 const TitleSetting: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const globalTitle = useSelector((state: RootState) => state.baseSettings.title);
   const [title, setTitleLocal] = useState(globalTitle);
   const [isEditing, setIsEditing] = useState(false);
   const dummyRef = useRef<HTMLDivElement>(null);
-  const placeholder = 'Enter Chart Name'
+  const placeholder = t('Enter Chart Title');
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTitleLocal(e.target.value);

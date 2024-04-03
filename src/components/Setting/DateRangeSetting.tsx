@@ -8,8 +8,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { setDateRange } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import SettingChildDiv from "./SettingChildDiv";
+import { useTranslation } from "react-i18next";
 
 const DateRangeSetting: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const { startDate, endDate } = useSelector((state: RootState) => state.baseSettings.dateRange);
@@ -58,7 +60,7 @@ const DateRangeSetting: React.FC = memo(() => {
   }, [startDate, endDate, dispatch]);
 
   return (
-    <SettingChildDiv text='Calendar Date Range'>
+    <SettingChildDiv text={t('Calendar Date Range')}>
       <div>
         <LocalizationProvider
           dateFormats={(dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? { monthAndYear: 'YYYY / MM' } : undefined}

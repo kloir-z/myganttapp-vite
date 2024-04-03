@@ -6,10 +6,12 @@ import { ChromePicker, ColorResult } from 'react-color';
 import SettingChildDiv from "./SettingChildDiv";
 import { RegularDaysOffSetting } from "../../types/DataTypes";
 import { adjustColorOpacity } from "../../utils/CommonUtils";
+import { useTranslation } from "react-i18next";
 
-const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"];
+const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const RegularDaysOffSettings: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
   const [localRegularDaysOffSettings, setLocalRegularDaysOffSettings] = useState<RegularDaysOffSetting[]>(regularDaysOffSetting);
@@ -62,13 +64,13 @@ const RegularDaysOffSettings: React.FC = memo(() => {
   }, []);
 
   return (
-    <SettingChildDiv text='Regular Days Off'>
+    <SettingChildDiv text={t('Regular Days Off')}>
       <table style={{ borderCollapse: 'collapse', width: '278px' }}>
         <thead>
           <tr>
             <th style={{ padding: '4px' }}></th>
             {daysOfWeek.map((day, index) => (
-              <th key={index} style={{ padding: '4px' }}>{day}</th>
+              <th key={index} style={{ padding: '4px' }}>{t(day)}</th>
             ))}
           </tr>
         </thead>
@@ -115,7 +117,7 @@ const RegularDaysOffSettings: React.FC = memo(() => {
         </tbody>
       </table>
       <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={handleApplyChanges}>Apply</button>
+        <button onClick={handleApplyChanges}>{t('Apply')}</button>
       </div>
     </SettingChildDiv>
   );

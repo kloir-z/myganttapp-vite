@@ -1,7 +1,7 @@
 // App.tsx
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, undo, redo } from './reduxStoreAndSlices/store';
+import { RootState, undo, redo, setColumns } from './reduxStoreAndSlices/store';
 import { setWbsWidth, setMaxWbsWidth } from './reduxStoreAndSlices/baseSettingsSlice';
 import { isChartRow, isEventRow, isSeparatorRow, WBSData } from './types/DataTypes';
 import Calendar from './components/Chart/Calendar';
@@ -16,8 +16,10 @@ import SettingButton from './components/Setting/SettingButton';
 import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
 import { generateDates } from './utils/CommonUtils';
+import { useTranslation } from 'react-i18next';
 
 function App() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.data);
   const pastLength = useSelector((state: RootState) => state.wbsData.past.length);
@@ -175,6 +177,12 @@ function App() {
     if (!isChromiumBased) {
       alert('This application only works correctly in Chromium-based browsers. It may not function properly in other browsers, so please access it using a Chromium-based browser(e.g. Chrome, Edge).');
     }
+    const translatedColumns = columns.map(column => ({
+      ...column,
+      columnName: t(column.columnName ?? ""),
+    }));
+    dispatch(setColumns(translatedColumns));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
