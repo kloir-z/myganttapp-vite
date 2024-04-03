@@ -76,9 +76,9 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
               previousMonth = month;
               const left = cellWidth * index;
               const isFirstDate = index === 0;
-              const displayDate = dateFormat === 'yyyy/MM/dd' ?
-                `${date.format("YYYY")}/${date.format("MM")}` :
-                `${date.format("MM")}/${date.format("YYYY")}`;
+              const displayDate = (dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ?
+                `${date.format("YYYY")}/${date.format("M")}` :
+                `${date.format("M")}/${date.format("YYYY")}`;
               return (
                 <CalendarCell
                   key={index}
