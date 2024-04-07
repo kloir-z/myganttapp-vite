@@ -1,6 +1,6 @@
 // CommonUtils.ts
 import { cdate } from "cdate";
-import { ChartRow, SeparatorRow, WBSData, isChartRow, isEventRow, isSeparatorRow } from "../types/DataTypes";
+import { RowType, ChartRow, SeparatorRow, WBSData, isChartRow, isEventRow, isSeparatorRow, EventRow } from "../types/DataTypes";
 
 export const generateDates = (start: string, end: string): ReturnType<typeof cdate>[] => {
   const startDate = cdate(start);
@@ -449,3 +449,61 @@ const calculateDateRange = (rows: WBSData[]): { minStartDate?: string; maxEndDat
     maxEndDate: maxEndDate ? maxEndDate.format('YYYY-MM-DD') : '',
   };
 };
+
+export function createNewRow(rowType: RowType): WBSData {
+  const baseRow = {
+    no: 0,
+    id: "",
+    displayName: "",
+  };
+
+  switch (rowType) {
+    case "Chart":
+      return {
+        ...baseRow,
+        rowType: "Chart",
+        textColumn1: "",
+        textColumn2: "",
+        textColumn3: "",
+        textColumn4: "",
+        color: "",
+        plannedStartDate: "",
+        plannedEndDate: "",
+        plannedDays: null,
+        actualStartDate: "",
+        actualEndDate: "",
+        dependentId: "",
+        dependency: "",
+        isIncludeHolidays: false,
+      } as ChartRow;
+
+    case "Separator":
+      return {
+        ...baseRow,
+        rowType: "Separator",
+        isCollapsed: false,
+        minStartDate: undefined,
+        maxEndDate: undefined,
+      } as SeparatorRow;
+
+    case "Event":
+      return {
+        ...baseRow,
+        rowType: "Event",
+        textColumn1: "",
+        textColumn2: "",
+        textColumn3: "",
+        textColumn4: "",
+        plannedStartDate: "",
+        plannedEndDate: "",
+        plannedDays: null,
+        actualStartDate: "",
+        actualEndDate: "",
+        color: "",
+        eventData: [],
+      } as EventRow;
+
+    default:
+      throw new Error("Unsupported row type");
+  }
+}

@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor } from '../types/DataTypes';
-import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates, adjustColorOpacity } from '../utils/CommonUtils';
+import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor, RowType } from '../types/DataTypes';
+import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates, adjustColorOpacity, createNewRow } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
@@ -8,6 +8,7 @@ import { Column } from "@silevis/reactgrid";
 import { initializedDummyData, initializedEmptyData } from './initialData';
 import { initialHolidays, initialRegularDaysOffSetting } from './initialHolidays';
 import { initialColumns } from './initialColumns';
+import { assignIds } from '../components/Table/utils/wbsHelpers';
 
 export interface ExtendedColumn extends Column {
   columnId: string;
@@ -15,10 +16,15 @@ export interface ExtendedColumn extends Column {
   visible: boolean;
 }
 
-
 interface UndoableState {
   data: { [id: string]: WBSData },
   columns: ExtendedColumn[],
+}
+
+interface AddRowPayload {
+  rowType: RowType;
+  insertAtId: string;
+  numberOfRows: number;
 }
 
 const initialState: {
@@ -96,6 +102,52 @@ export const wbsDataSlice = createSlice({
       }
       state.data = updatedData;
     },
+    addRow: (state, action: PayloadAction<AddRowPayload>) => {
+      const { rowType, insertAtId, numberOfRows } = action.payload;
+      const dataArray: WBSData[] = Object.values(state.data);
+      const insertAtIndex = dataArray.findIndex(item => item.id === insertAtId);
+      for (let i = 0; i < numberOfRows; i++) {
+        const newRow = createNewRow(rowType);
+        if (insertAtIndex >= 0) {
+          dataArray.splice(insertAtIndex + i, 0, newRow);
+        } else {
+          dataArray.push(newRow);
+        }
+      }
+      state.past.push({ data: state.data, columns: state.columns });
+      state.future = [];
+      if (state.past.length > 30) {
+        state.past.shift();
+      }
+      state.data = assignIds(dataArray);
+    },
+    insertCopiedRow: (state, action: PayloadAction<{ insertAtId: string, copiedRows: WBSData[] }>) => {
+      const { insertAtId, copiedRows } = action.payload;
+      if (!copiedRows || copiedRows.length === 0) return;
+
+      const dataArray: WBSData[] = Object.values(state.data);
+      const insertAtIndex = dataArray.findIndex(item => item.id === insertAtId);
+
+      if (insertAtIndex >= 0) {
+        dataArray.splice(insertAtIndex, 0, ...copiedRows.map(row => ({ ...row, id: "" })));
+        state.past.push({ data: state.data, columns: state.columns });
+        state.future = [];
+        if (state.past.length > 30) {
+          state.past.shift();
+        }
+        state.data = assignIds(dataArray);
+      }
+    },
+    deleteRows: (state, action: PayloadAction<string[]>) => {
+      const idsToDelete = action.payload;
+      const filteredData = Object.values(state.data).filter(row => !idsToDelete.includes(row.id));
+      state.past.push({ data: state.data, columns: state.columns });
+      state.future = [];
+      if (state.past.length > 30) {
+        state.past.shift();
+      }
+      state.data = assignIds(filteredData);
+    },
     setPlannedDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       const { id, startDate, endDate } = action.payload;
       const chartRow = state.data[id];
@@ -146,7 +198,6 @@ export const wbsDataSlice = createSlice({
       updatedHolidayColor.color = action.payload;
       updatedHolidayColor.subColor = adjustColorOpacity(updatedHolidayColor.color);
       state.holidayColor = updatedHolidayColor;
-
     },
     setEventDisplayName: (state, action: PayloadAction<{ id: string; eventIndex: number; displayName: string }>) => {
       const { id, eventIndex, displayName } = action.payload;
@@ -245,6 +296,9 @@ export const wbsDataSlice = createSlice({
 
 export const {
   setEntireData,
+  addRow,
+  insertCopiedRow,
+  deleteRows,
   setPlannedDate,
   setActualDate,
   setDisplayName,

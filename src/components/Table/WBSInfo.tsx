@@ -1,19 +1,20 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo, memo, useState } from 'react';
+import React, { useCallback, useMemo, memo, useState, useRef } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
-import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, MenuOption, SelectionMode, Highlight } from "@silevis/reactgrid";
+import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, Highlight, HeaderCell } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "/src/components/Table/css/ReactGrid.css";
-import { handleCopySelectedRow, handleInsertCopiedRows, handleCutRows, handleAddChartRow, handleAddSeparatorRow, handleAddEventRow } from './utils/contextMenuHandlers';
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
 import { handleGridChanges } from './utils/gridHandlers';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState } from '../../reduxStoreAndSlices/store';
+import { RootState, setEntireData, handleColumnResize, toggleColumnVisibility, setColumns, pushPastState, addRow, ExtendedColumn, deleteRows, insertCopiedRow } from '../../reduxStoreAndSlices/store';
 import { CustomDateCell, CustomDateCellTemplate } from './utils/CustomDateCell';
 import { CustomTextCell, CustomTextCellTemplate } from './utils/CustomTextCell';
 import { SeparatorCell, SeparatorCellTemplate } from './utils/SeparatorCell';
 import { assignIds, reorderArray } from './utils/wbsHelpers';
-import { useWBSData } from './hooks/useWBSData';
+import ContextMenu from '../ContextMenu/ContextMenu';
+import { MenuItemProps } from '../ContextMenu/ContextMenuItem';
+import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 
 const WBSInfo: React.FC = memo(() => {
   const dispatch = useDispatch();
@@ -23,9 +24,24 @@ const WBSInfo: React.FC = memo(() => {
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
+  const headerRow = useMemo(() => {
+    const getHeaderRow = (columns: ExtendedColumn[]): Row<DefaultCellTypes> => {
+      const cells = columns.filter(column => column.visible).map(column => {
+        return { type: "header", text: column.columnName ?? "" } as HeaderCell;
+      });
+      return {
+        rowId: "header",
+        height: 21,
+        cells: cells
+      };
+    };
+    return getHeaderRow(columns);
+  }, [columns]);
+  const visibleColumns = useMemo(() => columns.filter(column => column.visible), [columns]);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const { headerRow, visibleColumns } = useWBSData();
+  const selectedRangesRef = useRef<{ selectedRowIds: string[], selectedColumnIds: string[] }>();
+  const wbsRef = useRef<HTMLDivElement>(null);
   const dataArray = useMemo(() => {
     return Object.values(data);
   }, [data]);
@@ -52,84 +68,6 @@ const WBSInfo: React.FC = memo(() => {
     ];
   }, [visibleColumns, headerRow]);
   const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
-
-  const getSelectedIdsFromRanges = useCallback((selectedRanges: CellLocation[][]) => {
-    const selectedRowIdsFromRanges = new Set<Id>();
-    const selectedColIdsFromRanges = new Set<Id>();
-
-    selectedRanges.flat().forEach(({ rowId, columnId }) => {
-      selectedRowIdsFromRanges.add(rowId);
-      selectedColIdsFromRanges.add(columnId);
-    });
-
-    return {
-      selectedRowIdsFromRanges: Array.from(selectedRowIdsFromRanges),
-      selectedColIdsFromRanges: Array.from(selectedColIdsFromRanges)
-    };
-  }, []);
-
-  const simpleHandleContextMenu = useCallback((
-    _selectedRowIds: Id[],
-    _selectedColIds: Id[],
-    _selectionMode: SelectionMode,
-    menuOptions: MenuOption[],
-    selectedRanges: CellLocation[][]
-  ): MenuOption[] => {
-    const { selectedRowIdsFromRanges, selectedColIdsFromRanges } = getSelectedIdsFromRanges(selectedRanges);
-
-    menuOptions.push(
-      {
-        id: "copyRow",
-        label: "Copy Row",
-        handler: () => handleCopySelectedRow(dispatch, selectedRowIdsFromRanges, dataArray)
-      },
-      {
-        id: "cutRow",
-        label: "Cut Row (Copy & Delete)",
-        handler: () => handleCutRows(dispatch, selectedRowIdsFromRanges, dataArray)
-      },
-      {
-        id: "insertCopiedRow",
-        label: "Insert Copied Row",
-        handler: () => {
-          if (selectedRowIdsFromRanges.length > 0) {
-            handleInsertCopiedRows(dispatch, selectedRowIdsFromRanges[0], dataArray, copiedRows);
-          }
-        }
-      },
-      {
-        id: "addChartRow",
-        label: "Add Chart Row",
-        handler: () => handleAddChartRow(dispatch, selectedRowIdsFromRanges, dataArray)
-      },
-      {
-        id: "addSeparatorRow",
-        label: "Add Separator Row",
-        handler: () => handleAddSeparatorRow(dispatch, selectedRowIdsFromRanges, dataArray)
-      },
-      {
-        id: "addEventRow",
-        label: "Add Event Row",
-        handler: () => handleAddEventRow(dispatch, selectedRowIdsFromRanges, dataArray)
-      },
-      {
-        id: "hideColumn",
-        label: "Hide Column",
-        handler: () => selectedColIdsFromRanges.forEach((colId: Id) => dispatch(toggleColumnVisibility(colId.toString())))
-      },
-    );
-    columns.forEach(column => {
-      if (!column.visible) {
-        const columnName = column.columnName ? column.columnName : column.columnId;
-        menuOptions.push({
-          id: `showColumn-${column.columnId}`,
-          label: `Show ${columnName} Column`,
-          handler: () => dispatch(toggleColumnVisibility(column.columnId))
-        });
-      }
-    });
-    return menuOptions;
-  }, [getSelectedIdsFromRanges, columns, dispatch, dataArray, copiedRows]);
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
@@ -199,26 +137,179 @@ const WBSInfo: React.FC = memo(() => {
     }
   };
 
+  const menuOptions = useMemo(() => {
+    const showColumnItems: MenuItemProps[] = [];
+    let showColumnDisabled = true;
+
+    columns.forEach(column => {
+      if (!column.visible) {
+        showColumnDisabled = false;
+        const columnName = column.columnName ? column.columnName : column.columnId;
+        showColumnItems.push({
+          children: `Show ${columnName} Column`,
+          onClick: () => dispatch(toggleColumnVisibility(column.columnId)),
+        });
+      }
+    });
+    const addChartRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addChartRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
+          dispatch(addRow({ rowType: "Chart", insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const addEventRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addEventRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
+          dispatch(addRow({ rowType: "Event", insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const insertCopiedRowDisabled = copiedRows.length === 0 || (selectedRangesRef.current?.selectedRowIds?.length || 0) === 0;
+
+    const options = [
+      {
+        children: "Copy Row",
+        onClick: () => {
+          const selectedRowIds = selectedRangesRef.current?.selectedRowIds || [];
+          const copiedRows = selectedRowIds.reduce((acc, currId) => {
+            const foundRow = dataArray.find(row => row.id === currId);
+            if (foundRow) acc.push(foundRow);
+            return acc;
+          }, [] as WBSData[]);
+          dispatch(setCopiedRows(copiedRows));
+        },
+      },
+      {
+        children: "Cut Row",
+        onClick: () => {
+          const selectedRowIds = selectedRangesRef.current?.selectedRowIds || [];
+          const copiedRows = selectedRowIds.reduce((acc, currId) => {
+            const foundRow = dataArray.find(row => row.id === currId);
+            if (foundRow) acc.push(foundRow);
+            return acc;
+          }, [] as WBSData[]);
+          dispatch(setCopiedRows(copiedRows));
+          dispatch(deleteRows(selectedRowIds))
+        },
+      },
+      {
+        children: "Insert Copied Row",
+        onClick: () => {
+          dispatch(insertCopiedRow({ insertAtId: selectedRangesRef.current?.selectedRowIds[0] || "", copiedRows }))
+        },
+        disabled: insertCopiedRowDisabled
+      },
+      {
+        children: "Add Row",
+        items: [
+          {
+            children: "Separator",
+            onClick: () => {
+              const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
+              const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
+              dispatch(addRow({ rowType: "Separator", insertAtId, numberOfRows }));
+            },
+          },
+          {
+            children: "Chart",
+            onClick: () => {
+              const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
+              const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
+              dispatch(addRow({ rowType: "Chart", insertAtId, numberOfRows }));
+            },
+            items: addChartRowItems
+          },
+          {
+            children: "Event",
+            onClick: () => {
+              const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
+              const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
+              dispatch(addRow({ rowType: "Event", insertAtId, numberOfRows }));
+            },
+            items: addEventRowItems
+          }
+        ]
+      },
+      {
+        children: "Hide Column",
+        onClick: () => {
+          selectedRangesRef.current?.selectedColumnIds.forEach((colId) => dispatch(toggleColumnVisibility(colId.toString())))
+          if (selectedRangesRef.current) {
+            selectedRangesRef.current = {
+              ...selectedRangesRef.current,
+              selectedColumnIds: [],
+            };
+          }
+        },
+      },
+      {
+        children: "Show Column",
+        items: showColumnItems,
+        disabled: showColumnDisabled
+      },
+    ];
+    return options;
+  }, [dispatch, dataArray, copiedRows, columns]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelectionChanged = useCallback((selectedRanges: any[]) => {
+    const selectedRowIds: Set<string> = new Set();
+    const selectedColumnIds: Set<string> = new Set();
+
+    selectedRanges.forEach((range) => {
+      for (let rowIdx = range.first.row.idx; rowIdx <= range.last.row.idx; rowIdx++) {
+        const row = dataArray.find(row => row.no === rowIdx);
+        if (row) {
+          selectedRowIds.add(row.id);
+        }
+      }
+      for (let colIdx = range.first.column.idx; colIdx <= range.last.column.idx; colIdx++) {
+        const column = visibleColumns[colIdx];
+        if (column) {
+          selectedColumnIds.add(column.columnId);
+        }
+      }
+    });
+
+    selectedRangesRef.current = {
+      selectedRowIds: Array.from(selectedRowIds),
+      selectedColumnIds: Array.from(selectedColumnIds),
+    };
+  }, [dataArray, visibleColumns]);
+
   return (
-    <ReactGrid
-      rows={rows}
-      columns={visibleColumns}
-      onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularDaysOff)}
-      onColumnResized={onColumnResize}
-      onContextMenu={simpleHandleContextMenu}
-      stickyTopRows={1}
-      stickyLeftColumns={1}
-      enableRangeSelection
-      enableColumnSelection
-      enableRowSelection
-      onRowsReordered={handleRowsReorder}
-      onColumnsReordered={handleColumnsReorder}
-      highlights={highlights}
-      onFocusLocationChanged={handleFocusLocationChanged}
-      canReorderRows={handleCanReorderRows}
-      customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate, separator: separatorCellTemplate }}
-      minColumnWidth={10}
-    />
+    <div ref={wbsRef}>
+      <ReactGrid
+        rows={rows}
+        columns={visibleColumns}
+        onCellsChanged={(changes) => handleGridChanges(dispatch, data, changes, columns, holidays, regularDaysOff)}
+        onColumnResized={onColumnResize}
+        stickyTopRows={1}
+        stickyLeftColumns={1}
+        enableRangeSelection
+        enableColumnSelection
+        enableRowSelection
+        onRowsReordered={handleRowsReorder}
+        onColumnsReordered={handleColumnsReorder}
+        highlights={highlights}
+        onFocusLocationChanged={handleFocusLocationChanged}
+        onSelectionChanged={handleSelectionChanged}
+        canReorderRows={handleCanReorderRows}
+        customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate, separator: separatorCellTemplate }}
+        minColumnWidth={10}
+      />
+      <ContextMenu
+        targetRef={wbsRef}
+        items={menuOptions}
+      />
+    </div>
   );
 });
 

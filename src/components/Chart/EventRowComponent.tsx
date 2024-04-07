@@ -1,13 +1,14 @@
 // EventRowComponent.tsx
-import React, { useState, memo, useEffect, useCallback, useReducer, useMemo } from 'react';
+import React, { useState, memo, useEffect, useCallback, useReducer, useMemo, useRef } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow, pushPastState, removePastState } from '../../reduxStoreAndSlices/store';
+import { updateEventRow, pushPastState, removePastState, insertCopiedRow, addRow, deleteRows } from '../../reduxStoreAndSlices/store';
 import { ChartBar } from './ChartBar';
-import ChartBarContextMenu from './ChartBarContextMenu';
 import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
+import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
+import ContextMenu from '../ContextMenu/ContextMenu';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
@@ -102,7 +103,9 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const [originalEndDate, setOriginalEndDate] = useState<string | null>(null);
   const [initialMouseX, setInitialMouseX] = useState<number | null>(null);
   const [activeEventIndex, setActiveEventIndex] = useState<number | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, index: number } | null>(null);
+  const [contextMenu, setContextMenu] = useState<number | null>(null);
+  const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
+  const ganttRowRef = useRef<HTMLDivElement>(null);
 
   const handleBarMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
     dispatch(pushPastState());
@@ -290,18 +293,14 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     setCanGridRefDrag(true);
   };
 
-  const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number) => {
-    event.preventDefault();
-    setContextMenu({ x: event.clientX, y: event.clientY, index });
-  }, []);
-
-  const handleCloseContextMenu = useCallback(() => {
-    setContextMenu(null);
+  const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, index: number | null) => {
+    event.stopPropagation();
+    setContextMenu(index);
   }, []);
 
   const handleDeleteBar = useCallback(() => {
     if (contextMenu !== null) {
-      const updatedEventData = localEvents.filter((_, index) => index !== contextMenu.index).map(event => ({
+      const updatedEventData = localEvents.filter((_, index) => index !== contextMenu).map(event => ({
         ...event,
         startDate: event.startDate ? event.startDate : "",
         endDate: event.endDate ? event.endDate : ""
@@ -311,12 +310,90 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         eventData: updatedEventData
       };
       dispatch(updateEventRow({ id: entry.id, updatedEventRow }));
-      handleCloseContextMenu();
     }
-  }, [contextMenu, localEvents, entry, dispatch, handleCloseContextMenu]);
+  }, [contextMenu, localEvents, entry, dispatch]);
+
+  const menuOptions = useMemo(() => {
+    const addChartRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addChartRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const addEventRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addEventRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const insertCopiedRowDisabled = copiedRows.length === 0;
+    const options = [
+      {
+        children: "Delete Bar",
+        onClick: () => handleDeleteBar(),
+        disabled: contextMenu === null
+      },
+      {
+        children: "Copy Row",
+        onClick: () => dispatch(setCopiedRows([entry])),
+      },
+      {
+        children: "Cut Row",
+        onClick: () => {
+          dispatch(deleteRows([entry.id]));
+          dispatch(setCopiedRows([entry]));
+        },
+      },
+      {
+        children: "Insert Copied Row",
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(insertCopiedRow({ insertAtId: insertAtId, copiedRows }))
+        },
+        disabled: insertCopiedRowDisabled
+      },
+      {
+        children: "Add Row",
+        items: [
+          {
+            children: "Separator",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Separator", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+          },
+          {
+            children: "Chart",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+            items: addChartRowItems
+          },
+          {
+            children: "Event",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+            items: addEventRowItems
+          }
+        ]
+      },
+    ];
+    return options;
+  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar]);
 
   return (
-    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
+    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick} onContextMenu={(e) => handleBarRightClick(e, null)} ref={ganttRowRef}>
       {(isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) && (
         <div
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 12px)', zIndex: 9999, cursor: 'pointer' }}
@@ -341,14 +418,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
           onContextMenu={(e) => handleBarRightClick(e, index)}
         />
       ))}
-      {contextMenu && (
-        <ChartBarContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={handleCloseContextMenu}
-          onDelete={handleDeleteBar}
-        />
-      )}
+      <ContextMenu
+        targetRef={ganttRowRef}
+        items={menuOptions}
+      />
     </GanttRow>
   );
 });

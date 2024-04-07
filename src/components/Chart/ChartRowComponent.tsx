@@ -1,14 +1,15 @@
 import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
 import { useDispatch } from 'react-redux';
-import { setPlannedDate, setActualDate, pushPastState, removePastState, updateSeparatorDates } from '../../reduxStoreAndSlices/store';
+import { setPlannedDate, setActualDate, pushPastState, removePastState, updateSeparatorDates, addRow, insertCopiedRow, deleteRows } from '../../reduxStoreAndSlices/store';
 import { addPlannedDays } from '../../utils/CommonUtils';
 import { ChartBar } from './ChartBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../reduxStoreAndSlices/store';
-import ChartBarContextMenu from './ChartBarContextMenu';
 import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
+import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
+import ContextMenu from '../ContextMenu/ContextMenu';
 
 interface ChartRowProps {
   entry: ChartRow;
@@ -51,8 +52,10 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const [isBarStartDragging, setIsBarStartDragging] = useState<'planned' | 'actual' | null>(null);
   const originalDateRef = useRef({ start: '', end: '' });
   const [initialMouseX, setInitialMouseX] = useState<number | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, barType: 'planned' | 'actual' } | null>(null);
+  const [contextMenu, setContextMenu] = useState<'planned' | 'actual' | null>(null);
   const prevDateRef = useRef<ReturnType<typeof cdate> | string>();
+  const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
+  const ganttRowRef = useRef<HTMLDivElement>(null);
 
   const handleBarMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
     setIsBarDragging(barType);
@@ -290,37 +293,109 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
     dispatch(updateSeparatorDates());
   }, [dispatch, isBarDragging, isBarEndDragging, isBarStartDragging, localActualEndDate, localActualStartDate, localPlannedEndDate, localPlannedStartDate, setCanGridRefDrag, syncToStore]);
 
-  const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual') => {
-    event.preventDefault();
-    setContextMenu({ x: event.clientX, y: event.clientY, barType });
-  }, []);
-
-  const handleCloseContextMenu = useCallback(() => {
-    setContextMenu(null);
+  const handleBarRightClick = useCallback((event: React.MouseEvent<HTMLDivElement>, barType: 'planned' | 'actual' | null) => {
+    event.stopPropagation();
+    setContextMenu(barType);
   }, []);
 
   const handleDeleteBar = useCallback(() => {
     if (contextMenu !== null) {
       dispatch(pushPastState());
-      const { barType } = contextMenu;
 
-      if (barType === 'planned') {
+      if (contextMenu === 'planned') {
         setLocalPlannedStartDate(null);
         setLocalPlannedEndDate(null);
         dispatch(setPlannedDate({ id: entry.id, startDate: '', endDate: '' }));
         dispatch(updateSeparatorDates());
-      } else if (barType === 'actual') {
+      } else if (contextMenu === 'actual') {
         setLocalActualStartDate(null);
         setLocalActualEndDate(null);
         dispatch(setActualDate({ id: entry.id, startDate: '', endDate: '' }));
       }
-
-      handleCloseContextMenu();
     }
-  }, [contextMenu, dispatch, entry.id, handleCloseContextMenu]);
+  }, [contextMenu, dispatch, entry.id]);
+
+  const menuOptions = useMemo(() => {
+    const addChartRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addChartRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const addEventRowItems = [];
+    for (let i = 1; i <= 10; i++) {
+      addEventRowItems.push({
+        children: `${i}`,
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: i }));
+        },
+      });
+    }
+    const insertCopiedRowDisabled = copiedRows.length === 0;
+    const options = [
+      {
+        children: "Delete Bar",
+        onClick: () => handleDeleteBar(),
+        disabled: contextMenu === null
+      },
+      {
+        children: "Copy Row",
+        onClick: () => dispatch(setCopiedRows([entry])),
+      },
+      {
+        children: "Cut Row",
+        onClick: () => {
+          dispatch(deleteRows([entry.id]));
+          dispatch(setCopiedRows([entry]));
+        },
+      },
+      {
+        children: "Insert Copied Row",
+        onClick: () => {
+          const insertAtId = entry.id;
+          dispatch(insertCopiedRow({ insertAtId: insertAtId, copiedRows }))
+        },
+        disabled: insertCopiedRowDisabled
+      },
+      {
+        children: "Add Row",
+        items: [
+          {
+            children: "Separator",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Separator", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+          },
+          {
+            children: "Chart",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+            items: addChartRowItems
+          },
+          {
+            children: "Event",
+            onClick: () => {
+              const insertAtId = entry.id;
+              dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
+            },
+            items: addEventRowItems
+          }
+        ]
+      },
+    ];
+    return options;
+  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar]);
 
   return (
-    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick}>
+    <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick} onContextMenu={(e) => handleBarRightClick(e, null)} ref={ganttRowRef}>
       {(isEditing || isBarDragging || isBarEndDragging || isBarStartDragging) && (
         <div
           style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: 'calc(100vh - 12px)', zIndex: 9999, cursor: 'pointer' }}
@@ -358,14 +433,10 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           onContextMenu={(e) => handleBarRightClick(e, 'actual')}
         />
       )}
-      {contextMenu && (
-        <ChartBarContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={handleCloseContextMenu}
-          onDelete={handleDeleteBar}
-        />
-      )}
+      <ContextMenu
+        targetRef={ganttRowRef}
+        items={menuOptions}
+      />
     </GanttRow>
   );
 });

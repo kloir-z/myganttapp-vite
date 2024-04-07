@@ -182,7 +182,7 @@ function App() {
       columnName: t(column.columnName ?? ""),
     }));
     dispatch(setColumns(translatedColumns));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
