@@ -18,6 +18,7 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
   const fileName = useSelector((state: RootState) => state.baseSettings.fileName);
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
+  const holidayColor = useSelector((state: RootState) => state.wbsData.holidayColor);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
@@ -35,6 +36,7 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
       columns,
       data,
       holidayInput,
+      holidayColor,
       regularDaysOffSetting,
       wbsWidth,
       calendarWidth,

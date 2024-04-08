@@ -1,3 +1,5 @@
+import { Cell, Id } from "@silevis/reactgrid";
+
 // DataTypes.ts
 export type RowType = "Chart" | "Separator" | "Event";
 
@@ -81,3 +83,34 @@ export type RegularDaysOffSetting = {
 };
 
 export type DateFormatType = "yyyy/MM/dd" | "MM/dd/yyyy" | "dd/MM/yyyy" | "yyyy/M/d" | "M/d/yyyy" | "d/M/yyyy";
+
+interface MyLocation {
+  row: MyGridRow;
+  column: MyGridColumn;
+}
+
+interface MyGridRow {
+  idx: number;
+  top: number;
+  bottom: number;
+  height: number;
+  rowId: Id;
+  cells: Cell[];
+}
+
+interface MyGridColumn {
+  idx: number;
+  left: number;
+  right: number;
+  width: number;
+  columnId: Id;
+}
+
+export interface MyRange {
+  rows: MyGridRow[];
+  columns: MyGridColumn[];
+  width: number;
+  height: number;
+  first: MyLocation;
+  last: MyLocation;
+}

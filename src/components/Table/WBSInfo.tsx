@@ -1,6 +1,6 @@
 // WBSInfo.tsx
 import React, { useCallback, useMemo, memo, useState, useRef } from 'react';
-import { WBSData, isChartRow, isSeparatorRow, isEventRow } from '../../types/DataTypes';
+import { WBSData, isChartRow, isSeparatorRow, isEventRow, MyRange } from '../../types/DataTypes';
 import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, Highlight, HeaderCell } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "/src/components/Table/css/ReactGrid.css";
@@ -259,30 +259,22 @@ const WBSInfo: React.FC = memo(() => {
   }, [dispatch, dataArray, copiedRows, columns]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSelectionChanged = useCallback((selectedRanges: any[]) => {
+  const handleSelectionChanged = useCallback((selectedRanges: MyRange[]) => {
     const selectedRowIds: Set<string> = new Set();
     const selectedColumnIds: Set<string> = new Set();
-
     selectedRanges.forEach((range) => {
-      for (let rowIdx = range.first.row.idx; rowIdx <= range.last.row.idx; rowIdx++) {
-        const row = dataArray.find(row => row.no === rowIdx);
-        if (row) {
-          selectedRowIds.add(row.id);
-        }
-      }
-      for (let colIdx = range.first.column.idx; colIdx <= range.last.column.idx; colIdx++) {
-        const column = visibleColumns[colIdx];
-        if (column) {
-          selectedColumnIds.add(column.columnId);
-        }
-      }
+      range.rows.forEach(row => {
+        selectedRowIds.add(row.rowId.toString());
+      });
+      range.columns.forEach(column => {
+        selectedColumnIds.add(column.columnId.toString());
+      });
     });
-
     selectedRangesRef.current = {
       selectedRowIds: Array.from(selectedRowIds),
       selectedColumnIds: Array.from(selectedColumnIds),
     };
-  }, [dataArray, visibleColumns]);
+  }, []);
 
   return (
     <div ref={wbsRef}>

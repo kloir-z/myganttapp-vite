@@ -1,6 +1,6 @@
-import { ExtendedColumn, setColumns, setDateFormat, setShowYear } from "../../../reduxStoreAndSlices/store";
+import { ExtendedColumn, setColumns, setDateFormat, setShowYear, updateHolidayColor } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
-import { WBSData, DateFormatType, RegularDaysOffSetting } from "../../../types/DataTypes";
+import { WBSData, DateFormatType, RegularDaysOffSetting, HolidayColor } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularDaysOffSetting, setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
@@ -14,6 +14,7 @@ export const handleExport = (
   columns: ExtendedColumn[],
   data: { [id: string]: WBSData },
   holidayInput: string,
+  holidayColor: HolidayColor,
   regularDaysOffSetting: RegularDaysOffSetting[],
   wbsWidth: number,
   calendarWidth: number,
@@ -28,6 +29,7 @@ export const handleExport = (
     columns,
     data,
     holidayInput,
+    holidayColor,
     regularDaysOffSetting,
     wbsWidth,
     title,
@@ -61,7 +63,6 @@ export const handleAppend = (
           const parsedData = JSON.parse(text);
           if (parsedData.data && typeof parsedData.data === 'object' && !Array.isArray(parsedData.data)) {
             let maxNo = Object.values(data).reduce((max, curr) => curr.no > max ? curr.no : max, 0);
-
             const newData = Object.entries(parsedData.data).reduce((acc: { [id: string]: WBSData }, [, row]) => {
               const newNo = ++maxNo;
               const newId = uuidv4();
@@ -120,6 +121,9 @@ export const handleImport = (
             const newHolidayInput = parsedData.holidayInput;
             dispatch(setHolidayInput(newHolidayInput));
             dispatch(setHolidays(updateHolidays(newHolidayInput, dateFormat)));
+          }
+          if (parsedData.holidayColor) {
+            dispatch(updateHolidayColor(parsedData.holidayColor.color));
           }
           if (parsedData.data) {
             dispatch(setEntireData(parsedData.data));
