@@ -110,24 +110,37 @@ const WBSInfo: React.FC = memo(() => {
     return targetRowId !== 'header';
   }, []);
 
-  const handleFocusLocationChanged = (location: CellLocation) => {
+  const handleFocusLocationChanged = useCallback((location: CellLocation) => {
     if (location.columnId === "dependency") {
       const focusedRow = dataArray.find(row => row.id === location.rowId);
       if (focusedRow && isChartRow(focusedRow)) {
         const dependentRowId = focusedRow.dependentId;
         const dependentRow = dataArray.find(row => row.id === dependentRowId);
         if (dependentRow && isChartRow(dependentRow)) {
-          const dependencyValue = focusedRow.dependency.split(',')[0].toLowerCase().trim();
-          let columnIdToHighlight = "dependency";
-          if (dependencyValue === "after") {
-            columnIdToHighlight = "plannedEndDate";
-          } else if (dependencyValue === "sameas") {
-            columnIdToHighlight = "plannedStartDate";
+          const rowIndex = dataArray.findIndex(row => row.id === dependentRow.id);
+          let isBehindCollapsedSeparator = false;
+          for (let i = rowIndex - 1; i >= 0; i--) {
+            const row = dataArray[i];
+            if (row.rowType === "Separator" && row.isCollapsed) {
+              isBehindCollapsedSeparator = true;
+              break;
+            }
           }
-          const newHighlights = [
-            { columnId: columnIdToHighlight, rowId: dependentRow.id, borderColor: "#ff00007f" }
-          ];
-          setHighlights(newHighlights);
+          if (!isBehindCollapsedSeparator) {
+            const dependencyValue = focusedRow.dependency.split(',')[0].toLowerCase().trim();
+            let columnIdToHighlight = "dependency";
+            if (dependencyValue === "after") {
+              columnIdToHighlight = "plannedEndDate";
+            } else if (dependencyValue === "sameas") {
+              columnIdToHighlight = "plannedStartDate";
+            }
+            const newHighlights = [
+              { columnId: columnIdToHighlight, rowId: dependentRow.id, borderColor: "#ff00007f" }
+            ];
+            setHighlights(newHighlights);
+          } else {
+            setHighlights([]);
+          }
         } else {
           setHighlights([]);
         }
@@ -135,7 +148,7 @@ const WBSInfo: React.FC = memo(() => {
     } else {
       setHighlights([]);
     }
-  };
+  }, [dataArray]);
 
   const menuOptions = useMemo(() => {
     const showColumnItems: MenuItemProps[] = [];

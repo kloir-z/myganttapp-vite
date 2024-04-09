@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor, RowType } from '../types/DataTypes';
-import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, validateRowDates, updateDependency, updateSeparatorRowDates, adjustColorOpacity, createNewRow } from '../utils/CommonUtils';
+import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, updateSeparatorRowDates, adjustColorOpacity, createNewRow, resolveDependencies } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
@@ -16,7 +16,8 @@ export interface ExtendedColumn extends Column {
   visible: boolean;
 }
 
-interface UndoableState {
+
+export interface UndoableState {
   data: { [id: string]: WBSData },
   columns: ExtendedColumn[],
 }
@@ -70,31 +71,8 @@ export const wbsDataSlice = createSlice({
   reducers: {
     setEntireData: (state, action: PayloadAction<{ [id: string]: WBSData }>) => {
       const data = action.payload;
-      let updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
-        const row = data[rowId];
-        if (isChartRow(row) && (row.dependency || row.dependentId)) {
-          let updatedRowData = validateRowDates(row);
-          updatedRowData = updateDependency(row, data, rowId);
-          acc[rowId] = updatedRowData;
-        } else {
-          acc[rowId] = row;
-        }
-        return acc;
-      }, {});
-      state.dependencyMap = buildDependencyMap(updatedData);
-      const visited = new Set<string>();
-      Object.keys(state.dependencyMap).forEach(dependentId => {
-        const row = updatedData[dependentId];
-        if (isChartRow(row) && row.plannedStartDate && row.plannedEndDate) {
-          updateDependentRows({
-            data: updatedData,
-            holidays: state.holidays,
-            regularDaysOff: state.regularDaysOff,
-            dependencyMap: state.dependencyMap
-          }, dependentId, row.plannedStartDate, row.plannedEndDate, visited);
-        }
-      });
-      updatedData = updateSeparatorRowDates(updatedData);
+      const { updatedData, newDependencyMap } = resolveDependencies(data, state.holidays, state.regularDaysOff);
+      state.dependencyMap = newDependencyMap;
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
       if (state.past.length > 30) {
@@ -114,39 +92,46 @@ export const wbsDataSlice = createSlice({
           dataArray.push(newRow);
         }
       }
+      const data = assignIds(dataArray);
+      const { updatedData, newDependencyMap } = resolveDependencies(data, state.holidays, state.regularDaysOff);
+      state.dependencyMap = newDependencyMap;
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
       if (state.past.length > 30) {
         state.past.shift();
       }
-      state.data = assignIds(dataArray);
+      state.data = updatedData;
     },
     insertCopiedRow: (state, action: PayloadAction<{ insertAtId: string, copiedRows: WBSData[] }>) => {
       const { insertAtId, copiedRows } = action.payload;
       if (!copiedRows || copiedRows.length === 0) return;
-
       const dataArray: WBSData[] = Object.values(state.data);
       const insertAtIndex = dataArray.findIndex(item => item.id === insertAtId);
-
       if (insertAtIndex >= 0) {
         dataArray.splice(insertAtIndex, 0, ...copiedRows.map(row => ({ ...row, id: "" })));
+        const data = assignIds(dataArray);
+        const { updatedData, newDependencyMap } = resolveDependencies(data, state.holidays, state.regularDaysOff);
+        state.dependencyMap = newDependencyMap;
         state.past.push({ data: state.data, columns: state.columns });
         state.future = [];
         if (state.past.length > 30) {
           state.past.shift();
         }
-        state.data = assignIds(dataArray);
+        state.data = updatedData;
       }
     },
     deleteRows: (state, action: PayloadAction<string[]>) => {
       const idsToDelete = action.payload;
       const filteredData = Object.values(state.data).filter(row => !idsToDelete.includes(row.id));
+      const data = assignIds(filteredData);
+      const { updatedData, newDependencyMap } = resolveDependencies(data, state.holidays, state.regularDaysOff);
+      state.dependencyMap = newDependencyMap;
       state.past.push({ data: state.data, columns: state.columns });
       state.future = [];
       if (state.past.length > 30) {
         state.past.shift();
       }
-      state.data = assignIds(filteredData);
+      state.data = updatedData;
     },
     setPlannedDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       const { id, startDate, endDate } = action.payload;

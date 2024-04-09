@@ -414,6 +414,39 @@ export const updateSeparatorRowDates = (data: { [id: string]: WBSData }): { [id:
   return updatedData;
 };
 
+export function resolveDependencies(
+  data: { [id: string]: WBSData },
+  holidays: string[],
+  regularDaysOff: number[]
+): { updatedData: { [id: string]: WBSData }, newDependencyMap: { [id: string]: string[] } } {
+  let updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
+    const row = data[rowId];
+    if (isChartRow(row) && (row.dependency || row.dependentId)) {
+      let updatedRowData = validateRowDates(row);
+      updatedRowData = updateDependency(row, data, rowId);
+      acc[rowId] = updatedRowData;
+    } else {
+      acc[rowId] = row;
+    }
+    return acc;
+  }, {});
+  const newDependencyMap = buildDependencyMap(updatedData);
+  const visited = new Set<string>();
+  Object.keys(newDependencyMap).forEach(dependentId => {
+    const row = updatedData[dependentId];
+    if (isChartRow(row) && row.plannedStartDate && row.plannedEndDate) {
+      updateDependentRows({
+        data: updatedData,
+        holidays,
+        regularDaysOff,
+        dependencyMap: newDependencyMap
+      }, dependentId, row.plannedStartDate, row.plannedEndDate, visited);
+    }
+  });
+  updatedData = updateSeparatorRowDates(updatedData);
+  return { updatedData, newDependencyMap };
+}
+
 const calculateDateRange = (rows: WBSData[]): { minStartDate?: string; maxEndDate?: string } => {
   let minStartDate: cdate.CDate | undefined;
   let maxEndDate: cdate.CDate | undefined;
