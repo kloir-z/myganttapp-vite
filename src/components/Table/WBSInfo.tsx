@@ -156,16 +156,17 @@ const WBSInfo: React.FC = memo(() => {
       'plannedDays', 'actualStartDate', 'actualEndDate', 'dependency',
       'textColumn1', 'textColumn2', 'textColumn3', 'textColumn4', 'isIncludeHolidays'
     ];
-    const columnSettingsItems: MenuItemProps[] = initialColumnOrder.map(columnId => {
+    const columnSettingsItems: MenuItemProps[] = initialColumnOrder.reduce((acc: MenuItemProps[], columnId) => {
       const column = columns.find(col => col.columnId === columnId);
-      if (!column) return null;
-      return {
-        children: `${column.columnName}`,
-        onClick: () => dispatch(toggleColumnVisibility(column.columnId)),
-        checked: column.visible,
-        type: 'checkbox'
-      };
-    }).filter(item => item != null);
+      if (column) {
+        acc.push({
+          children: `${column.columnName}`,
+          onClick: () => dispatch(toggleColumnVisibility(column.columnId)),
+          checked: column.visible,
+        });
+      }
+      return acc;
+    }, []);
 
     const addChartRowItems = [];
     for (let i = 1; i <= 10; i++) {
