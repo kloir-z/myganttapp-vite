@@ -4,6 +4,7 @@ import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEnd
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
+import uiFlagsReducer from './uiFlagSlice';
 import { Column } from "@silevis/reactgrid";
 import { initializedDummyData, initializedEmptyData } from './initialData';
 import { initialHolidays, initialRegularDaysOffSetting } from './initialHolidays';
@@ -15,7 +16,6 @@ export interface ExtendedColumn extends Column {
   columnName?: string;
   visible: boolean;
 }
-
 
 export interface UndoableState {
   data: { [id: string]: WBSData },
@@ -312,6 +312,7 @@ export const store = configureStore({
     copiedRows: copiedRowsReducer,
     color: colorReducer,
     baseSettings: baseSettingsReducer,
+    uiFlags: uiFlagsReducer,
   },
 });
 

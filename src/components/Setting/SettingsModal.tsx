@@ -1,7 +1,7 @@
 // SettingsModal.tsx
 import { useState, useEffect, memo, useCallback } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, setShowYear, resetStore, setDateFormat } from '../../reduxStoreAndSlices/store';
+import { RootState, setShowYear, resetStore, setDateFormat, setColumns } from '../../reduxStoreAndSlices/store';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
 import HolidaySetting from "./HolidaySetting/HolidaySetting";
@@ -17,19 +17,15 @@ import { resetBaseSettings } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { resetColor } from "../../reduxStoreAndSlices/colorSlice";
 import { DateFormatType } from "../../types/DataTypes";
 import { useTranslation } from "react-i18next";
+import { setIsSettingsModalOpen } from "../../reduxStoreAndSlices/uiFlagSlice";
 
-type SettingsModalProps = {
-  show: boolean;
-  onClose: () => void;
-};
-
-const SettingsModal: React.FC<SettingsModalProps> = memo(({
-  show, onClose
-}) => {
+const SettingsModal: React.FC = memo(() => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
+  const isSettingsModalOpen = useSelector((state: RootState) => state.uiFlags.isSettingsModalOpen);
+  const columns = useSelector((state: RootState) => state.wbsData.columns);
   const handleDayFormatChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setDateFormat(event.target.value as DateFormatType));
   };
@@ -47,9 +43,9 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     setFadeStatus('out');
     setTimeout(() => {
       setFadeStatus('in');
-      onClose();
+      dispatch(setIsSettingsModalOpen(false));
     }, 210);
-  }, [onClose]);
+  }, [dispatch]);
 
   const startDrag = useCallback((e: React.MouseEvent) => {
     setIsGridRefDragging(true);
@@ -88,8 +84,13 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
     dispatch(resetStore());
     dispatch(resetBaseSettings());
     dispatch(resetColor());
+    const translatedColumns = columns.map(column => ({
+      ...column,
+      columnName: t(column.columnName ?? ""),
+    }));
+    dispatch(setColumns(translatedColumns));
     handleClose();
-  }, [dispatch, handleClose]);
+  }, [columns, dispatch, handleClose, t]);
 
   useEffect(() => {
     if (isDragging) {
@@ -103,7 +104,7 @@ const SettingsModal: React.FC<SettingsModalProps> = memo(({
   }, [isDragging, onDrag, endDrag]);
 
   return (
-    show ?
+    isSettingsModalOpen ?
       <Overlay fadeStatus={fadeStatus} onMouseDown={handleClose}>
         <ModalContainer
           fadeStatus={fadeStatus}

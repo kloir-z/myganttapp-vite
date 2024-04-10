@@ -17,6 +17,7 @@ import SettingsModal from './components/Setting/SettingsModal';
 import TitleSetting from './components/Setting/TitleSetting';
 import { generateDates } from './utils/CommonUtils';
 import { useTranslation } from 'react-i18next';
+import { setIsSettingsModalOpen } from './reduxStoreAndSlices/uiFlagSlice';
 
 function App() {
   const { t } = useTranslation();
@@ -29,7 +30,8 @@ function App() {
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const isSettingsModalOpen = useSelector((state: RootState) => state.uiFlags.isSettingsModalOpen);
+  const isContextMenuOpen = useSelector((state: RootState) => state.uiFlags.isContextMenuOpen);
   const [isGridRefDragging, setIsGridRefDragging] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [canGridRefDrag, setCanGridRefDrag] = useState(true);
@@ -350,20 +352,12 @@ function App() {
     };
   }, [dispatch, isSettingsModalOpen]);
 
-  const openSettingsModal = () => {
-    setIsSettingsModalOpen(true);
-  };
-
-  const closeSettingsModal = () => {
-    setIsSettingsModalOpen(false);
-  };
-
   return (
     <div style={{ position: 'fixed' }}>
       <div style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', left: '0px', width: `${wbsWidth}px`, overflow: 'hidden' }}>
-          <SettingButton onClick={openSettingsModal} />
-          <SettingsModal show={isSettingsModalOpen} onClose={closeSettingsModal} />
+          <SettingButton onClick={() => dispatch(setIsSettingsModalOpen(true))} />
+          <SettingsModal />
           <TitleSetting />
         </div>
         <div style={{ position: 'absolute', left: `${wbsWidth}px`, width: `calc(100vw - ${wbsWidth}px)`, height: '100vh', overflow: 'hidden', borderLeft: '1px solid #00000066', scrollBehavior: 'auto' }} ref={calendarRef}>
@@ -439,7 +433,7 @@ function App() {
         </div>
       </div>
 
-      {!isSettingsModalOpen && !isGridRefDragging && (
+      {!isSettingsModalOpen && !isGridRefDragging && !isContextMenuOpen && (
         <>
           {(indicatorPosition.y > 41 && window.innerHeight - indicatorPosition.y > 36) && (
             <div

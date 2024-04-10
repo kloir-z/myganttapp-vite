@@ -151,19 +151,22 @@ const WBSInfo: React.FC = memo(() => {
   }, [dataArray]);
 
   const menuOptions = useMemo(() => {
-    const showColumnItems: MenuItemProps[] = [];
-    let showColumnDisabled = true;
+    const initialColumnOrder = [
+      'displayName', 'color', 'plannedStartDate', 'plannedEndDate',
+      'plannedDays', 'actualStartDate', 'actualEndDate', 'dependency',
+      'textColumn1', 'textColumn2', 'textColumn3', 'textColumn4', 'isIncludeHolidays'
+    ];
+    const columnSettingsItems: MenuItemProps[] = initialColumnOrder.map(columnId => {
+      const column = columns.find(col => col.columnId === columnId);
+      if (!column) return null;
+      return {
+        children: `${column.columnName}`,
+        onClick: () => dispatch(toggleColumnVisibility(column.columnId)),
+        checked: column.visible,
+        type: 'checkbox'
+      };
+    }).filter(item => item != null);
 
-    columns.forEach(column => {
-      if (!column.visible) {
-        showColumnDisabled = false;
-        const columnName = column.columnName ? column.columnName : column.columnId;
-        showColumnItems.push({
-          children: `Show ${columnName} Column`,
-          onClick: () => dispatch(toggleColumnVisibility(column.columnId)),
-        });
-      }
-    });
     const addChartRowItems = [];
     for (let i = 1; i <= 10; i++) {
       addChartRowItems.push({
@@ -251,22 +254,9 @@ const WBSInfo: React.FC = memo(() => {
         ]
       },
       {
-        children: "Hide Column",
-        onClick: () => {
-          selectedRangesRef.current?.selectedColumnIds.forEach((colId) => dispatch(toggleColumnVisibility(colId.toString())))
-          if (selectedRangesRef.current) {
-            selectedRangesRef.current = {
-              ...selectedRangesRef.current,
-              selectedColumnIds: [],
-            };
-          }
-        },
-      },
-      {
-        children: "Show Column",
-        items: showColumnItems,
-        disabled: showColumnDisabled
-      },
+        children: "Show/Hide Column",
+        items: columnSettingsItems
+      }
     ];
     return options;
   }, [dispatch, dataArray, copiedRows, columns]);

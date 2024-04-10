@@ -1,7 +1,7 @@
 // ContextMenuItem.tsx
 import React, { memo, ReactNode, useCallback, useState } from 'react';
 import { css, styled } from 'styled-components';
-import { MdChevronRight } from 'react-icons/md';
+import { MdCheckBox, MdCheckBoxOutlineBlank, MdChevronRight } from 'react-icons/md';
 
 const StyledMenuItem = styled.div`
   position: relative;
@@ -10,13 +10,13 @@ const StyledMenuItem = styled.div`
 
 const MenuItemContent = styled.div<{ disabled?: boolean }>`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   position: relative;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px 15px;
   background-color: #FFF;
   min-width: 100px;
+  white-space: nowrap;
 
   &:hover {
     background-color: #efefef;
@@ -26,11 +26,21 @@ const MenuItemContent = styled.div<{ disabled?: boolean }>`
     disabled &&
     css`
       color: #d1d1d1;
+      cursor: not-allowed;
     `}
 `;
 
+const CheckboxIcon = styled.span`
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+`;
+
 const SubMenuIndicator = styled.span`
-  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 15px;
 `;
 
 const SubMenu = styled.div`
@@ -41,17 +51,16 @@ const SubMenu = styled.div`
   background-color: #FFF;
   min-width: 50px;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-`;
-
-export interface MenuItemProps {
+`; export interface MenuItemProps {
   onClick?: () => void;
   children: ReactNode;
   items?: MenuItemProps[];
   closeMenu?: () => void;
   disabled?: boolean;
+  checked?: boolean;
 }
 
-export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, items, closeMenu, disabled }) => {
+export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, items, closeMenu, disabled, checked }) => {
   const [isSubMenuVisible, setIsSubMenuVisible] = useState(false);
 
   const handleMouseEnter = useCallback(() => {
@@ -67,17 +76,22 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
   const handleClick = useCallback(() => {
     if (onClick && !disabled) {
       onClick();
-      if (closeMenu) {
+      if (closeMenu && checked === undefined) {
         closeMenu();
       }
     }
-  }, [closeMenu, onClick, disabled]);
+  }, [onClick, disabled, closeMenu, checked]);
 
   return (
     <StyledMenuItem onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <MenuItemContent disabled={disabled} onClick={handleClick}>
+        {checked !== undefined && (
+          <CheckboxIcon>
+            {checked ? <MdCheckBox /> : <MdCheckBoxOutlineBlank />}
+          </CheckboxIcon>
+        )}
         {children}
-        {items && items.length > 0 && <SubMenuIndicator><MdChevronRight/></SubMenuIndicator>}
+        {items && items.length > 0 && <SubMenuIndicator><MdChevronRight /></SubMenuIndicator>}
       </MenuItemContent>
       {isSubMenuVisible && (
         <SubMenu>

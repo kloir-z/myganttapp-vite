@@ -1,7 +1,9 @@
 // ContextMenu.tsx
 import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
-import { MenuItemProps, MenuItem } from './ContextMenuItem'; // MenuItemのインポートを確認
+import { MenuItemProps, MenuItem } from './ContextMenuItem';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+import { setIsContextMenuOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 
 const StyledMenu = styled.div`
   position: fixed;
@@ -11,28 +13,32 @@ const StyledMenu = styled.div`
   min-width: 100px;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 `;
+
 interface ContextMenuProps {
   items?: MenuItemProps[];
   targetRef: React.RefObject<HTMLElement>;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const dispatch = useDispatch();
   const [menuPosition, setMenuPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
     setIsVisible(true);
+    dispatch(setIsContextMenuOpen(true));
     setMenuPosition({
       x: event.pageX,
       y: event.pageY,
     });
-  }, []);
+  }, [dispatch]);
 
   const closeMenu = useCallback(() => {
     setIsVisible(false);
-  }, []);
+    dispatch(setIsContextMenuOpen(false));
+  }, [dispatch]);
 
   useEffect(() => {
     const targetElement = targetRef.current;
@@ -43,7 +49,6 @@ const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
           closeMenu();
         }
       });
-
       return () => {
         targetElement.removeEventListener('contextmenu', handleContextMenu);
         document.removeEventListener('mousedown', closeMenu);

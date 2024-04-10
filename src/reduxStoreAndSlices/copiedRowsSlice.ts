@@ -1,4 +1,4 @@
-// reduxComponents/copiedRowsSlice.ts
+// copiedRowsSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WBSData } from '../types/DataTypes';
 

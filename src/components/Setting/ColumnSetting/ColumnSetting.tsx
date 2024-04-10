@@ -10,7 +10,14 @@ const ColumnSetting: React.FC = memo(() => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const allColumns = useSelector((state: RootState) => state.wbsData.columns);
-  const filteredColumns = allColumns.filter(column => column.columnId !== 'no');
+  const initialColumnOrder = [
+    'displayName', 'color', 'plannedStartDate', 'plannedEndDate',
+    'plannedDays', 'actualStartDate', 'actualEndDate', 'dependency',
+    'textColumn1', 'textColumn2', 'textColumn3', 'textColumn4', 'isIncludeHolidays'
+  ];
+  const filteredColumns = initialColumnOrder
+    .map(id => allColumns.find(col => col.columnId === id))
+    .filter(col => col !== undefined && col.columnId !== 'no') as typeof allColumns;
 
   const updateColumnName = (columnId: string, newName: string) => {
     dispatch(setColumns(
