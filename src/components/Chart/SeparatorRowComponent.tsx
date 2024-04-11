@@ -101,7 +101,8 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
             },
-            items: addChartRowItems
+            items: addChartRowItems,
+            path: '1.0'
           },
           {
             children: "Event",
@@ -109,9 +110,11 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
             },
-            items: addEventRowItems
+            items: addEventRowItems,
+            path: '1.1'
           }
-        ]
+        ],
+        path: '1'
       },
     ];
     return options;

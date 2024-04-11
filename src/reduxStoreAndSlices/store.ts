@@ -5,6 +5,7 @@ import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
 import baseSettingsReducer from './baseSettingsSlice';
 import uiFlagsReducer from './uiFlagSlice';
+import contextMenuReducer from './contextMenuSlice';
 import { Column } from "@silevis/reactgrid";
 import { initializedDummyData, initializedEmptyData } from './initialData';
 import { initialHolidays, initialRegularDaysOffSetting } from './initialHolidays';
@@ -313,6 +314,7 @@ export const store = configureStore({
     color: colorReducer,
     baseSettings: baseSettingsReducer,
     uiFlags: uiFlagsReducer,
+    contextMenu: contextMenuReducer
   },
 });
 

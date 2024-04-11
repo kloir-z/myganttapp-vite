@@ -378,7 +378,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
             },
-            items: addChartRowItems
+            items: addChartRowItems,
+            path: '1.0'
           },
           {
             children: "Event",
@@ -386,9 +387,11 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
             },
-            items: addEventRowItems
+            items: addEventRowItems,
+            path: '1.1'
           }
-        ]
+        ],
+        path: '1'
       },
     ];
     return options;

@@ -4,6 +4,7 @@ import { MenuItemProps, MenuItem } from './ContextMenuItem';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { setIsContextMenuOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
+import { closeAllSubMenus } from '../../reduxStoreAndSlices/contextMenuSlice';
 
 const StyledMenu = styled.div`
   position: fixed;
@@ -28,14 +29,15 @@ const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
     setIsVisible(true);
-    dispatch(setIsContextMenuOpen(true));
     setMenuPosition({
       x: event.pageX,
       y: event.pageY,
     });
+    dispatch(setIsContextMenuOpen(true));
   }, [dispatch]);
 
   const closeMenu = useCallback(() => {
+    dispatch(closeAllSubMenus());
     setIsVisible(false);
     dispatch(setIsContextMenuOpen(false));
   }, [dispatch]);

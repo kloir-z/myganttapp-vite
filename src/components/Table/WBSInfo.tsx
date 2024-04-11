@@ -1,7 +1,7 @@
 // WBSInfo.tsx
 import React, { useCallback, useMemo, memo, useState, useRef } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow, MyRange } from '../../types/DataTypes';
-import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, Highlight, HeaderCell } from "@silevis/reactgrid";
+import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, Highlight, HeaderCell, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "/src/components/Table/css/ReactGrid.css";
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
@@ -150,12 +150,25 @@ const WBSInfo: React.FC = memo(() => {
     }
   }, [dataArray]);
 
+  const handleContextMenu = useCallback((
+    _selectedRowIds: Id[],
+    _selectedColIds: Id[],
+    _selectionMode: SelectionMode,
+    menuOptions: MenuOption[]
+  ): MenuOption[] => {
+    const newMenuOptions = menuOptions.filter(option =>
+      option.id !== "copy" && option.id !== "cut" && option.id !== "paste"
+    );
+    return newMenuOptions;
+  }, []);
+
   const menuOptions = useMemo(() => {
     const initialColumnOrder = [
       'displayName', 'color', 'plannedStartDate', 'plannedEndDate',
       'plannedDays', 'actualStartDate', 'actualEndDate', 'dependency',
       'textColumn1', 'textColumn2', 'textColumn3', 'textColumn4', 'isIncludeHolidays'
     ];
+
     const columnSettingsItems: MenuItemProps[] = initialColumnOrder.reduce((acc: MenuItemProps[], columnId) => {
       const column = columns.find(col => col.columnId === columnId);
       if (column) {
@@ -241,7 +254,9 @@ const WBSInfo: React.FC = memo(() => {
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
               dispatch(addRow({ rowType: "Chart", insertAtId, numberOfRows }));
             },
-            items: addChartRowItems
+            items: addChartRowItems,
+            path: '1.0'
+
           },
           {
             children: "Event",
@@ -250,13 +265,16 @@ const WBSInfo: React.FC = memo(() => {
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
               dispatch(addRow({ rowType: "Event", insertAtId, numberOfRows }));
             },
-            items: addEventRowItems
+            items: addEventRowItems,
+            path: '1.1'
           }
-        ]
+        ],
+        path: '1'
       },
       {
         children: "Show/Hide Column",
-        items: columnSettingsItems
+        items: columnSettingsItems,
+        path: '2'
       }
     ];
     return options;
@@ -294,6 +312,7 @@ const WBSInfo: React.FC = memo(() => {
         enableRowSelection
         onRowsReordered={handleRowsReorder}
         onColumnsReordered={handleColumnsReorder}
+        onContextMenu={handleContextMenu}
         highlights={highlights}
         onFocusLocationChanged={handleFocusLocationChanged}
         onSelectionChanged={handleSelectionChanged}

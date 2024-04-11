@@ -1,7 +1,11 @@
 // ContextMenuItem.tsx
-import React, { memo, ReactNode, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import { css, styled } from 'styled-components';
 import { MdCheckBox, MdCheckBoxOutlineBlank, MdChevronRight } from 'react-icons/md';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../reduxStoreAndSlices/store';
+import { setOpenSubMenu } from '../../reduxStoreAndSlices/contextMenuSlice';
 
 const StyledMenuItem = styled.div`
   position: relative;
@@ -26,7 +30,6 @@ const MenuItemContent = styled.div<{ disabled?: boolean }>`
     disabled &&
     css`
       color: #d1d1d1;
-      cursor: not-allowed;
     `}
 `;
 
@@ -51,39 +54,43 @@ const SubMenu = styled.div`
   background-color: #FFF;
   min-width: 50px;
   box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-`; export interface MenuItemProps {
+`;
+
+export interface MenuItemProps {
   onClick?: () => void;
-  children: ReactNode;
+  children: React.ReactNode;
   items?: MenuItemProps[];
+  path?: string;
   closeMenu?: () => void;
   disabled?: boolean;
   checked?: boolean;
 }
 
-export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, items, closeMenu, disabled, checked }) => {
-  const [isSubMenuVisible, setIsSubMenuVisible] = useState(false);
+export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, items, path, closeMenu, disabled, checked }) => {
+  const dispatch = useDispatch();
+  const openSubMenus = useSelector((state: RootState) => state.contextMenu.openSubMenus);
+  const isSubMenuVisible = path ? openSubMenus.includes(path) : false;
 
   const handleMouseEnter = useCallback(() => {
-    if (items && items.length > 0) {
-      setIsSubMenuVisible(true);
+    if (items && items.length > 0 && path) {
+      dispatch(setOpenSubMenu(path));
     }
-  }, [items]);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsSubMenuVisible(false);
-  }, []);
+  }, [dispatch, items, path]);
 
   const handleClick = useCallback(() => {
     if (onClick && !disabled) {
       onClick();
+      if (path) {
+        dispatch(setOpenSubMenu(path));
+      }
       if (closeMenu && checked === undefined) {
         closeMenu();
       }
     }
-  }, [onClick, disabled, closeMenu, checked]);
+  }, [onClick, disabled, path, closeMenu, checked, dispatch]);
 
   return (
-    <StyledMenuItem onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <StyledMenuItem onMouseEnter={handleMouseEnter} >
       <MenuItemContent disabled={disabled} onClick={handleClick}>
         {checked !== undefined && (
           <CheckboxIcon>
