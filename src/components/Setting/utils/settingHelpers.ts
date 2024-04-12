@@ -1,14 +1,14 @@
-import { ExtendedColumn, setColumns, setDateFormat, setShowYear, updateHolidayColor } from "../../../reduxStoreAndSlices/store";
+import { ExtendedColumn, setColumns, setDateFormat, setShowYear, updateEntireRegularDaysOffSetting, updateHolidayColor } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
 import { WBSData, DateFormatType, RegularDaysOffSettingsType, HolidayColor } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
-import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
-import { updateRegularDaysOffSetting, setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
+import { updateEntireColorSettings } from "../../../reduxStoreAndSlices/colorSlice";
+import { setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
 import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setCalendarWidth, setCellWidth } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { v4 as uuidv4 } from 'uuid';
 
 export const handleExport = (
-  colors: ColorInfo[],
+  colors: { [id: number]: ColorInfo },
   fileName: string,
   dateRange: { startDate: string, endDate: string },
   columns: ExtendedColumn[],
@@ -81,7 +81,6 @@ export const handleAppend = (
   }
 };
 
-
 export const handleImport = (
   file: File,
   dispatch: AppDispatch,
@@ -96,7 +95,7 @@ export const handleImport = (
           const parsedData = JSON.parse(text);
 
           if (parsedData.colors) {
-            dispatch(updateAllColors(parsedData.colors));
+            dispatch(updateEntireColorSettings(parsedData.colors));
           }
           if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
             dispatch(setDateRange({
@@ -108,7 +107,7 @@ export const handleImport = (
             dispatch(setColumns(parsedData.columns));
           }
           if (parsedData.regularDaysOffSetting) {
-            dispatch(updateRegularDaysOffSetting(parsedData.regularDaysOffSetting));
+            dispatch(updateEntireRegularDaysOffSetting(parsedData.regularDaysOffSetting));
           }
           let dateFormat: DateFormatType;
           if (parsedData.dateFormat) {

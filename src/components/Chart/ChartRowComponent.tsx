@@ -1,11 +1,9 @@
 import React, { useState, memo, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ChartRow } from '../../types/DataTypes';
-import { useDispatch } from 'react-redux';
-import { setPlannedDate, setActualDate, pushPastState, removePastState, updateSeparatorDates, addRow, insertCopiedRow, deleteRows } from '../../reduxStoreAndSlices/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, setPlannedDate, setActualDate, pushPastState, removePastState, updateSeparatorDates, addRow, insertCopiedRow, deleteRows } from '../../reduxStoreAndSlices/store';
 import { addPlannedDays } from '../../utils/CommonUtils';
 import { ChartBar } from './ChartBar';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
@@ -27,13 +25,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
   const colors = useSelector((state: RootState) => state.color.colors);
   const plannedChartBarColor = useMemo(() => {
     if (entry.color === '') { return '#76ff7051'; }
-    const colorInfo = colors.find(c =>
-      c.alias.split(',').map(alias => alias.trim()).includes(entry.color)
+    const colorInfo = Object.values(colors).find(colorInfo =>
+      colorInfo.alias.split(',').map(alias => alias.trim()).includes(entry.color)
     );
     return colorInfo ? colorInfo.color : '#76ff7051';
   }, [entry.color, colors]);
   const actualChartBarColor = useMemo(() => {
-    const colorInfo = colors.find(c => c.id === 999);
+    const colorInfo = colors[999];
     return colorInfo ? colorInfo.color : '#0000003d';
   }, [colors]);
   const plannedDays = useMemo(() => { return entry.plannedDays }, [entry.plannedDays]);

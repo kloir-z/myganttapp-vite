@@ -2,9 +2,8 @@
 import React, { useState, memo, useEffect, useCallback, useReducer, useMemo, useRef } from 'react';
 import { EventRow, EventData } from '../../types/DataTypes';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEventRow, pushPastState, removePastState, insertCopiedRow, addRow, deleteRows } from '../../reduxStoreAndSlices/store';
+import { RootState, updateEventRow, pushPastState, removePastState, insertCopiedRow, addRow, deleteRows } from '../../reduxStoreAndSlices/store';
 import { ChartBar } from './ChartBar';
-import { RootState } from '../../reduxStoreAndSlices/store';
 import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
@@ -76,13 +75,13 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
   const colors = useSelector((state: RootState) => state.color.colors);
   const plannedChartBarColor = useMemo(() => {
     if (entry.color === '') { return '#76ff7051'; }
-    const colorInfo = colors.find(c =>
-      c.alias.split(',').map(alias => alias.trim()).includes(entry.color)
+    const colorInfo = Object.values(colors).find(colorInfo =>
+      colorInfo.alias.split(',').map(alias => alias.trim()).includes(entry.color)
     );
     return colorInfo ? colorInfo.color : '#76ff7051';
   }, [entry.color, colors]);
   const actualChartBarColor = useMemo(() => {
-    const colorInfo = colors.find(c => c.id === 999);
+    const colorInfo = colors[999];
     return colorInfo ? colorInfo.color : '#0000003d';
   }, [colors]);
   const init = (initialEventData: EventData[]) => initialEventData.map(event => ({

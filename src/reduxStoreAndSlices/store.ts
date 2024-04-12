@@ -207,8 +207,8 @@ export const wbsDataSlice = createSlice({
     updateEntireRegularDaysOffSetting: (state, action: PayloadAction<RegularDaysOffSettingsType>) => {
       const regularDaysOffSetting = action.payload;
       state.regularDaysOffSetting = regularDaysOffSetting;
-      state.regularDaysOff = Array.from(new Set(Object.values(initialRegularDaysOffSetting).flatMap(setting => setting.days))),
-        resetEndDate(state)
+      state.regularDaysOff = Array.from(new Set(Object.values(initialRegularDaysOffSetting).flatMap(setting => setting.days)));
+      resetEndDate(state)
     },
     updateRegularDaysOffSetting: (state, action: PayloadAction<{ id: number; day: number; add: boolean }>) => {
       const { id, day, add } = action.payload;
