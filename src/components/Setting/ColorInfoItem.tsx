@@ -1,5 +1,5 @@
 // ColorInfoItem.tsx
-import React, { useCallback } from 'react';
+import { useCallback, memo, useState, useRef, useEffect } from 'react';
 import { ChromePicker, ColorResult } from 'react-color';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
@@ -14,7 +14,7 @@ type ColorInfoItemProps = {
   displayColorPicker: boolean;
 };
 
-const ColorInfoItem: React.FC<ColorInfoItemProps> = React.memo(({
+const ColorInfoItem: React.FC<ColorInfoItemProps> = memo(({
   id,
   alias,
   color,
@@ -24,10 +24,21 @@ const ColorInfoItem: React.FC<ColorInfoItemProps> = React.memo(({
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const [localAlias, setLocalAlias] = useState(alias);
+  const aliasTimeoutRef = useRef<number | null>(null);
 
-  const handleAliasChange = useCallback((id: number, alias: string) => {
-    dispatch(updateAlias({ id, alias }));
-  }, [dispatch]);
+  const resetAliasTimeout = useCallback(() => {
+    if (aliasTimeoutRef.current) {
+      clearTimeout(aliasTimeoutRef.current);
+    }
+    aliasTimeoutRef.current = window.setTimeout(() => {
+      dispatch(updateAlias({ id, alias: localAlias }));
+    }, 100);
+  }, [dispatch, id, localAlias]);
+
+  useEffect(() => {
+    resetAliasTimeout();
+  }, [localAlias, resetAliasTimeout]);
 
   const handleColorChange = useCallback((id: number) => (color: ColorResult) => {
     const rgbaColor = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
@@ -78,8 +89,8 @@ const ColorInfoItem: React.FC<ColorInfoItemProps> = React.memo(({
       ) : (
         <input
           type="text"
-          value={alias}
-          onChange={(e) => handleAliasChange(id, e.target.value)}
+          value={localAlias}
+          onChange={(e) => setLocalAlias(e.target.value)}
           style={{ height: '20px', margin: '2px' }}
         />
       )}

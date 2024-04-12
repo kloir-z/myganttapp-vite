@@ -1,5 +1,5 @@
 // ColorSetting.tsx
-import React, { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import { useSelector } from 'react-redux';
 import SettingChildDiv from "./SettingChildDiv";
 import ColorInfoItem from "./ColorInfoItem";
