@@ -122,8 +122,8 @@ function App() {
     } else if (!isGridRefDragging) {
       const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
-      let adjustedY = indicatorPosition.y
-      if (canGridRefDrag) {
+      let adjustedY = indicatorPosition.y;
+      if (!isContextMenuOpen && canGridRefDrag) {
         const gridStartY = gridRef.current.scrollTop % 21;
         adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
       }
@@ -135,7 +135,7 @@ function App() {
       setIsGridRefDragging(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, startX, startY, wbsWidth]);
+  }, [canGridRefDrag, cellWidth, isGridRefDragging, isMouseDown, startX, startY, wbsWidth, isContextMenuOpen]);
 
   const resetDragTimeout = useCallback(() => {
     if (dragTimeoutRef.current) {
@@ -433,37 +433,41 @@ function App() {
         </div>
       </div>
 
-      {!isSettingsModalOpen && !isGridRefDragging && !isContextMenuOpen && (
+      {!isSettingsModalOpen && !isGridRefDragging && (
         <>
-          {(indicatorPosition.y > 41 && window.innerHeight - indicatorPosition.y > 36) && (
-            <div
-              className="horizontal-indicator"
-              style={{
-                width: '100vw',
-                height: '0.6px',
-                backgroundColor: 'rgba(59, 42, 255, 0.609)',
-                position: 'absolute',
-                left: 0,
-                top: `${indicatorPosition.y + rowHeight - 1}px`,
-                pointerEvents: 'none',
-                zIndex: '20'
-              }}
-            ></div>
-          )}
-          {(indicatorPosition.x > wbsWidth) && (cellWidth > 5) && (
-            <div
-              className="vertical-indicator"
-              style={{
-                height: `${gridHeight + rowHeight}px`,
-                width: `${cellWidth + 1}px`,
-                backgroundColor: 'rgba(124, 124, 124, 0.09)',
-                position: 'absolute',
-                left: indicatorPosition.x + 'px',
-                top: '21px',
-                pointerEvents: 'none',
-                zIndex: '20'
-              }}
-            ></div>
+          {!isSettingsModalOpen && !isGridRefDragging && (
+            <>
+              {(indicatorPosition.y > 41 && window.innerHeight - indicatorPosition.y > 36) && (
+                <div
+                  className="horizontal-indicator"
+                  style={{
+                    width: '100vw',
+                    height: '0.6px',
+                    backgroundColor: 'rgba(59, 42, 255, 0.609)',
+                    position: 'absolute',
+                    left: 0,
+                    top: `${indicatorPosition.y + rowHeight - 1}px`,
+                    pointerEvents: 'none',
+                    zIndex: '20'
+                  }}
+                ></div>
+              )}
+              {!isContextMenuOpen && (indicatorPosition.x > wbsWidth) && (cellWidth > 5) && (
+                <div
+                  className="vertical-indicator"
+                  style={{
+                    height: `${gridHeight + rowHeight}px`,
+                    width: `${cellWidth + 1}px`,
+                    backgroundColor: 'rgba(124, 124, 124, 0.09)',
+                    position: 'absolute',
+                    left: indicatorPosition.x + 'px',
+                    top: '21px',
+                    pointerEvents: 'none',
+                    zIndex: '20'
+                  }}
+                ></div>
+              )}
+            </>
           )}
         </>
       )}

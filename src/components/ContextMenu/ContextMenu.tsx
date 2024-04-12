@@ -28,11 +28,22 @@ const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
+    const menuWidth = 100; // メニューの最小幅
+    const menuHeight = 137; // メニューの推定高さ（内容に応じて調整が必要かもしれません）
+
+    let x = event.pageX;
+    let y = event.pageY;
+
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth;
+    }
+
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight;
+    }
+
     setIsVisible(true);
-    setMenuPosition({
-      x: event.pageX,
-      y: event.pageY,
-    });
+    setMenuPosition({ x, y });
     dispatch(setIsContextMenuOpen(true));
   }, [dispatch]);
 
@@ -72,6 +83,7 @@ const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
       ))}
     </StyledMenu>
   ) : null;
+
 });
 
 export default ContextMenu;
