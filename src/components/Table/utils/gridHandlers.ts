@@ -5,7 +5,7 @@ import { Dispatch } from 'redux';
 import { setEntireData, ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { CustomDateCell } from './CustomDateCell';
 import { CustomTextCell } from "./CustomTextCell";
-import { calculatePlannedDays, addPlannedDays } from "../../../utils/CommonUtils";
+import { calculatePlannedDays, addPlannedDays, validateDateString } from "../../../utils/CommonUtils";
 import { SeparatorCell } from "./SeparatorCell";
 
 type AllCellTypes = TextCell | NumberCell | CheckboxCell | EmailCell | DropdownCell | ChevronCell | HeaderCell | TimeCell | DateCell | CustomDateCell | CustomTextCell | SeparatorCell;
@@ -60,38 +60,48 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
 
       if (fieldName === "actualStartDate" || fieldName === "actualEndDate") {
         const customDateCell = newCell as CustomDateCell;
+        const validatedDate = validateDateString(customDateCell.text);
         updatedData[rowId] = {
           ...rowData,
-          [fieldName]: customDateCell.text
+          [fieldName]: validatedDate
         };
       } else if (fieldName === "plannedStartDate") {
         const customDateCell = newCell as CustomDateCell;
-        const startDate = customDateCell.text
-        const endDate = chartRow.plannedEndDate
+        const startDate = validateDateString(customDateCell.text);
+        const endDate = validateDateString(chartRow.plannedEndDate);
         updatedData[rowId] = {
           ...rowData,
-          plannedStartDate: customDateCell.text,
+          plannedStartDate: startDate,
           plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOff)
         };
       } else if (fieldName === "plannedEndDate") {
         const customDateCell = newCell as CustomDateCell;
-        const startDate = chartRow.plannedStartDate
-        const endDate = customDateCell.text
+        const startDate = validateDateString(chartRow.plannedStartDate);
+        const endDate = validateDateString(customDateCell.text);
         updatedData[rowId] = {
           ...rowData,
-          plannedEndDate: customDateCell.text,
+          plannedEndDate: endDate,
           plannedDays: calculatePlannedDays(startDate, endDate, holidays, chartRow.isIncludeHolidays, regularDaysOff)
         };
       } else if (fieldName === "plannedDays") {
         const customTextCell = newCell as CustomTextCell;
         const updatedText = typeof customTextCell.text === 'string' ? customTextCell.text.trim() : customTextCell.text;
-        const plannedDays = Math.min(parseInt(updatedText, 10), 9999);
-        const startDate = chartRow.plannedStartDate
-        updatedData[rowId] = {
-          ...rowData,
-          plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularDaysOff),
-          plannedDays: plannedDays
-        };
+        const plannedDaysRaw = parseInt(updatedText, 10);
+        if (isNaN(plannedDaysRaw) || plannedDaysRaw <= 0) {
+          updatedData[rowId] = {
+            ...rowData,
+            plannedEndDate: '',
+            plannedDays: null
+          };
+        } else {
+          const plannedDays = Math.min(plannedDaysRaw, 9999);
+          const startDate = chartRow.plannedStartDate;
+          updatedData[rowId] = {
+            ...rowData,
+            plannedEndDate: addPlannedDays(startDate, plannedDays, holidays, chartRow.isIncludeHolidays, true, regularDaysOff),
+            plannedDays: plannedDays
+          };
+        }
       } else if (fieldName === "dependency") {
         const customTextCell = newCell as CustomTextCell;
         let updatedText = '';
@@ -104,13 +114,13 @@ export const handleGridChanges = (dispatch: Dispatch, data: { [id: string]: WBSD
         if (updatedText === '') {
           updatedData[rowId] = {
             ...rowData,
-            [fieldName]: updatedText,
+            dependency: updatedText,
             dependentId: ''
           };
         } else {
           updatedData[rowId] = {
             ...rowData,
-            [fieldName]: updatedText
+            dependency: updatedText
           };
         }
       } else if (newCell.type === 'customText') {

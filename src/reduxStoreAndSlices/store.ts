@@ -14,7 +14,7 @@ import { assignIds } from '../components/Table/utils/wbsHelpers';
 
 export interface ExtendedColumn extends Column {
   columnId: string;
-  columnName?: string;
+  columnName: string;
   visible: boolean;
 }
 

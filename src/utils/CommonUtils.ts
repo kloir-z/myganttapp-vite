@@ -291,8 +291,8 @@ export const resetEndDate = (
   });
 };
 
-function validateDateString(dateString: string | undefined): string {
-  if (!dateString) return "";
+export function validateDateString(dateString: string | undefined): string {
+  if (!dateString || dateString.length < 8) return "";
   try {
     const dateCDate = cdate(dateString);
     const date = dateCDate.toDate();
@@ -421,10 +421,14 @@ export function resolveDependencies(
 ): { updatedData: { [id: string]: WBSData }, newDependencyMap: { [id: string]: string[] } } {
   let updatedData = Object.keys(data).reduce<{ [id: string]: WBSData }>((acc, rowId) => {
     const row = data[rowId];
-    if (isChartRow(row) && (row.dependency || row.dependentId)) {
-      let updatedRowData = validateRowDates(row);
-      updatedRowData = updateDependency(row, data, rowId);
-      acc[rowId] = updatedRowData;
+    if (isChartRow(row)) {
+      let updatedRowData = row;
+      if (row.dependency || row.dependentId) {
+        updatedRowData = updateDependency(row, data, rowId);
+        acc[rowId] = updatedRowData;
+      } else {
+        acc[rowId] = updatedRowData;
+      }
     } else {
       acc[rowId] = row;
     }
