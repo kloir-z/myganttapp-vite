@@ -25,7 +25,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const isMonthStart = date.get('date') === 1;
         const isFirstDate = index === 0;
         const borderLeft = cellWidth > 3 || dayOfWeek === 0 ? true : false;
-        const setting = regularDaysOffSetting.find(setting => setting.days.includes(dayOfWeek));
+        const setting = Object.values(regularDaysOffSetting).find(s => s.days.includes(dayOfWeek));
         const selectedSetting = setting || (isHoliday(date, holidays) ? holidayColor : null);
         const bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
         const left = cellWidth * index;

@@ -106,7 +106,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const isMonthStart = date.get("date") === 1;
             const isFirstDate = index === 0;
             const borderLeft = cellWidth > 11 || dayOfWeek === 0 ? true : false;
-            const setting = regularDaysOffSetting.find(setting => setting.days.includes(dayOfWeek));
+            const setting = Object.values(regularDaysOffSetting).find(s => s.days.includes(dayOfWeek));
             const selectedSetting = setting || (isHoliday(date, holidays) ? holidayColor : null);
             const bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
             const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01");
@@ -117,7 +117,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const daysSinceFirstSunday = (date.get("date") - 1) + firstDayOfWeek;
             const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
             const today = cdate();
-            const isToday = date.format("YYYY-MM-DD") === today.format("YYYY-MM-DD");
+            const isToday = date === today;
 
             let displayText = `${date.get("date")}`;
             if (cellWidth <= 5) {

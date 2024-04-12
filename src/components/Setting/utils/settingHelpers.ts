@@ -1,6 +1,6 @@
 import { ExtendedColumn, setColumns, setDateFormat, setShowYear, updateHolidayColor } from "../../../reduxStoreAndSlices/store";
 import { ColorInfo } from "../../../reduxStoreAndSlices/colorSlice";
-import { WBSData, DateFormatType, RegularDaysOffSetting, HolidayColor } from "../../../types/DataTypes";
+import { WBSData, DateFormatType, RegularDaysOffSettingsType, HolidayColor } from "../../../types/DataTypes";
 import { AppDispatch } from "../../../reduxStoreAndSlices/store";
 import { updateAllColors } from "../../../reduxStoreAndSlices/colorSlice";
 import { updateRegularDaysOffSetting, setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
@@ -15,7 +15,7 @@ export const handleExport = (
   data: { [id: string]: WBSData },
   holidayInput: string,
   holidayColor: HolidayColor,
-  regularDaysOffSetting: RegularDaysOffSetting[],
+  regularDaysOffSetting: RegularDaysOffSettingsType,
   wbsWidth: number,
   calendarWidth: number,
   cellWidth: number,

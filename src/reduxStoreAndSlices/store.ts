@@ -1,5 +1,5 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { WBSData, EventRow, RegularDaysOffSetting, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor, RowType } from '../types/DataTypes';
+import { WBSData, EventRow, RegularDaysOffSettingsType, isChartRow, isEventRow, isSeparatorRow, DateFormatType, HolidayColor, RowType } from '../types/DataTypes';
 import { calculatePlannedDays, buildDependencyMap, updateDependentRows, resetEndDate, updateSeparatorRowDates, adjustColorOpacity, createNewRow, resolveDependencies } from '../utils/CommonUtils';
 import copiedRowsReducer from './copiedRowsSlice';
 import colorReducer from './colorSlice'
@@ -35,7 +35,7 @@ const initialState: {
   },
   holidays: string[],
   holidayColor: HolidayColor,
-  regularDaysOffSetting: RegularDaysOffSetting[],
+  regularDaysOffSetting: RegularDaysOffSettingsType,
   regularDaysOff: number[],
   columns: ExtendedColumn[],
   showYear: boolean,
@@ -48,7 +48,7 @@ const initialState: {
   holidays: initialHolidays,
   holidayColor: { color: '#ffdcdc', subColor: adjustColorOpacity('#ffdcdc') },
   regularDaysOffSetting: initialRegularDaysOffSetting,
-  regularDaysOff: Array.from(new Set(initialRegularDaysOffSetting.flatMap(setting => setting.days))),
+  regularDaysOff: Array.from(new Set(Object.values(initialRegularDaysOffSetting).flatMap(setting => setting.days))),
   showYear: false,
   dateFormat: "yyyy/M/d",
   columns: initialColumns,
@@ -204,11 +204,46 @@ export const wbsDataSlice = createSlice({
       const updatedData = updateSeparatorRowDates(state.data);
       state.data = updatedData;
     },
-    updateRegularDaysOffSetting: (state, action: PayloadAction<RegularDaysOffSetting[]>) => {
+    updateEntireRegularDaysOffSetting: (state, action: PayloadAction<RegularDaysOffSettingsType>) => {
       const regularDaysOffSetting = action.payload;
       state.regularDaysOffSetting = regularDaysOffSetting;
-      state.regularDaysOff = Array.from(new Set(regularDaysOffSetting.flatMap(setting => setting.days)));
-      resetEndDate(state)
+      state.regularDaysOff = Array.from(new Set(Object.values(initialRegularDaysOffSetting).flatMap(setting => setting.days))),
+        resetEndDate(state)
+    },
+    updateRegularDaysOffSetting: (state, action: PayloadAction<{ id: number; day: number; add: boolean }>) => {
+      const { id, day, add } = action.payload;
+      const setting = state.regularDaysOffSetting[id];
+      if (!setting) return;
+      if (add) {
+        const allDays = Object.values(state.regularDaysOffSetting).flatMap(s => s.days);
+        const uniqueDaysBeforeAdding = new Set(allDays);
+        uniqueDaysBeforeAdding.add(day);
+        if (uniqueDaysBeforeAdding.size === 7) {
+          return;
+        }
+        if (!setting.days.includes(day)) {
+          setting.days.push(day);
+        }
+      } else {
+        setting.days = setting.days.filter(d => d !== day);
+      }
+      if (add) {
+        Object.entries(state.regularDaysOffSetting).forEach(([key, otherSetting]) => {
+          if (parseInt(key) !== id) {
+            otherSetting.days = otherSetting.days.filter(d => d !== day);
+          }
+        });
+      }
+      state.regularDaysOff = Array.from(new Set(Object.values(state.regularDaysOffSetting).flatMap(s => s.days)));
+      resetEndDate(state);
+    },
+    updateRegularDaysOffColor: (state, action: PayloadAction<{ id: number; color: string }>) => {
+      const { id, color } = action.payload;
+      const setting = state.regularDaysOffSetting[id];
+      if (setting) {
+        setting.color = color;
+        setting.subColor = adjustColorOpacity(color);
+      }
     },
     setDateFormat(state, action: PayloadAction<DateFormatType>) {
       state.dateFormat = action.payload;
@@ -294,7 +329,9 @@ export const {
   setEventDisplayName,
   updateEventRow,
   updateSeparatorDates,
+  updateEntireRegularDaysOffSetting,
   updateRegularDaysOffSetting,
+  updateRegularDaysOffColor,
   setShowYear,
   setDateFormat,
   setColumns,

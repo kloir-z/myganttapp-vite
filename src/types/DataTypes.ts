@@ -75,11 +75,14 @@ export type HolidayColor = {
   subColor: string;
 };
 
-export type RegularDaysOffSetting = {
-  id: number;
+type RegularDaysOffSetting = {
   color: string;
   subColor: string;
   days: number[];
+};
+
+export type RegularDaysOffSettingsType = {
+  [key: number]: RegularDaysOffSetting;
 };
 
 export type DateFormatType = "yyyy/MM/dd" | "MM/dd/yyyy" | "dd/MM/yyyy" | "yyyy/M/d" | "M/d/yyyy" | "d/M/yyyy";
