@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useRef, useCallback } from 'react';
 import { ExtendedColumn } from '../../../reduxStoreAndSlices/store';
 import { useTranslation } from 'react-i18next';
 
@@ -10,29 +10,22 @@ type ColumnRowProps = {
 
 const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, toggleColumnVisibility }) => {
   const { t } = useTranslation();
-  const [localColumnName, setLocalColumnName] = useState(column.columnName ?? '');
-  const [isFocused, setIsFocused] = useState(false);
+  const [localColumnName, setLocalColumnName] = useState(column.columnName);
+  const aliasTimeoutRef = useRef<number | null>(null);
+
+  const resetAliasTimeout = useCallback(() => {
+    if (aliasTimeoutRef.current) {
+      clearTimeout(aliasTimeoutRef.current);
+    }
+    aliasTimeoutRef.current = window.setTimeout(() => {
+      updateColumnName(column.columnId, localColumnName);
+    }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [column.columnId, localColumnName]);
 
   useEffect(() => {
-    if (!isFocused) {
-      setLocalColumnName(column.columnName ?? '');
-    }
-  }, [column.columnName, isFocused]);
-
-  const handleBlur = () => {
-    if (localColumnName !== column.columnName) {
-      updateColumnName(column.columnId, localColumnName);
-    }
-    setIsFocused(false);
-  };
-
-  const handleFocus = () => setIsFocused(true);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleBlur();
-    }
-  };
+    resetAliasTimeout();
+  }, [localColumnName, resetAliasTimeout]);
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
@@ -48,9 +41,6 @@ const ColumnRow: React.FC<ColumnRowProps> = memo(({ column, updateColumnName, to
         type="text"
         value={localColumnName}
         onChange={(e) => setLocalColumnName(e.target.value)}
-        onBlur={handleBlur}
-        onFocus={handleFocus}
-        onKeyDown={handleKeyDown}
         style={{ width: '100px', marginRight: '10px' }}
       />
     </div>
