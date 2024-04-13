@@ -340,11 +340,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
       {
         children: "Delete Bar",
         onClick: () => handleDeleteBar(),
-        disabled: contextMenu === null
+        disabled: contextMenu === null,
+        path: '0'
       },
       {
         children: "Copy Row",
         onClick: () => dispatch(setCopiedRows([entry])),
+        path: '1'
       },
       {
         children: "Cut Row",
@@ -352,6 +354,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           dispatch(deleteRows([entry.id]));
           dispatch(setCopiedRows([entry]));
         },
+        path: '2'
       },
       {
         children: "Insert Copied Row",
@@ -359,7 +362,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           const insertAtId = entry.id;
           dispatch(insertCopiedRow({ insertAtId: insertAtId, copiedRows }))
         },
-        disabled: insertCopiedRowDisabled
+        disabled: insertCopiedRowDisabled,
+        path: '3'
       },
       {
         children: "Add Row",
@@ -370,6 +374,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Separator", insertAtId: insertAtId, numberOfRows: 1 }));
             },
+            path: '4.0'
           },
           {
             children: "Chart",
@@ -378,7 +383,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
               dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
             },
             items: addChartRowItems,
-            path: '1.0'
+            path: '4.1'
           },
           {
             children: "Event",
@@ -387,16 +392,17 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
               dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
             },
             items: addEventRowItems,
-            path: '1.1'
+            path: '4.2'
           }
         ],
-        path: '1'
+        path: '4'
       },
       {
         children: "Setting",
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
         },
+        path: '5'
       }
     ];
     return options;

@@ -1,4 +1,4 @@
-//GridStyles.ts
+//GanttStyles.tsx
 import styled from 'styled-components';
 import { css, keyframes } from 'styled-components';
 

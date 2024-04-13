@@ -10,13 +10,13 @@ const StyledMenuItem = styled.div`
   cursor: pointer;
 `;
 
-const MenuItemContent = styled.div<{ disabled?: boolean, active?: boolean }>`
+const MenuItemContent = styled.div<{ disabled?: boolean, $active?: boolean }>`
   display: flex;
   align-items: center;
   position: relative;
   cursor: pointer;
   padding: 4px 15px;
-  background-color: ${({ active }) => active ? '#efefef' : '#FFF'};
+  background-color: ${({ $active }) => $active ? '#efefef' : '#FFF'};
   min-width: 100px;
   white-space: nowrap;
   &:hover {
@@ -42,11 +42,12 @@ const SubMenuIndicator = styled.span`
   padding-left: 15px;
 `;
 
-const SubMenu = styled.div<{ adjustLeft?: boolean, adjustTop?: number }>`
+const SubMenu = styled.div<{ $adjustLeft?: boolean, $adjustTop?: number }>`
   position: absolute;
-  top: ${({ adjustTop }) => adjustTop}px;
-  left: ${({ adjustLeft }) => adjustLeft ? 'auto' : '100%'};
-  right: ${({ adjustLeft }) => adjustLeft ? '100%' : 'auto'};
+  z-index: 1001;
+  top: ${({ $adjustTop }) => $adjustTop}px;
+  left: ${({ $adjustLeft }) => $adjustLeft ? 'auto' : '100%'};
+  right: ${({ $adjustLeft }) => $adjustLeft ? '100%' : 'auto'};
   border: 1px solid #ececec;
   background-color: #FFF;
   min-width: 50px;
@@ -66,25 +67,27 @@ export interface MenuItemProps {
 export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, items, path, closeMenu, disabled, checked }) => {
   const dispatch = useDispatch();
   const openSubMenus = useSelector((state: RootState) => state.contextMenu.openSubMenus);
-  const isSubMenuVisible = path ? openSubMenus.includes(path) : false;
+  const isSubMenuVisible = !!(path && items && items.length > 0 && openSubMenus.includes(path));
   const itemRef = useRef<HTMLDivElement>(null);
   const [adjustLeft, setAdjustLeft] = useState(false);
   const [adjustTop, setAdjustTop] = useState(0);
 
   const handleMouseEnter = useCallback(() => {
-    if (items && items.length > 0 && path) {
+    if (path) {
       dispatch(setOpenSubMenu(path));
-      if (itemRef.current) {
-        const rect = itemRef.current.getBoundingClientRect();
-        const subMenuWidth = 150;
-        const subMenuHeight = (items.length - 1) * 26;
-        const overflowRight = rect.right + subMenuWidth > window.innerWidth;
-        const overflowBottom = rect.bottom + subMenuHeight > window.innerHeight;
-        setAdjustLeft(overflowRight);
-        if (overflowBottom) {
-          setAdjustTop(-(subMenuHeight));
-        } else {
-          setAdjustTop(0);
+      if (items && items.length > 0) {
+        if (itemRef.current) {
+          const rect = itemRef.current.getBoundingClientRect();
+          const subMenuWidth = 150;
+          const subMenuHeight = (items.length - 1) * 26;
+          const overflowRight = rect.right + subMenuWidth > window.innerWidth;
+          const overflowBottom = rect.bottom + subMenuHeight > window.innerHeight;
+          setAdjustLeft(overflowRight);
+          if (overflowBottom) {
+            setAdjustTop(-(subMenuHeight));
+          } else {
+            setAdjustTop(0);
+          }
         }
       }
     }
@@ -104,7 +107,7 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
 
   return (
     <StyledMenuItem ref={itemRef} onMouseEnter={handleMouseEnter}>
-      <MenuItemContent disabled={disabled} onClick={handleClick} active={isSubMenuVisible}>
+      <MenuItemContent disabled={disabled} onClick={handleClick} $active={isSubMenuVisible}>
         {checked !== undefined && (
           <CheckboxIcon>
             {checked ? <MdCheckBox /> : <MdCheckBoxOutlineBlank />}
@@ -114,7 +117,7 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
         {items && items.length > 0 && <SubMenuIndicator><MdChevronRight /></SubMenuIndicator>}
       </MenuItemContent>
       {isSubMenuVisible && (
-        <SubMenu adjustLeft={adjustLeft} adjustTop={adjustTop}>
+        <SubMenu $adjustLeft={adjustLeft} $adjustTop={adjustTop}>
           {items?.map((item, index) => (
             <MenuItem key={index} closeMenu={closeMenu} {...item} />
           ))}

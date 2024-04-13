@@ -70,6 +70,7 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
       {
         children: "Copy Row",
         onClick: () => dispatch(setCopiedRows([entry])),
+        path: '1'
       },
       {
         children: "Cut Row",
@@ -77,6 +78,7 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
           dispatch(deleteRows([entry.id]));
           dispatch(setCopiedRows([entry]));
         },
+        path: '2'
       },
       {
         children: "Insert Copied Row",
@@ -84,7 +86,8 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
           const insertAtId = entry.id;
           dispatch(insertCopiedRow({ insertAtId: insertAtId, copiedRows }))
         },
-        disabled: insertCopiedRowDisabled
+        disabled: insertCopiedRowDisabled,
+        path: '3'
       },
       {
         children: "Add Row",
@@ -95,6 +98,7 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Separator", insertAtId: insertAtId, numberOfRows: 1 }));
             },
+            path: '4.0'
           },
           {
             children: "Chart",
@@ -103,7 +107,7 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
               dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
             },
             items: addChartRowItems,
-            path: '1.0'
+            path: '4.1'
           },
           {
             children: "Event",
@@ -112,16 +116,17 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
               dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
             },
             items: addEventRowItems,
-            path: '1.1'
+            path: '4.2'
           }
         ],
-        path: '1'
+        path: '4'
       },
       {
         children: "Setting",
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
         },
+        path: '5'
       }
     ];
     return options;

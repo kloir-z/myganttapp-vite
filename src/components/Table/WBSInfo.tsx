@@ -216,6 +216,7 @@ const WBSInfo: React.FC = memo(() => {
           }, [] as WBSData[]);
           dispatch(setCopiedRows(copiedRows));
         },
+        path: '0'
       },
       {
         children: "Cut Row",
@@ -229,12 +230,14 @@ const WBSInfo: React.FC = memo(() => {
           dispatch(setCopiedRows(copiedRows));
           dispatch(deleteRows(selectedRowIds))
         },
+        path: '1'
       },
       {
         children: "Insert Copied Row",
         onClick: () => {
           dispatch(insertCopiedRow({ insertAtId: selectedRangesRef.current?.selectedRowIds[0] || "", copiedRows }))
         },
+        path: '2',
         disabled: insertCopiedRowDisabled
       },
       {
@@ -247,6 +250,7 @@ const WBSInfo: React.FC = memo(() => {
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
               dispatch(addRow({ rowType: "Separator", insertAtId, numberOfRows }));
             },
+            path: '3.0'
           },
           {
             children: "Chart",
@@ -256,7 +260,7 @@ const WBSInfo: React.FC = memo(() => {
               dispatch(addRow({ rowType: "Chart", insertAtId, numberOfRows }));
             },
             items: addChartRowItems,
-            path: '1.0'
+            path: '3.1'
 
           },
           {
@@ -267,21 +271,22 @@ const WBSInfo: React.FC = memo(() => {
               dispatch(addRow({ rowType: "Event", insertAtId, numberOfRows }));
             },
             items: addEventRowItems,
-            path: '1.1'
+            path: '3.2'
           }
         ],
-        path: '1'
+        path: '3'
       },
       {
         children: "Show/Hide Column",
         items: columnSettingsItems,
-        path: '2'
+        path: '4'
       },
       {
         children: "Setting",
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
         },
+        path: '5'
       }
     ];
     return options;
