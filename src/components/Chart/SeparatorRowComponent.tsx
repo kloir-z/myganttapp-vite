@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { cdate } from 'cdate';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import ContextMenu from '../ContextMenu/ContextMenu';
+import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 
 interface SeparatorRowProps {
   entry: SeparatorRow;
@@ -116,6 +117,12 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
         ],
         path: '1'
       },
+      {
+        children: "Setting",
+        onClick: () => {
+          dispatch(setIsSettingsModalOpen(true))
+        },
+      }
     ];
     return options;
   }, [copiedRows, dispatch, entry]);

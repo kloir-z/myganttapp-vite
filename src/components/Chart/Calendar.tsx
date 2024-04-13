@@ -117,7 +117,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const daysSinceFirstSunday = (date.get("date") - 1) + firstDayOfWeek;
             const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
             const today = cdate();
-            const isToday = date === today;
+            const isToday = date.format("YYYY/MM/DD") === today.format("YYYY/MM/DD");
 
             let displayText = `${date.get("date")}`;
             if (cellWidth <= 5) {

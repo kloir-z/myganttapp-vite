@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, setShowYear, resetStore, setDateFormat, setColumns } from '../../reduxStoreAndSlices/store';
 import ColorSetting from "./ColorSetting";
 import ColumnSetting from "./ColumnSetting/ColumnSetting";
-import HolidaySetting from "./HolidaySetting/HolidaySetting";
+import HolidaySetting from "./HolidaySetting";
 import RegularDaysOffSettings from "./RegularDaysOffSetting";
 import DateRangeSetting from "./DateRangeSetting";
 import ExportImportFile from "./ExportImportFile";

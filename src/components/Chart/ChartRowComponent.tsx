@@ -8,6 +8,7 @@ import { GanttRow } from '../../styles/GanttStyles';
 import { cdate } from 'cdate';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import ContextMenu from '../ContextMenu/ContextMenu';
+import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 
 interface ChartRowProps {
   entry: ChartRow;
@@ -391,6 +392,12 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         ],
         path: '1'
       },
+      {
+        children: "Setting",
+        onClick: () => {
+          dispatch(setIsSettingsModalOpen(true))
+        },
+      }
     ];
     return options;
   }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar]);

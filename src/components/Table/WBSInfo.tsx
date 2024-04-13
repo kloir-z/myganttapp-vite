@@ -15,6 +15,7 @@ import { assignIds, reorderArray } from './utils/wbsHelpers';
 import ContextMenu from '../ContextMenu/ContextMenu';
 import { MenuItemProps } from '../ContextMenu/ContextMenuItem';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
+import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 
 const WBSInfo: React.FC = memo(() => {
   const dispatch = useDispatch();
@@ -275,6 +276,12 @@ const WBSInfo: React.FC = memo(() => {
         children: "Show/Hide Column",
         items: columnSettingsItems,
         path: '2'
+      },
+      {
+        children: "Setting",
+        onClick: () => {
+          dispatch(setIsSettingsModalOpen(true))
+        },
       }
     ];
     return options;

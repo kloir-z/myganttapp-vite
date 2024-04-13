@@ -74,14 +74,12 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
   const handleMouseEnter = useCallback(() => {
     if (items && items.length > 0 && path) {
       dispatch(setOpenSubMenu(path));
-
       if (itemRef.current) {
         const rect = itemRef.current.getBoundingClientRect();
         const subMenuWidth = 150;
         const subMenuHeight = (items.length - 1) * 26;
         const overflowRight = rect.right + subMenuWidth > window.innerWidth;
         const overflowBottom = rect.bottom + subMenuHeight > window.innerHeight;
-
         setAdjustLeft(overflowRight);
         if (overflowBottom) {
           setAdjustTop(-(subMenuHeight));

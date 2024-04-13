@@ -1,11 +1,11 @@
 // HolidaySetting.tsx
 import React, { memo, useCallback, useState } from "react";
-import { updateHolidays } from "../utils/settingHelpers";
-import { setHolidayInput } from "../../../reduxStoreAndSlices/baseSettingsSlice";
+import { updateHolidays } from "./utils/settingHelpers";
+import { setHolidayInput } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, updateHolidayColor } from "../../../reduxStoreAndSlices/store";
-import { setHolidays } from "../../../reduxStoreAndSlices/store";
-import SettingChildDiv from "../SettingChildDiv";
+import { RootState, updateHolidayColor } from "../../reduxStoreAndSlices/store";
+import { setHolidays } from "../../reduxStoreAndSlices/store";
+import SettingChildDiv from "./SettingChildDiv";
 import { ChromePicker, ColorResult } from "react-color";
 import { useTranslation } from "react-i18next";
 
@@ -46,7 +46,7 @@ const HolidaySetting: React.FC = memo(() => {
         onClick={() => handleColorClick()}
       ></div>
       {displayColorPicker && (
-        <div style={{ position: 'absolute', zIndex: '9999', left: '70px', top: '0px' }}>
+        <div style={{ position: 'absolute', zIndex: '9999', left: '90px', top: '21px' }}>
           <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose()} />
           <ChromePicker
             color={holidayColor.color}
