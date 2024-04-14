@@ -88,7 +88,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   style={{
                     padding: '0px 5px',
                     left: `${left}px`,
-                    height: '22px',
+                    height: '21px',
                   }}
                 >
                   {displayDate}
@@ -144,7 +144,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   style={{
                     left: `${left}px`,
                     width: `${cellWidth + 0.1}px`,
-                    zIndex: '-1'
+                    height: '20px',
+                    zIndex: '-1',
                   }}
                 >
                   <label
@@ -165,6 +166,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                     style={{
                       left: `${left}px`,
                       width: `${cellWidth + 0.1}px`,
+                      height: '20px',
                       backgroundColor: 'rgba(255, 255, 0, 0.15)',
                     }}
                   />

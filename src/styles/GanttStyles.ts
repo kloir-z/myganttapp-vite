@@ -47,14 +47,13 @@ export const CalendarCell = styled.div<CalendarCellProps>`
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  height: 20px;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
     if (props.$isMonthStart) return '1px solid #00000055';
     if (props.$borderLeft) return '1px solid #00000010';
     return 'none';
   }};
-  background-color: ${props => props.$bgColor ? props.$bgColor : 'unset'};
+  background-color: ${props => props.$bgColor ? props.$bgColor : '#FFFFFF'};
 `;
 
 const createFadeAnimation = (fromOpacity: number, toOpacity: number) => keyframes`
