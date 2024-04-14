@@ -18,6 +18,7 @@ import { resetColor } from "../../reduxStoreAndSlices/colorSlice";
 import { DateFormatType } from "../../types/DataTypes";
 import { useTranslation } from "react-i18next";
 import { setIsSettingsModalOpen } from "../../reduxStoreAndSlices/uiFlagSlice";
+import i18n from 'i18next';
 
 const SettingsModal: React.FC = memo(() => {
   const { t } = useTranslation();
@@ -26,6 +27,9 @@ const SettingsModal: React.FC = memo(() => {
   const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
   const isSettingsModalOpen = useSelector((state: RootState) => state.uiFlags.isSettingsModalOpen);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
+  const handleLanguageChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    i18n.changeLanguage(event.target.value as string);
+  };
   const handleDayFormatChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setDateFormat(event.target.value as DateFormatType));
   };
@@ -125,11 +129,13 @@ const SettingsModal: React.FC = memo(() => {
             onMouseDown={startDrag}
           ><MdOutlineDragIndicator size={'20px'} />
           </div>
-          <DateRangeSetting />
-          <ColorSetting />
-          <ColumnSetting />
-          <SettingChildDiv text={t('Date Format')}>
+          <SettingChildDiv text={t('Language & Date Format')}>
             <div>
+              <select value={i18n.language} onChange={handleLanguageChange} >
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+              </select>
+              <span style={{ whiteSpace: 'pre' }}>   </span>
               <select value={currentFormat} onChange={handleDayFormatChange}>
                 <option value="yyyy/M/d">yyyy/M/d</option>
                 <option value="yyyy/MM/dd">yyyy/MM/dd</option>
@@ -140,6 +146,11 @@ const SettingsModal: React.FC = memo(() => {
               </select>
             </div>
           </SettingChildDiv>
+          <DateRangeSetting />
+          <RegularDaysOffSettings />
+          <HolidaySetting />
+          <ColorSetting />
+          <CellWidthSetting />
           <SettingChildDiv text={t('Date Cell Format')}>
             <div>
               <label>M/d</label>
@@ -151,9 +162,7 @@ const SettingsModal: React.FC = memo(() => {
               <label>y/M/d</label>
             </div>
           </SettingChildDiv>
-          <HolidaySetting />
-          <RegularDaysOffSettings />
-          <CellWidthSetting />
+          <ColumnSetting />
           <ExportImportFile
             handleClose={handleClose}
           />
