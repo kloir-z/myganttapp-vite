@@ -54,10 +54,10 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
         </>
       }
       plugins={[followCursor]}
-      followCursor={true}
+      followCursor={'horizontal'}
       interactive={true}
       allowHTML={true}
-      delay={[1000, 0]}
+      delay={[500, 0]}
       animation="fade"
       offset={[0, 20]}
     >

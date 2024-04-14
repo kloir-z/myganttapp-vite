@@ -423,7 +423,6 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         <ChartBar
           startDate={localPlannedStartDate}
           endDate={localPlannedEndDate}
-          plannedDays={plannedDays}
           dateArray={dateArray}
           isActual={false}
           entryId={entry.id}
@@ -434,7 +433,8 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
           onBarStartMouseDown={(e) => handleBarStartMouseDown(e, 'planned')}
           onContextMenu={(e) => handleBarRightClick(e, 'planned')}
         />
-      )}
+      )
+      }
       {localActualStartDate && localActualEndDate && (
         <ChartBar
           startDate={localActualStartDate}
@@ -453,7 +453,7 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         targetRef={ganttRowRef}
         items={menuOptions}
       />
-    </GanttRow>
+    </GanttRow >
   );
 });
 
