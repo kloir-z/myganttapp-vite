@@ -9,6 +9,7 @@ import { cdate } from 'cdate';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import ContextMenu from '../ContextMenu/ContextMenu';
 import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
+import { useTranslation } from 'react-i18next';
 
 type Action =
   | { type: 'INIT'; payload: EventType[] }
@@ -69,6 +70,7 @@ interface EventRowProps {
 }
 
 const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gridRef, topPosition, setCanGridRefDrag }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
@@ -337,18 +339,18 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
     const insertCopiedRowDisabled = copiedRows.length === 0;
     const options = [
       {
-        children: "Delete Bar",
+        children: t("Delete Bar"),
         onClick: () => handleDeleteBar(),
         disabled: contextMenu === null,
         path: '0'
       },
       {
-        children: "Copy Row",
+        children: t("Copy Row"),
         onClick: () => dispatch(setCopiedRows([entry])),
         path: '1'
       },
       {
-        children: "Cut Row",
+        children: t("Cut Row"),
         onClick: () => {
           dispatch(deleteRows([entry.id]));
           dispatch(setCopiedRows([entry]));
@@ -356,7 +358,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         path: '2'
       },
       {
-        children: "Insert Copied Row",
+        children: t("Insert Copied Row"),
         onClick: () => {
           const insertAtId = entry.id;
           dispatch(insertCopiedRow({ insertAtId: insertAtId, copiedRows }))
@@ -365,10 +367,10 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         path: '3'
       },
       {
-        children: "Add Row",
+        children: t("Add Row"),
         items: [
           {
-            children: "Separator",
+            children: t("Separator"),
             onClick: () => {
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Separator", insertAtId: insertAtId, numberOfRows: 1 }));
@@ -376,7 +378,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
             path: '4.0'
           },
           {
-            children: "Chart",
+            children: t("Chart"),
             onClick: () => {
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Chart", insertAtId: insertAtId, numberOfRows: 1 }));
@@ -385,7 +387,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
             path: '4.1'
           },
           {
-            children: "Event",
+            children: t("Event"),
             onClick: () => {
               const insertAtId = entry.id;
               dispatch(addRow({ rowType: "Event", insertAtId: insertAtId, numberOfRows: 1 }));
@@ -397,7 +399,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
         path: '4'
       },
       {
-        children: "Setting",
+        children: t("Setting"),
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
         },
@@ -405,7 +407,7 @@ const EventRowComponent: React.FC<EventRowProps> = memo(({ entry, dateArray, gri
       }
     ];
     return options;
-  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar]);
+  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar, t]);
 
   return (
     <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px` }} onDoubleClick={handleDoubleClick} onContextMenu={(e) => handleBarRightClick(e, null)} ref={ganttRowRef}>

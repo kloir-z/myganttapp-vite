@@ -16,8 +16,10 @@ import ContextMenu from '../ContextMenu/ContextMenu';
 import { MenuItemProps } from '../ContextMenu/ContextMenuItem';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
+import { useTranslation } from 'react-i18next';
 
 const WBSInfo: React.FC = memo(() => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.data);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
@@ -206,7 +208,7 @@ const WBSInfo: React.FC = memo(() => {
 
     const options = [
       {
-        children: "Copy Row",
+        children: t("Copy Row"),
         onClick: () => {
           const selectedRowIds = selectedRangesRef.current?.selectedRowIds || [];
           const copiedRows = selectedRowIds.reduce((acc, currId) => {
@@ -219,7 +221,7 @@ const WBSInfo: React.FC = memo(() => {
         path: '0'
       },
       {
-        children: "Cut Row",
+        children: t("Cut Row"),
         onClick: () => {
           const selectedRowIds = selectedRangesRef.current?.selectedRowIds || [];
           const copiedRows = selectedRowIds.reduce((acc, currId) => {
@@ -233,7 +235,7 @@ const WBSInfo: React.FC = memo(() => {
         path: '1'
       },
       {
-        children: "Insert Copied Row",
+        children: t("Insert Copied Row"),
         onClick: () => {
           dispatch(insertCopiedRow({ insertAtId: selectedRangesRef.current?.selectedRowIds[0] || "", copiedRows }))
         },
@@ -241,10 +243,10 @@ const WBSInfo: React.FC = memo(() => {
         disabled: insertCopiedRowDisabled
       },
       {
-        children: "Add Row",
+        children: t("Add Row"),
         items: [
           {
-            children: "Separator",
+            children: t("Separator"),
             onClick: () => {
               const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
@@ -253,7 +255,7 @@ const WBSInfo: React.FC = memo(() => {
             path: '3.0'
           },
           {
-            children: "Chart",
+            children: t("Chart"),
             onClick: () => {
               const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
@@ -264,7 +266,7 @@ const WBSInfo: React.FC = memo(() => {
 
           },
           {
-            children: "Event",
+            children: t("Event"),
             onClick: () => {
               const insertAtId = selectedRangesRef.current?.selectedRowIds?.[0] || "";
               const numberOfRows = selectedRangesRef.current?.selectedRowIds.length || 1;
@@ -277,12 +279,12 @@ const WBSInfo: React.FC = memo(() => {
         path: '3'
       },
       {
-        children: "Show/Hide Column",
+        children: t("Show/Hide Column"),
         items: columnSettingsItems,
         path: '4'
       },
       {
-        children: "Setting",
+        children: t("Setting"),
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
         },
@@ -290,7 +292,7 @@ const WBSInfo: React.FC = memo(() => {
       }
     ];
     return options;
-  }, [dispatch, dataArray, copiedRows, columns]);
+  }, [copiedRows, t, columns, dispatch, dataArray]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSelectionChanged = useCallback((selectedRanges: MyRange[]) => {
