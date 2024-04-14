@@ -7,13 +7,16 @@ import { setCellWidth } from "../../reduxStoreAndSlices/baseSettingsSlice";
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light.css'
 import { cdate } from 'cdate';
+import { useTranslation } from 'react-i18next';
 
 interface CalendarProps {
   dateArray: ReturnType<typeof cdate>[];
 }
 
 const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   let previousMonth = dateArray[0].get("M") - 1;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
@@ -48,9 +51,9 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
     <Tippy
       content={
         <>
-          {`Current Cell Width: ${cellWidth}px`}
+          {t('Current Column Width: ')}{`${cellWidth}px`}
           <br />
-          {'MouseWheel to change size(3-21px).'}
+          {t('MouseWheel to change(3-21px)')}
         </>
       }
       plugins={[followCursor]}
@@ -60,6 +63,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
       delay={[500, 0]}
       animation="fade"
       offset={[0, 20]}
+      theme='light'
     >
       <div
         ref={calendarRef}

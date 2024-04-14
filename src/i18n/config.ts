@@ -66,6 +66,8 @@ const config = {
         "Insert Copied Row": "Insert Copied Row",
         "Setting": "Setting",
         "Show/Hide Column": "Show/Hide Column",
+        "Current Column Width: ": "Current Column Width: ",
+        "MouseWheel to change(3-21px)": "MouseWheel to change(3-21px)",
       },
     },
     ja: {
@@ -132,6 +134,8 @@ const config = {
         "Insert Copied Row": "コピーした行を挿入",
         "Setting": "設定を開く",
         "Show/Hide Column": "列表示",
+        "Current Column Width: ": "現在の列幅: ",
+        "MouseWheel to change(3-21px)": "マウスホイールで変更(3-21px)",
       },
     },
   },
