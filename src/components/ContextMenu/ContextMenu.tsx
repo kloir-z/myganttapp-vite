@@ -28,8 +28,8 @@ const ContextMenu: React.FC<ContextMenuProps> = memo(({ items, targetRef }) => {
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
-    const menuWidth = 100; // メニューの最小幅
-    const menuHeight = 137; // メニューの推定高さ（内容に応じて調整が必要かもしれません）
+    const menuWidth = 150;
+    const menuHeight = 170;
 
     let x = event.pageX;
     let y = event.pageY;

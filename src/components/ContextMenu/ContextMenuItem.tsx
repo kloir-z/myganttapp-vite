@@ -71,29 +71,31 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
   const itemRef = useRef<HTMLDivElement>(null);
   const [adjustLeft, setAdjustLeft] = useState(false);
   const [adjustTop, setAdjustTop] = useState(0);
+  const enterTimeout = useRef<number | null>(null);
 
   const handleMouseEnter = useCallback(() => {
-    if (path) {
-      dispatch(setOpenSubMenu(path));
-      if (items && items.length > 0) {
-        if (itemRef.current) {
-          const rect = itemRef.current.getBoundingClientRect();
-          const subMenuWidth = 150;
+    enterTimeout.current = window.setTimeout(() => {
+      if (path) {
+        dispatch(setOpenSubMenu(path));
+        if (items && items.length > 0) {
+          const rect = itemRef.current?.getBoundingClientRect();
+          const subMenuWidth = 170;
           const subMenuHeight = (items.length - 1) * 26;
-          const overflowRight = rect.right + subMenuWidth > window.innerWidth;
-          const overflowBottom = rect.bottom + subMenuHeight > window.innerHeight;
+          const overflowRight = rect ? rect.right + subMenuWidth > window.innerWidth : false;
+          const overflowBottom = rect ? rect.bottom + subMenuHeight > window.innerHeight : false;
           setAdjustLeft(overflowRight);
-          if (overflowBottom) {
-            setAdjustTop(-(subMenuHeight));
-          } else {
-            setAdjustTop(0);
-          }
+          setAdjustTop(overflowBottom ? -(subMenuHeight) : 0);
         }
       }
-    }
+    }, 150);
   }, [dispatch, items, path]);
 
-  const handleClick = useCallback(() => {
+  const handleMouseLeave = useCallback(() => {
+    if (enterTimeout.current) {
+      clearTimeout(enterTimeout.current);
+      enterTimeout.current = null;
+    }
+  }, []); const handleClick = useCallback(() => {
     if (onClick && !disabled) {
       onClick();
       if (path) {
@@ -106,7 +108,7 @@ export const MenuItem: React.FC<MenuItemProps> = memo(({ onClick, children, item
   }, [onClick, disabled, path, closeMenu, checked, dispatch]);
 
   return (
-    <StyledMenuItem ref={itemRef} onMouseEnter={handleMouseEnter}>
+    <StyledMenuItem ref={itemRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <MenuItemContent disabled={disabled} onClick={handleClick} $active={isSubMenuVisible}>
         {checked !== undefined && (
           <CheckboxIcon>
