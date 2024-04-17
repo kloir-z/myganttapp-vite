@@ -40,7 +40,8 @@ const WBSInfo: React.FC = memo(() => {
       };
     };
     return getHeaderRow(columns);
-  }, [columns]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columns, wbsWidth]);
   const visibleColumns = useMemo(() => columns.filter(column => column.visible), [columns]);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -71,8 +72,7 @@ const WBSInfo: React.FC = memo(() => {
       })
     ];
   }, [visibleColumns, headerRow]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = useMemo(() => getRows(dataArray), [dataArray, getRows, wbsWidth]);
+  const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
