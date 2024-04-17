@@ -35,22 +35,23 @@ export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
 `;
 
 interface CalendarCellProps {
+  $isContentStart?: boolean;
   $bgColor?: string;
   $isMonthStart?: boolean;
   $isFirstDate?: boolean;
-  $borderLeft?: boolean;
+  $borderLeft?: string;
 }
 
 export const CalendarCell = styled.div<CalendarCellProps>`
   position: absolute;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: ${props => props.$isContentStart ? 'flex-start' : 'center'};
   box-sizing: border-box;
   border-left: ${props => {
     if (props.$isFirstDate) return 'none';
     if (props.$isMonthStart) return '1px solid #00000055';
-    if (props.$borderLeft) return '1px solid #00000010';
+    if (props.$borderLeft) return `1px solid ${props.$borderLeft}`;
     return 'none';
   }};
   background-color: ${props => props.$bgColor ? props.$bgColor : '#FFFFFF'};

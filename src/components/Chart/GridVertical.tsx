@@ -24,13 +24,20 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const dayOfWeek = date.get('day');
         const isMonthStart = date.get('date') === 1;
         const isFirstDate = index === 0;
-        const borderLeft = cellWidth > 5.5 || dayOfWeek === 0 ? true : false;
         const setting = Object.values(regularDaysOffSetting).find(s => s.days.includes(dayOfWeek));
         const selectedSetting = setting || (isHoliday(date, holidays) ? holidayColor : null);
-        const bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : '';
+        const bgColor = selectedSetting ? (cellWidth <= 8 ? selectedSetting.subColor : selectedSetting.color) : '';
         const left = cellWidth * index;
         const today = cdate();
         const isToday = date.format("YYYY/MM/DD") === today.format("YYYY/MM/DD");
+        let borderLeft;
+        if (cellWidth > 5.5 && cellWidth <= 8) {
+          borderLeft = '#00000008';
+        } else if (cellWidth > 8 || dayOfWeek === 0) {
+          borderLeft = '#00000010';
+        } else {
+          borderLeft = 'none';
+        }
 
         return (
           <>

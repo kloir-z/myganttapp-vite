@@ -109,10 +109,10 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const dayOfWeek = date.get("day");
             const isMonthStart = date.get("date") === 1;
             const isFirstDate = index === 0;
-            const borderLeft = cellWidth > 8 || dayOfWeek === 0 ? true : false;
+            const borderLeft = cellWidth > 8 || dayOfWeek === 0 ? '#00000010' : 'none';
             const setting = Object.values(regularDaysOffSetting).find(s => s.days.includes(dayOfWeek));
             const selectedSetting = setting || (isHoliday(date, holidays) ? holidayColor : null);
-            const bgColor = selectedSetting ? (cellWidth <= 11 ? selectedSetting.subColor : selectedSetting.color) : 'transparent';
+            const bgColor = selectedSetting ? (cellWidth <= 8 ? selectedSetting.subColor : selectedSetting.color) : 'transparent';
             const firstDayOfMonth = cdate(date.format("YYYY-MM") + "-01");
             const firstDayOfWeek = firstDayOfMonth.get("day");
             const lastDayOfMonth = firstDayOfMonth.add(1, "month").prev("day");
@@ -122,7 +122,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
             const today = cdate();
             const isToday = date.format("YYYY/MM/DD") === today.format("YYYY/MM/DD");
-
+            const isContentStart = cellWidth <= 8;
             let displayText = `${date.get("date")}`;
             if (cellWidth <= 8) {
               if (lastDayOfWeek >= 0 && lastDayOfWeek <= 2 && date.get("date") > (lastDayOfMonth.get("date") - lastDayOfWeek - 1)) {
@@ -139,6 +139,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                 <CalendarCell
                   key={index}
                   data-index={index}
+                  $isContentStart={isContentStart}
                   $isMonthStart={isMonthStart}
                   $isFirstDate={isFirstDate}
                   $bgColor={bgColor}
@@ -156,7 +157,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                       zIndex: '1',
                       whiteSpace: 'nowrap',
                       letterSpacing: cellWidth <= 15 ? '-1px' : 'normal',
-                      marginLeft: cellWidth <= 15 ? '-1px' : '0px',
+                      marginLeft: cellWidth > 8 && cellWidth <= 15 ? '-1px' : '0px',
                       transform: cellWidth > 8 && cellWidth <= 13 ? `scaleX(${0.6 + 0.06 * (cellWidth - 8)})` : 'none',
                     }}
                   >
