@@ -23,6 +23,7 @@ const WBSInfo: React.FC = memo(() => {
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.data);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
+  const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
@@ -70,7 +71,8 @@ const WBSInfo: React.FC = memo(() => {
       })
     ];
   }, [visibleColumns, headerRow]);
-  const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const rows = useMemo(() => getRows(dataArray), [dataArray, getRows, wbsWidth]);
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
