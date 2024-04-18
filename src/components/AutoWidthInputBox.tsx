@@ -8,7 +8,8 @@ import { isEventRow } from '../types/DataTypes';
 const InputWrapper = styled.div`
   position: absolute;
   left: 0;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 `;
 
 const AutoWidthDiv = styled.div`

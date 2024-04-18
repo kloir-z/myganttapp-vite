@@ -30,6 +30,7 @@ function App() {
   const dateRange = useSelector((state: RootState) => state.baseSettings.dateRange);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const isSettingsModalOpen = useSelector((state: RootState) => state.uiFlags.isSettingsModalOpen);
   const isContextMenuOpen = useSelector((state: RootState) => state.uiFlags.isContextMenuOpen);
   const [isGridRefDragging, setIsGridRefDragging] = useState(false);
@@ -48,9 +49,8 @@ function App() {
   const prevCellWidthRef = useRef(cellWidth);
   const prevStartIndexRef = useRef(0);
   const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
-  const rowHeight = 21;
   const renderRowsInterval = 30;
-  const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight]);
+  const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight, rowHeight]);
   const totalRows = useMemo(() => Object.keys(data).length, [data]);
   const filteredData = useMemo(() => {
     const result: [string, WBSData][] = [];
@@ -92,7 +92,7 @@ function App() {
       setVisibleRange({ startIndex, endIndex });
       prevStartIndexRef.current = startIndex;
     }
-  }, [visibleRows, totalRows, visibleRange.endIndex]);
+  }, [rowHeight, visibleRows, totalRows, visibleRange.endIndex]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!gridRef.current) return;
@@ -112,8 +112,8 @@ function App() {
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       let adjustedY = indicatorPosition.y
       if (canGridRefDrag) {
-        const gridStartY = gridRef.current.scrollTop % 21;
-        adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
+        const gridStartY = gridRef.current.scrollTop % rowHeight;
+        adjustedY = Math.floor((event.clientY + gridStartY + 1) / rowHeight) * rowHeight - gridStartY;
       }
       if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
         setIndicatorPosition({ x: adjustedX, y: adjustedY });
@@ -124,8 +124,8 @@ function App() {
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       let adjustedY = indicatorPosition.y;
       if (!isContextMenuOpen && canGridRefDrag) {
-        const gridStartY = gridRef.current.scrollTop % 21;
-        adjustedY = Math.floor((event.clientY + gridStartY + 1) / 21) * 21 - gridStartY;
+        const gridStartY = gridRef.current.scrollTop % rowHeight;
+        adjustedY = Math.floor((event.clientY + gridStartY + 1) / rowHeight) * rowHeight - gridStartY;
       }
       if (prevIndicatorRef.current.x !== adjustedX || prevIndicatorRef.current.y !== adjustedY) {
         setIndicatorPosition({ x: adjustedX, y: adjustedY });
@@ -177,7 +177,7 @@ function App() {
   useEffect(() => {
     const isChromiumBased = /Chrome/.test(navigator.userAgent) || /Chromium/.test(navigator.userAgent);
     if (!isChromiumBased) {
-      alert('This application only works correctly in Chromium-based browsers. It may not function properly in other browsers, so please access it using a Chromium-based browser(e.g. Chrome, Edge).');
+      alert(t('Browser Compatibility Alert'));
     }
     const translatedColumns = columns.map(column => ({
       ...column,
@@ -298,8 +298,8 @@ function App() {
   useEffect(() => {
     const calculateGridHeight = () => {
       const rowCount = filteredData.length;
-      const maxGridHeight = window.innerHeight - 41;
-      const dynamicGridHeight = rowCount * 21;
+      const maxGridHeight = window.innerHeight - (rowHeight * 2);
+      const dynamicGridHeight = rowCount * rowHeight;
       return dynamicGridHeight < maxGridHeight ? dynamicGridHeight : maxGridHeight;
     };
     const updateGridHeight = () => {
@@ -308,7 +308,7 @@ function App() {
     window.addEventListener('resize', updateGridHeight);
     updateGridHeight();
     return () => window.removeEventListener('resize', updateGridHeight);
-  }, [filteredData]);
+  }, [filteredData, rowHeight]);
 
   useEffect(() => {
     updateVisibleRange();
@@ -364,7 +364,7 @@ function App() {
           <Calendar dateArray={dateArray} />
           <GridVertical dateArray={dateArray} gridHeight={gridHeight} />
         </div>
-        <div style={{ position: 'absolute', top: `${rowHeight}px`, width: `${wbsWidth}px`, height: `calc(100vh - 21px)`, overflowX: 'scroll', overflowY: 'hidden', scrollBehavior: 'auto' }} ref={wbsRef}>
+        <div style={{ position: 'absolute', top: `${rowHeight}px`, width: `${wbsWidth}px`, height: `calc(100vh - ${rowHeight}px)`, overflowX: 'scroll', overflowY: 'hidden', scrollBehavior: 'auto' }} ref={wbsRef}>
           {filteredData.map(([key, entry], filteredIndex) => {
             if (gridRef.current && isSeparatorRow(entry) && filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
               const topPosition = (filteredIndex * rowHeight) + rowHeight;
@@ -389,7 +389,7 @@ function App() {
             {filteredData.map(([key, entry], filteredIndex) => {
               if (gridRef.current) {
                 if (filteredIndex >= visibleRange.startIndex && filteredIndex <= visibleRange.endIndex) {
-                  const topPosition = filteredIndex * 21;
+                  const topPosition = filteredIndex * rowHeight;
                   if (isChartRow(entry)) {
                     return (
                       <ChartRowComponent
@@ -461,7 +461,7 @@ function App() {
                     backgroundColor: 'rgba(124, 124, 124, 0.09)',
                     position: 'absolute',
                     left: indicatorPosition.x + 'px',
-                    top: '21px',
+                    top: `${rowHeight}px`,
                     pointerEvents: 'none',
                     zIndex: '20'
                   }}

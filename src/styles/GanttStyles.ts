@@ -5,27 +5,29 @@ import { css, keyframes } from 'styled-components';
 export const GanttRow = styled.div`
   box-sizing: border-box;
   display: flex;
-  height: 21px;
   border-bottom: solid 1px #00000016;
   user-select: none;
 `;
 
-interface CellProps {
+interface StyledBarProps {
   $chartBarColor?: string;
   $left?: number;
   $width?: number;
+  $height?: number;
 }
 
-export const Cell = styled.div.attrs<CellProps>(({ $left, $width }) => ({
+export const StyledBar = styled.div.attrs<StyledBarProps>(({ $left, $width, $height }) => ({
   style: {
     left: $left ? `${$left}px` : '',
     width: $width ? `${$width}px` : '21.1px',
+    height: $height ? `${$height}px` : '21px',
   },
-})) <CellProps>`
+})) <StyledBarProps>`
+  display:flex;
+  align-items:center;
   position: absolute;
   box-sizing: border-box;
   text-align: center;
-  height: 21.5px;
   top: -0.5px;
   border: 0.2px solid transparent;
   background-color: ${props => props.$chartBarColor ? props.$chartBarColor : '#99ff937e'};

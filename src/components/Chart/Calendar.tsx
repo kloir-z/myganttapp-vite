@@ -21,6 +21,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
   let previousMonth = dateArray[0].get("M") - 1;
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const holidayColor = useSelector((state: RootState) => state.wbsData.holidayColor);
   const regularDaysOffSetting = useSelector((state: RootState) => state.wbsData.regularDaysOffSetting);
@@ -62,7 +63,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
       allowHTML={true}
       delay={[500, 0]}
       animation="fade"
-      offset={[0, 20]}
+      offset={[0, 10]}
       theme='light'
     >
       <div
@@ -72,7 +73,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
           flexDirection: 'column',
           width: `${calendarWidth + 2000}px`
         }}>
-        <GanttRow style={{ borderBottom: 'none', background: 'none' }}>
+        <GanttRow style={{ borderBottom: 'none', background: 'none', height: `${rowHeight}px` }}>
           {dateArray.map((dateString, index) => {
             const date = dateString;
             const month = date.get('M') - 1;
@@ -92,7 +93,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   style={{
                     padding: '0px 5px',
                     left: `${left}px`,
-                    height: '21px',
+                    height: `${rowHeight}px`,
                   }}
                 >
                   {displayDate}
@@ -102,7 +103,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             return null;
           })}
         </GanttRow>
-        <GanttRow style={{ borderTop: '1px solid #00000016' }}>
+        <GanttRow style={{ borderTop: '1px solid #00000016', height: `${rowHeight}px` }}>
           {dateArray.map((dateString, index) => {
             const date = dateString;
             const left = cellWidth * index;
@@ -147,7 +148,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                   style={{
                     left: `${left}px`,
                     width: `${cellWidth + 0.1}px`,
-                    height: '20px',
+                    height: `${rowHeight - 2}px`,
                     zIndex: displayText ? '1' : '-1',
                   }}
                 >
@@ -170,7 +171,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                     style={{
                       left: `${left}px`,
                       width: `${cellWidth + 0.1}px`,
-                      height: '20px',
+                      height: `${rowHeight - 2}px`,
                       backgroundColor: 'rgba(255, 255, 0, 0.15)',
                       zIndex: '1',
                     }}

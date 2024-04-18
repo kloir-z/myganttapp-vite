@@ -24,6 +24,7 @@ const WBSInfo: React.FC = memo(() => {
   const data = useSelector((state: RootState) => state.wbsData.data);
   const holidays = useSelector((state: RootState) => state.wbsData.holidays);
   const wbsWidth = useSelector((state: RootState) => state.baseSettings.wbsWidth);
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const copiedRows = useSelector((state: RootState) => state.copiedRows.rows);
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
@@ -35,7 +36,7 @@ const WBSInfo: React.FC = memo(() => {
       });
       return {
         rowId: "header",
-        height: 21,
+        height: rowHeight,
         cells: cells
       };
     };
@@ -61,17 +62,17 @@ const WBSInfo: React.FC = memo(() => {
       ...data.flatMap((item) => {
         if (isSeparatorRow(item)) {
           collapseSection = item.isCollapsed;
-          return createSeparatorRow(item, visibleColumns);
+          return createSeparatorRow(item, visibleColumns, rowHeight);
         } else if (!collapseSection && isChartRow(item)) {
-          return createChartRow(item, visibleColumns);
+          return createChartRow(item, visibleColumns, rowHeight);
         } else if (!collapseSection && isEventRow(item)) {
-          return createEventRow(item, visibleColumns);
+          return createEventRow(item, visibleColumns, rowHeight);
         } else {
           return [];
         }
       })
     ];
-  }, [visibleColumns, headerRow]);
+  }, [headerRow, visibleColumns, rowHeight]);
   const rows = useMemo(() => getRows(dataArray), [dataArray, getRows]);
 
   const handleRowsReorder = useCallback((targetRowId: Id, rowIds: Id[]) => {

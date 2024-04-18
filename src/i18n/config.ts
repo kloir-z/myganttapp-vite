@@ -11,6 +11,8 @@ const config = {
         "Column (Visiblity & Name)": "Column (Visiblity & Name)",
         "Language & Date Format": "Language & Date Format",
         "Date Cell Format": "Date Cell Format",
+        "Short(e.g. M/d)": "Short(e.g. M/d)",
+        "Long(e.g. y/M/d)": "Long(e.g. y/M/d)",
         "Public Holidays / Irregular Days Off": "Public Holidays / Irregular Days Off",
         "Regular Days Off": "Regular Days Off",
         "Apply": "Apply",
@@ -68,6 +70,7 @@ const config = {
         "Show/Hide Column": "Show/Hide Column",
         "Current Column Width: ": "Current Column Width: ",
         "MouseWheel to change(3-21px)": "MouseWheel to change(3-21px)",
+        "Browser Compatibility Alert": "This application only works correctly in browsers such as Google Chrome or Microsoft Edge. It may not function properly in other browsers, so please access it using a recommended browser."
       },
     },
     ja: {
@@ -79,6 +82,8 @@ const config = {
         "Column (Visiblity & Name)": "テーブル列表示/ヘッダ名",
         "Language & Date Format": "言語/年月日形式",
         "Date Cell Format": "日付セル表示形式",
+        "Short(e.g. M/d)": "短（M/d）",
+        "Long(e.g. y/M/d)": "長（y/M/d）",
         "Public Holidays / Irregular Days Off": "祝日/休日",
         "Regular Days Off": "定休日",
         "Apply": "適用",
@@ -136,6 +141,7 @@ const config = {
         "Show/Hide Column": "列表示",
         "Current Column Width: ": "現在の列幅: ",
         "MouseWheel to change(3-21px)": "マウスホイールで変更(3-21px)",
+        "Browser Compatibility Alert": "このアプリケーションはGoogle ChromeまたはMicrosoft Edgeのようなブラウザでのみ正常に動作します。他のブラウザでは機能しない可能性があるため、推奨するブラウザを使用してアクセスしてください。",
       },
     },
   },

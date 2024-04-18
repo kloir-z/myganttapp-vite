@@ -8,6 +8,7 @@ interface BaseSettingsState {
   maxWbsWidth: number;
   calendarWidth: number;
   cellWidth: number;
+  rowHeight: number;
   dateRange: {
     startDate: string;
     endDate: string;
@@ -26,6 +27,7 @@ const initialState: BaseSettingsState = {
   maxWbsWidth: 690,
   calendarWidth: generateDates(format(startDate, 'yyyy-MM-dd'), format(endDate, 'yyyy-MM-dd')).length * 21,
   cellWidth: 21,
+  rowHeight: 21,
   dateRange: {
     startDate: format(startDate, 'yyyy-MM-dd'),
     endDate: format(endDate, 'yyyy-MM-dd'),

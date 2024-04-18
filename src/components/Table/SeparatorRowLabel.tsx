@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { SeparatorRow } from '../../types/DataTypes';
-import { useDispatch } from 'react-redux';
-import { toggleSeparatorCollapsed } from '../../reduxStoreAndSlices/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, toggleSeparatorCollapsed } from '../../reduxStoreAndSlices/store';
 import { MdExpandMore, MdChevronRight } from 'react-icons/md';
 
 interface SeparatorRowLabelProps {
@@ -11,11 +11,12 @@ interface SeparatorRowLabelProps {
 
 const SeparatorRowLabelComponent: React.FC<SeparatorRowLabelProps> = memo(({ entry, topPosition }) => {
   const dispatch = useDispatch();
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const adjustedTopPosition = topPosition;
   const isCollapsed: boolean = entry.isCollapsed;
 
   return (
-    <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: `${adjustedTopPosition}px`, left: '40px', height: '21px' }}>
+    <div style={{ position: 'absolute', display: 'flex', alignItems: 'center', top: `${adjustedTopPosition}px`, left: '40px', height: `${rowHeight}px` }}>
       <div
         style={{
           display: 'flex',

@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 const HolidaySetting: React.FC = memo(() => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const holidayInput = useSelector((state: RootState) => state.baseSettings.holidayInput);
   const holidayColor = useSelector((state: RootState) => state.wbsData.holidayColor);
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
@@ -46,7 +47,7 @@ const HolidaySetting: React.FC = memo(() => {
         onClick={() => handleColorClick()}
       ></div>
       {displayColorPicker && (
-        <div style={{ position: 'absolute', zIndex: '9999', left: '90px', top: '21px' }}>
+        <div style={{ position: 'absolute', zIndex: '9999', left: '90px', top: `${rowHeight}px` }}>
           <div style={{ position: 'fixed', top: '0px', right: '0px', bottom: '0px', left: '0px' }} onClick={() => handleColorClose()} />
           <ChromePicker
             color={holidayColor.color}

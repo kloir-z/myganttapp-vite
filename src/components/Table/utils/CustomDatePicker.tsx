@@ -23,6 +23,7 @@ interface CustomDatePickerProps {
 
 const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) => {
   const dateFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
+  const rowHeight = useSelector((state: RootState) => state.baseSettings.rowHeight);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs(cell.text));
   const [open, setOpen] = useState(false);
   const datePickerInputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +75,7 @@ const CustomDatePicker = memo(({ cell, onCellChanged }: CustomDatePickerProps) =
             },
             '& .MuiInputBase-input': {
               zIndex: '9',
-              height: '18px',
+              height: `${rowHeight - 3}px`,
               padding: '2px 4px',
               width: '77px',
               fontSize: '0.73rem',

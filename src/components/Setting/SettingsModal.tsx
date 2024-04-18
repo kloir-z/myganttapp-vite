@@ -153,13 +153,13 @@ const SettingsModal: React.FC = memo(() => {
           <CellWidthSetting />
           <SettingChildDiv text={t('Date Cell Format')}>
             <div>
-              <label>M/d</label>
+              <label>{t('Short(e.g. M/d)')}</label>
               <Switch
                 checked={showYear}
                 onChange={handleShowYearChange}
                 name="showYearSwitch"
               />
-              <label>y/M/d</label>
+              <label>{t('Long(e.g. y/M/d)')}</label>
             </div>
           </SettingChildDiv>
           <ColumnSetting />

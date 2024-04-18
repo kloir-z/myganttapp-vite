@@ -13,7 +13,7 @@ const fillEmptyCells = (cells: (NumberCell | CheckboxCell | CustomTextCell | Cus
   }
 };
 
-export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
+export const createChartRow = (chartRow: ChartRow, columns: Column[], rowHeight: number): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
   const rowCells: (NumberCell | CustomTextCell | CustomDateCell | CheckboxCell)[] = columns.map(column => {
     const columnId = column.columnId as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,10 +38,10 @@ export const createChartRow = (chartRow: ChartRow, columns: Column[]): Row<Defau
       return { type: "customText", text: cellValue, value: NaN, columnWidth };
     }
   });
-  return { rowId: chartRow.id, height: 21, cells: rowCells, reorderable: true };
+  return { rowId: chartRow.id, height: rowHeight, cells: rowCells, reorderable: true };
 };
 
-export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
+export const createEventRow = (eventRow: EventRow, columns: Column[], rowHeight: number): Row<DefaultCellTypes | CustomTextCell | CustomDateCell> => {
   const rowCells: (NumberCell | CustomTextCell | CustomDateCell)[] = columns.map(column => {
     const columnId = column.columnId as string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,14 +60,14 @@ export const createEventRow = (eventRow: EventRow, columns: Column[]): Row<Defau
       return { type: "customText", text: cellValue, value: NaN, columnWidth, style: { background: 'rgba(128, 128, 128, 0.1)' } };
     }
   });
-  return { rowId: eventRow.id, height: 21, cells: rowCells, reorderable: true };
+  return { rowId: eventRow.id, height: rowHeight, cells: rowCells, reorderable: true };
 };
 
-export const createSeparatorRow = (separatorRow: SeparatorRow, columns: Column[]): Row<DefaultCellTypes | SeparatorCell> => {
+export const createSeparatorRow = (separatorRow: SeparatorRow, columns: Column[], rowHeight: number): Row<DefaultCellTypes | SeparatorCell> => {
   const rowCells: (NumberCell | SeparatorCell)[] = [
     { type: "number", value: separatorRow.no, style: { background: 'rgba(128, 128, 128, 0.1)' } },
     { type: "separator", text: separatorRow.displayName, value: NaN, isCollapsed: separatorRow.isCollapsed, style: { color: 'transparent', background: '#ddedff' } }
   ];
   fillEmptyCells(rowCells, columns.length, { background: '#ddedff' });
-  return { rowId: separatorRow.id, height: 21, cells: rowCells, reorderable: true };
+  return { rowId: separatorRow.id, height: rowHeight, cells: rowCells, reorderable: true };
 };

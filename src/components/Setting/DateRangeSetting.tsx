@@ -68,7 +68,7 @@ const DateRangeSetting: React.FC = memo(() => {
           adapterLocale={(dateFormat === 'dd/MM/yyyy' || dateFormat === 'd/M/yyyy') ? "en-in" : (dateFormat === 'yyyy/MM/dd' || dateFormat === 'yyyy/M/d') ? "en-ca" : "en"}
         >
           <DatePicker
-            label="Clendar Start"
+            label="Start"
             value={dayjs(dateRange.startDate)}
             onChange={handleStartDateChange}
             sx={{
@@ -90,7 +90,7 @@ const DateRangeSetting: React.FC = memo(() => {
             }}
           />
           <DatePicker
-            label="Calendar End"
+            label="End"
             value={dayjs(dateRange.endDate)}
             onChange={handleEndDateChange}
             sx={{
