@@ -47,7 +47,6 @@ function App() {
   const dragTimeoutRef = useRef<number | null>(null);
   const prevIndicatorRef = useRef({ x: 0, y: 0 });
   const prevCellWidthRef = useRef(cellWidth);
-  const prevStartIndexRef = useRef(0);
   const dateArray = useMemo(() => generateDates(dateRange.startDate, dateRange.endDate), [dateRange]);
   const renderRowsInterval = 30;
   const visibleRows = useMemo(() => Math.ceil(gridHeight / rowHeight), [gridHeight, rowHeight]);
@@ -83,31 +82,21 @@ function App() {
 
   const updateVisibleRange = useCallback(() => {
     if (!gridRef.current) return;
-    const rawStartIndex = Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval;
-    const adjustedStartIndex = Math.max(0, rawStartIndex);
-    const startIndex = adjustedStartIndex >= renderRowsInterval ? adjustedStartIndex : 0;
-    const rawEndIndex = startIndex + visibleRows + (renderRowsInterval * 2);
-    const endIndex = Math.min(totalRows - 1, rawEndIndex);
-    if (Math.abs(startIndex - prevStartIndexRef.current) >= renderRowsInterval || visibleRange.endIndex < endIndex) {
+    const startIndex = Math.max(Math.floor(gridRef.current.scrollTop / rowHeight) - renderRowsInterval, 0);
+    const endIndex = Math.min(totalRows - 1, startIndex + visibleRows + (renderRowsInterval * 2));
+    if (Math.abs(startIndex - visibleRange.startIndex) >= renderRowsInterval || (startIndex == 0 && visibleRange.startIndex != 0)) {
       setVisibleRange({ startIndex, endIndex });
-      prevStartIndexRef.current = startIndex;
     }
-  }, [rowHeight, visibleRows, totalRows, visibleRange.endIndex]);
+  }, [rowHeight, visibleRows, totalRows, visibleRange.startIndex]);
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!gridRef.current) return;
 
     if (canGridRefDrag && isMouseDown) {
-      const currentScrollLeft = gridRef.current.scrollLeft;
-      const currentScrollTop = gridRef.current.scrollTop;
       const newScrollLeft = startX - event.clientX;
       const newScrollTop = startY - event.clientY;
-      if (newScrollLeft !== currentScrollLeft) {
-        gridRef.current.scrollLeft = newScrollLeft;
-      }
-      if (newScrollTop !== currentScrollTop) {
-        gridRef.current.scrollTop = newScrollTop;
-      }
+      gridRef.current.scrollLeft = newScrollLeft;
+      gridRef.current.scrollTop = newScrollTop;
       const gridStartX = (gridRef.current.scrollLeft - wbsWidth) % cellWidth;
       const adjustedX = Math.floor((event.clientX + gridStartX - 1) / cellWidth) * cellWidth - gridStartX + 1;
       let adjustedY = indicatorPosition.y
