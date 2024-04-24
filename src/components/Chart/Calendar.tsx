@@ -158,8 +158,8 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                       zIndex: '1',
                       whiteSpace: 'nowrap',
                       letterSpacing: cellWidth <= 15 ? '-1px' : 'normal',
-                      marginLeft: cellWidth > 8 && cellWidth <= 15 ? '-1px' : '0px',
-                      transform: cellWidth > 8 && cellWidth <= 13 ? `scaleX(${0.6 + 0.06 * (cellWidth - 8)})` : 'none',
+                      marginLeft: cellWidth > 8 && cellWidth <= 15 ? '-1.5px' : '0px',
+                      transform: cellWidth > 8 && cellWidth <= 15 ? `scaleX(${0.55 + 0.06 * (cellWidth - 8)})` : 'none',
                     }}
                   >
                     {displayText}
