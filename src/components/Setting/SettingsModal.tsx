@@ -19,13 +19,14 @@ import { DateFormatType } from "../../types/DataTypes";
 import { useTranslation } from "react-i18next";
 import { setIsSettingsModalOpen } from "../../reduxStoreAndSlices/uiFlagSlice";
 import i18n from 'i18next';
+import { useNavigate } from "react-router-dom";
 
 const SettingsModal: React.FC = memo(() => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const showYear = useSelector((state: RootState) => state.wbsData.showYear);
   const currentFormat = useSelector((state: RootState) => state.wbsData.dateFormat);
-  const isSettingsModalOpen = useSelector((state: RootState) => state.uiFlags.isSettingsModalOpen);
   const columns = useSelector((state: RootState) => state.wbsData.columns);
   const handleLanguageChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     i18n.changeLanguage(event.target.value as string);
@@ -48,8 +49,9 @@ const SettingsModal: React.FC = memo(() => {
     setTimeout(() => {
       setFadeStatus('in');
       dispatch(setIsSettingsModalOpen(false));
+      navigate('/')
     }, 210);
-  }, [dispatch]);
+  }, [dispatch, navigate]);
 
   const startDrag = useCallback((e: React.MouseEvent) => {
     setIsGridRefDragging(true);
@@ -108,73 +110,71 @@ const SettingsModal: React.FC = memo(() => {
   }, [isDragging, onDrag, endDrag]);
 
   return (
-    isSettingsModalOpen ?
-      <Overlay fadeStatus={fadeStatus} onMouseDown={handleClose}>
-        <ModalContainer
-          fadeStatus={fadeStatus}
-          onMouseDown={e => e.stopPropagation()}
+    <Overlay fadeStatus={fadeStatus} onMouseDown={handleClose}>
+      <ModalContainer
+        fadeStatus={fadeStatus}
+        onMouseDown={e => e.stopPropagation()}
+        style={{
+          left: `${modalPosition.x}px`,
+          top: `${modalPosition.y}px`,
+          position: 'absolute',
+        }}
+      >
+        <div
           style={{
-            left: `${modalPosition.x}px`,
-            top: `${modalPosition.y}px`,
             position: 'absolute',
+            top: '0px',
+            padding: '5px',
+            cursor: 'move',
           }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '0px',
-              padding: '5px',
-              cursor: 'move',
-            }}
-            onMouseDown={startDrag}
-          ><MdOutlineDragIndicator size={'20px'} />
+          onMouseDown={startDrag}
+        ><MdOutlineDragIndicator size={'20px'} />
+        </div>
+        <SettingChildDiv text={t('Language & Date Format')}>
+          <div>
+            <select value={i18n.language} onChange={handleLanguageChange} >
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+            <span style={{ whiteSpace: 'pre' }}>   </span>
+            <select value={currentFormat} onChange={handleDayFormatChange}>
+              <option value="yyyy/M/d">yyyy/M/d</option>
+              <option value="yyyy/MM/dd">yyyy/MM/dd</option>
+              <option value="M/d/yyyy">M/d/yyyy</option>
+              <option value="MM/dd/yyyy">MM/dd/yyyy</option>
+              <option value="d/M/yyyy">d/M/yyyy</option>
+              <option value="dd/MM/yyyy">dd/MM/yyyy</option>
+            </select>
           </div>
-          <SettingChildDiv text={t('Language & Date Format')}>
-            <div>
-              <select value={i18n.language} onChange={handleLanguageChange} >
-                <option value="en">English</option>
-                <option value="ja">日本語</option>
-              </select>
-              <span style={{ whiteSpace: 'pre' }}>   </span>
-              <select value={currentFormat} onChange={handleDayFormatChange}>
-                <option value="yyyy/M/d">yyyy/M/d</option>
-                <option value="yyyy/MM/dd">yyyy/MM/dd</option>
-                <option value="M/d/yyyy">M/d/yyyy</option>
-                <option value="MM/dd/yyyy">MM/dd/yyyy</option>
-                <option value="d/M/yyyy">d/M/yyyy</option>
-                <option value="dd/MM/yyyy">dd/MM/yyyy</option>
-              </select>
-            </div>
-          </SettingChildDiv>
-          <DateRangeSetting />
-          <RegularDaysOffSettings />
-          <HolidaySetting />
-          <ColorSetting />
-          <CellWidthSetting />
-          <SettingChildDiv text={t('Date Cell Format')}>
-            <div>
-              <label>{t('Short(e.g. M/d)')}</label>
-              <Switch
-                checked={showYear}
-                onChange={handleShowYearChange}
-                name="showYearSwitch"
-              />
-              <label>{t('Long(e.g. y/M/d)')}</label>
-            </div>
-          </SettingChildDiv>
-          <ColumnSetting />
-          <ExportImportFile
-            handleClose={handleClose}
-          />
-          <SettingChildDiv text={t('Reset & Clear')}>
-            <div style={{ display: 'flex', justifyContent: 'start' }}>
-              <button onClick={handleReset}>{t('Reset & Clear')}</button>
-            </div>
-          </SettingChildDiv>
-        </ModalContainer>
-      </Overlay>
-      : null
-  );
+        </SettingChildDiv>
+        <DateRangeSetting />
+        <RegularDaysOffSettings />
+        <HolidaySetting />
+        <ColorSetting />
+        <CellWidthSetting />
+        <SettingChildDiv text={t('Date Cell Format')}>
+          <div>
+            <label>{t('Short(e.g. M/d)')}</label>
+            <Switch
+              checked={showYear}
+              onChange={handleShowYearChange}
+              name="showYearSwitch"
+            />
+            <label>{t('Long(e.g. y/M/d)')}</label>
+          </div>
+        </SettingChildDiv>
+        <ColumnSetting />
+        <ExportImportFile
+          handleClose={handleClose}
+        />
+        <SettingChildDiv text={t('Reset & Clear')}>
+          <div style={{ display: 'flex', justifyContent: 'start' }}>
+            <button onClick={handleReset}>{t('Reset & Clear')}</button>
+          </div>
+        </SettingChildDiv>
+      </ModalContainer>
+    </Overlay>
+  )
 });
 
 export default SettingsModal;

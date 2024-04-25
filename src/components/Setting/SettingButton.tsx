@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FaCog } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const rotate = keyframes`
   from {
@@ -39,13 +40,10 @@ export const StyledSettingButton = styled.button`
   }
 `;
 
-type SettingButtonProps = {
-  onClick: () => void;
-};
-
-const SettingButton: React.FC<SettingButtonProps> = memo(({ onClick }) => {
+const SettingButton: React.FC = memo(() => {
+  const navigate = useNavigate();
   return (
-    <StyledSettingButton onClick={onClick}>
+    <StyledSettingButton onClick={() => navigate('/settings')}>
       <AnimatedCog />
       <span style={{ position: 'absolute', left: '-9999px' }}>Settings</span>
     </StyledSettingButton>
