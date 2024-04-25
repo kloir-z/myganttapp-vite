@@ -29,6 +29,8 @@ interface AddRowPayload {
   numberOfRows: number;
 }
 
+const MAX_ROWS = 999;
+
 const initialState: {
   data: {
     [id: string]: WBSData
@@ -42,7 +44,8 @@ const initialState: {
   dateFormat: DateFormatType,
   dependencyMap: { [id: string]: string[] },
   past: UndoableState[],
-  future: UndoableState[]
+  future: UndoableState[],
+  errorMessage: string,
 } = {
   data: updateSeparatorRowDates(initializedDummyData),
   holidays: initialHolidays,
@@ -57,7 +60,8 @@ const initialState: {
     data: updateSeparatorRowDates(initializedDummyData),
     columns: initialColumns
   }],
-  future: []
+  future: [],
+  errorMessage: "",
 };
 
 const emptyState = {
@@ -92,6 +96,11 @@ export const wbsDataSlice = createSlice({
         } else {
           dataArray.push(newRow);
         }
+      }
+      console.log(`${dataArray.length}`)
+      if (dataArray.length >= MAX_ROWS) {
+        state.errorMessage = 'Cannot add more than 999 lines.';
+        return;
       }
       const data = assignIds(dataArray);
       const { updatedData, newDependencyMap } = resolveDependencies(data, state.holidays, state.regularDaysOff);
@@ -133,6 +142,9 @@ export const wbsDataSlice = createSlice({
         state.past.shift();
       }
       state.data = updatedData;
+    },
+    clearErrorMessage: (state) => {
+      state.errorMessage = "";
     },
     setPlannedDate: (state, action: PayloadAction<{ id: string; startDate: string; endDate: string }>) => {
       const { id, startDate, endDate } = action.payload;
@@ -320,6 +332,7 @@ export const {
   addRow,
   insertCopiedRow,
   deleteRows,
+  clearErrorMessage,
   setPlannedDate,
   setActualDate,
   setDisplayName,

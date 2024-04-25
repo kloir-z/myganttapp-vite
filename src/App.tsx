@@ -18,6 +18,7 @@ import TitleSetting from './components/Setting/TitleSetting';
 import { generateDates } from './utils/CommonUtils';
 import { useTranslation } from 'react-i18next';
 import { setIsSettingsModalOpen } from './reduxStoreAndSlices/uiFlagSlice';
+import ErrorMessage from './components/ErrorMessage';
 
 function App() {
   const { t } = useTranslation();
@@ -460,6 +461,7 @@ function App() {
           )}
         </>
       )}
+      <ErrorMessage />
     </div>
   );
 }

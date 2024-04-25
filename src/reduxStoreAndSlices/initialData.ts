@@ -9,7 +9,7 @@ const createEmptySeparatorRow = (): SeparatorRow => ({
   rowType: "Separator",
   no: 0,
   id: "",
-  displayName: "testSeparator Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+  displayName: "testSeparator",
   isCollapsed: false
 });
 
