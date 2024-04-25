@@ -1,7 +1,7 @@
 // WBSInfo.tsx
-import React, { useCallback, useMemo, memo, useState, useRef } from 'react';
+import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { WBSData, isChartRow, isSeparatorRow, isEventRow, MyRange } from '../../types/DataTypes';
-import { ReactGrid, CellLocation, Row, DefaultCellTypes, Id, Highlight, HeaderCell, MenuOption, SelectionMode } from "@silevis/reactgrid";
+import { ReactGrid, Row, DefaultCellTypes, Id, HeaderCell, MenuOption, SelectionMode } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import "/src/components/Table/css/ReactGrid.css";
 import { createChartRow, createSeparatorRow, createEventRow } from './utils/wbsRowCreators';
@@ -45,7 +45,6 @@ const WBSInfo: React.FC = memo(() => {
   }, [columns, wbsWidth]);
   const visibleColumns = useMemo(() => columns.filter(column => column.visible), [columns]);
   const regularDaysOff = useSelector((state: RootState) => state.wbsData.regularDaysOff);
-  const [highlights, setHighlights] = useState<Highlight[]>([]);
   const selectedRangesRef = useRef<{ selectedRowIds: string[], selectedColumnIds: string[] }>();
   const wbsRef = useRef<HTMLDivElement>(null);
   const dataArray = useMemo(() => {
@@ -79,9 +78,7 @@ const WBSInfo: React.FC = memo(() => {
     const targetIndex = dataArray.findIndex(data => data.id === targetRowId);
     const movingRowsIndexes = rowIds.map(id => dataArray.findIndex(data => data.id === id));
     const sortedMovingRowsIndexes = [...movingRowsIndexes].sort((a, b) => a - b);
-
     const reorderedData = reorderArray(dataArray, sortedMovingRowsIndexes, targetIndex);
-
     dispatch(setEntireData(assignIds(reorderedData)));
   }, [dataArray, dispatch]);
 
@@ -89,19 +86,14 @@ const WBSInfo: React.FC = memo(() => {
     if (columnIds.includes("no")) {
       return;
     }
-
     const targetIndex = columns.findIndex(data => data.columnId === targetColumnId);
     const noColumnIndex = columns.findIndex(data => data.columnId === "no");
-
     const adjustedTargetIndex = targetIndex <= noColumnIndex ? noColumnIndex + 1 : targetIndex;
-
     const movingColumnsIndexes = columnIds.map(id => columns.findIndex(data => data.columnId === id));
     const sortedMovingColumnsIndexes = [...movingColumnsIndexes].sort((a, b) => a - b);
-
     const tempColumns = columns.map(column => ({ ...column, id: column.columnId }));
     const reorderedTempColumns = reorderArray(tempColumns, sortedMovingColumnsIndexes, adjustedTargetIndex);
     const reorderedColumns = reorderedTempColumns.map(column => ({ ...column, columnId: column.id, id: undefined }));
-
     dispatch(pushPastState());
     dispatch(setColumns(reorderedColumns));
   }, [columns, dispatch]);
@@ -115,46 +107,6 @@ const WBSInfo: React.FC = memo(() => {
   const handleCanReorderRows = useCallback((targetRowId: Id): boolean => {
     return targetRowId !== 'header';
   }, []);
-
-  const handleFocusLocationChanged = useCallback((location: CellLocation) => {
-    if (location.columnId === "dependency") {
-      const focusedRow = dataArray.find(row => row.id === location.rowId);
-      if (focusedRow && isChartRow(focusedRow)) {
-        const dependentRowId = focusedRow.dependentId;
-        const dependentRow = dataArray.find(row => row.id === dependentRowId);
-        if (dependentRow && isChartRow(dependentRow)) {
-          const rowIndex = dataArray.findIndex(row => row.id === dependentRow.id);
-          let isBehindCollapsedSeparator = false;
-          for (let i = rowIndex - 1; i >= 0; i--) {
-            const row = dataArray[i];
-            if (row.rowType === "Separator" && row.isCollapsed) {
-              isBehindCollapsedSeparator = true;
-              break;
-            }
-          }
-          if (!isBehindCollapsedSeparator) {
-            const dependencyValue = focusedRow.dependency.split(',')[0].toLowerCase().trim();
-            let columnIdToHighlight = "dependency";
-            if (dependencyValue === "after") {
-              columnIdToHighlight = "plannedEndDate";
-            } else if (dependencyValue === "sameas") {
-              columnIdToHighlight = "plannedStartDate";
-            }
-            const newHighlights = [
-              { columnId: columnIdToHighlight, rowId: dependentRow.id, borderColor: "#ff00007f" }
-            ];
-            setHighlights(newHighlights);
-          } else {
-            setHighlights([]);
-          }
-        } else {
-          setHighlights([]);
-        }
-      }
-    } else {
-      setHighlights([]);
-    }
-  }, [dataArray]);
 
   const handleContextMenu = useCallback((
     _selectedRowIds: Id[],
@@ -174,7 +126,6 @@ const WBSInfo: React.FC = memo(() => {
       'plannedDays', 'actualStartDate', 'actualEndDate', 'dependency',
       'textColumn1', 'textColumn2', 'textColumn3', 'textColumn4', 'isIncludeHolidays'
     ];
-
     const columnSettingsItems: MenuItemProps[] = initialColumnOrder.reduce((acc: MenuItemProps[], columnId) => {
       const column = columns.find(col => col.columnId === columnId);
       if (column) {
@@ -186,7 +137,6 @@ const WBSInfo: React.FC = memo(() => {
       }
       return acc;
     }, []);
-
     const addChartRowItems = [];
     for (let i = 1; i <= 10; i++) {
       addChartRowItems.push({
@@ -208,7 +158,6 @@ const WBSInfo: React.FC = memo(() => {
       });
     }
     const insertCopiedRowDisabled = copiedRows.length === 0 || (selectedRangesRef.current?.selectedRowIds?.length || 0) === 0;
-
     const options = [
       {
         children: t("Copy Row"),
@@ -266,7 +215,6 @@ const WBSInfo: React.FC = memo(() => {
             },
             items: addChartRowItems,
             path: '3.1'
-
           },
           {
             children: t("Event"),
@@ -330,8 +278,6 @@ const WBSInfo: React.FC = memo(() => {
         onRowsReordered={handleRowsReorder}
         onColumnsReordered={handleColumnsReorder}
         onContextMenu={handleContextMenu}
-        highlights={highlights}
-        onFocusLocationChanged={handleFocusLocationChanged}
         onSelectionChanged={handleSelectionChanged}
         canReorderRows={handleCanReorderRows}
         customCellTemplates={{ customDate: customDateCellTemplate, customText: customTextCellTemplate, separator: separatorCellTemplate }}
