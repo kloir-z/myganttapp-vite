@@ -10,6 +10,7 @@ import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import ContextMenu from '../ContextMenu/ContextMenu';
 import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface ChartRowProps {
   entry: ChartRow;
@@ -20,6 +21,7 @@ interface ChartRowProps {
 }
 
 const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gridRef, topPosition, setCanGridRefDrag }) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const calendarWidth = useSelector((state: RootState) => state.baseSettings.calendarWidth);
@@ -404,12 +406,13 @@ const ChartRowComponent: React.FC<ChartRowProps> = memo(({ entry, dateArray, gri
         children: t("Setting"),
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
+          navigate('/settings')
         },
         path: '5'
       }
     ];
     return options;
-  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar, t]);
+  }, [contextMenu, copiedRows, dispatch, entry, handleDeleteBar, navigate, t]);
 
   return (
     <GanttRow style={{ position: 'absolute', top: `${topPosition}px`, width: `${calendarWidth}px`, height: `${rowHeight}px` }} onDoubleClick={handleDoubleClick} onContextMenu={(e) => handleBarRightClick(e, null)} ref={ganttRowRef}>

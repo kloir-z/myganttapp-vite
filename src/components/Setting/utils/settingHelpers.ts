@@ -6,6 +6,7 @@ import { updateEntireColorSettings } from "../../../reduxStoreAndSlices/colorSli
 import { setEntireData, setHolidays } from "../../../reduxStoreAndSlices/store";
 import { setWbsWidth, setDateRange, setHolidayInput, setFileName, setTitle, setCalendarWidth, setCellWidth } from "../../../reduxStoreAndSlices/baseSettingsSlice";
 import { v4 as uuidv4 } from 'uuid';
+import JSZip from 'jszip';
 
 export const handleExport = (
   colors: { [id: number]: ColorInfo },
@@ -38,15 +39,94 @@ export const handleExport = (
     calendarWidth,
     cellWidth,
   };
+  const zip = new JSZip();
   const jsonData = JSON.stringify(settingsData, null, 2);
-  const blob = new Blob([jsonData], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${fileName}.json`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  zip.file(`${fileName}.json`, jsonData, { compression: 'DEFLATE', compressionOptions: { level: 9 } });
+  zip.generateAsync({ type: 'blob' }).then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+  zip.generateAsync({ type: 'base64' }).then(base64Data => {
+    console.log(base64Data);
+  })
+};
+
+export const handleImport = (
+  file: File,
+  dispatch: AppDispatch
+) => {
+  if (file) {
+    const zip = new JSZip();
+    zip.loadAsync(file)
+      .then(zip => {
+        const jsonFileEntry = Object.values(zip.files).find(file => file.name.endsWith('.json'));
+        if (jsonFileEntry) {
+          return jsonFileEntry.async("string");
+        } else {
+          throw new Error("No JSON file found in ZIP");
+        }
+      })
+      .then(jsonData => {
+        const parsedData = JSON.parse(jsonData);
+        dispatch(setFileName(file.name.replace('.zip', '')));
+        if (parsedData.colors) {
+          dispatch(updateEntireColorSettings(parsedData.colors));
+        }
+        if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
+          dispatch(setDateRange({
+            startDate: parsedData.dateRange.startDate,
+            endDate: parsedData.dateRange.endDate
+          }));
+        }
+        if (parsedData.columns && Array.isArray(parsedData.columns)) {
+          dispatch(setColumns(parsedData.columns));
+        }
+        if (parsedData.regularDaysOffSetting) {
+          dispatch(updateEntireRegularDaysOffSetting(parsedData.regularDaysOffSetting));
+        }
+        let dateFormat: DateFormatType;
+        if (parsedData.dateFormat) {
+          dispatch(setDateFormat(parsedData.dateFormat));
+          dateFormat = parsedData.dateFormat;
+        } else {
+          dateFormat = 'yyyy/M/d'
+        }
+        if (parsedData.holidayInput) {
+          const newHolidayInput = parsedData.holidayInput;
+          dispatch(setHolidayInput(newHolidayInput));
+          dispatch(setHolidays(updateHolidays(newHolidayInput, dateFormat)));
+        }
+        if (parsedData.holidayColor) {
+          dispatch(updateHolidayColor(parsedData.holidayColor.color));
+        }
+        if (parsedData.data) {
+          dispatch(setEntireData(parsedData.data));
+        }
+        if (parsedData.wbsWidth) {
+          dispatch(setWbsWidth(parsedData.wbsWidth));
+        }
+        if (parsedData.title) {
+          dispatch(setTitle(parsedData.title));
+        }
+        if (parsedData.showYear) {
+          dispatch(setShowYear(parsedData.showYear));
+        }
+        if (parsedData.calendarWidth) {
+          dispatch(setCalendarWidth(parsedData.calendarWidth));
+        }
+        if (parsedData.cellWidth) {
+          dispatch(setCellWidth(parsedData.cellWidth));
+        }
+      })
+      .catch(error => {
+        alert(`Error: ${error.message}`);
+      });
+  }
 };
 
 export const handleAppend = (
@@ -71,76 +151,6 @@ export const handleAppend = (
             }, {} as { [id: string]: WBSData });
             const updatedData = { ...data, ...newData };
             dispatch(setEntireData(updatedData));
-          }
-        } catch (error) {
-          alert("Error: An error occurred while loading the file.");
-        }
-      }
-    };
-    reader.readAsText(file);
-  }
-};
-
-export const handleImport = (
-  file: File,
-  dispatch: AppDispatch,
-) => {
-  if (file) {
-    dispatch(setFileName(file.name.replace('.json', '')));
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result;
-      if (typeof text === 'string') {
-        try {
-          const parsedData = JSON.parse(text);
-
-          if (parsedData.colors) {
-            dispatch(updateEntireColorSettings(parsedData.colors));
-          }
-          if (parsedData.dateRange && parsedData.dateRange.startDate && parsedData.dateRange.endDate) {
-            dispatch(setDateRange({
-              startDate: parsedData.dateRange.startDate,
-              endDate: parsedData.dateRange.endDate
-            }));
-          }
-          if (parsedData.columns && Array.isArray(parsedData.columns)) {
-            dispatch(setColumns(parsedData.columns));
-          }
-          if (parsedData.regularDaysOffSetting) {
-            dispatch(updateEntireRegularDaysOffSetting(parsedData.regularDaysOffSetting));
-          }
-          let dateFormat: DateFormatType;
-          if (parsedData.dateFormat) {
-            dispatch(setDateFormat(parsedData.dateFormat));
-            dateFormat = parsedData.dateFormat;
-          } else {
-            dateFormat = 'yyyy/M/d'
-          }
-          if (parsedData.holidayInput) {
-            const newHolidayInput = parsedData.holidayInput;
-            dispatch(setHolidayInput(newHolidayInput));
-            dispatch(setHolidays(updateHolidays(newHolidayInput, dateFormat)));
-          }
-          if (parsedData.holidayColor) {
-            dispatch(updateHolidayColor(parsedData.holidayColor.color));
-          }
-          if (parsedData.data) {
-            dispatch(setEntireData(parsedData.data));
-          }
-          if (parsedData.wbsWidth) {
-            dispatch(setWbsWidth(parsedData.wbsWidth));
-          }
-          if (parsedData.title) {
-            dispatch(setTitle(parsedData.title));
-          }
-          if (parsedData.showYear) {
-            dispatch(setShowYear(parsedData.showYear));
-          }
-          if (parsedData.calendarWidth) {
-            dispatch(setCalendarWidth(parsedData.calendarWidth));
-          }
-          if (parsedData.cellWidth) {
-            dispatch(setCellWidth(parsedData.cellWidth));
           }
         } catch (error) {
           alert("Error: An error occurred while loading the file.");

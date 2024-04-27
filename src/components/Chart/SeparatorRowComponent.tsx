@@ -8,6 +8,7 @@ import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import ContextMenu from '../ContextMenu/ContextMenu';
 import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface SeparatorRowProps {
   entry: SeparatorRow;
@@ -16,6 +17,7 @@ interface SeparatorRowProps {
 }
 
 const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPosition, dateArray }) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const cellWidth = useSelector((state: RootState) => state.baseSettings.cellWidth);
@@ -128,12 +130,13 @@ const SeparatorRowComponent: React.FC<SeparatorRowProps> = memo(({ entry, topPos
         children: t("Setting"),
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
+          navigate('/settings')
         },
         path: '5'
       }
     ];
     return options;
-  }, [copiedRows, dispatch, entry, t]);
+  }, [copiedRows, dispatch, entry, navigate, t]);
 
   return (
     <>

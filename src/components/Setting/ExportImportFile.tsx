@@ -75,7 +75,7 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
 
   return (
     <>
-      <SettingChildDiv text={t('Export JSON File')}>
+      <SettingChildDiv text={t('Export File')}>
         <div>
           <input
             type="text"
@@ -86,10 +86,10 @@ const ExportImportFile: React.FC<ExportImportFileProps> = memo(({ handleClose })
           <button onClick={handleExportClick}>{t('Export')}</button>
         </div>
       </SettingChildDiv>
-      <SettingChildDiv text={t('Import From JSON File')}>
+      <SettingChildDiv text={t('Import File')}>
         <div style={{ display: 'flex', justifyContent: 'start' }}>
           <button onClick={() => fileInputRefImport.current?.click()}>{t('Import')}</button>
-          <input type="file" ref={fileInputRefImport} style={{ display: 'none' }} onChange={handleImportClick} accept=".json" />
+          <input type="file" ref={fileInputRefImport} style={{ display: 'none' }} onChange={handleImportClick} accept=".zip" />
         </div>
       </SettingChildDiv>
       <SettingChildDiv text={t('Append to Table from JSON File')}>

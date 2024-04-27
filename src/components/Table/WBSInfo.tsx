@@ -17,8 +17,10 @@ import { MenuItemProps } from '../ContextMenu/ContextMenuItem';
 import { setCopiedRows } from '../../reduxStoreAndSlices/copiedRowsSlice';
 import { setIsSettingsModalOpen } from '../../reduxStoreAndSlices/uiFlagSlice';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const WBSInfo: React.FC = memo(() => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const data = useSelector((state: RootState) => state.wbsData.data);
@@ -238,12 +240,13 @@ const WBSInfo: React.FC = memo(() => {
         children: t("Setting"),
         onClick: () => {
           dispatch(setIsSettingsModalOpen(true))
+          navigate('/settings')
         },
         path: '5'
       }
     ];
     return options;
-  }, [copiedRows, t, columns, dispatch, dataArray]);
+  }, [copiedRows, t, columns, dispatch, dataArray, navigate]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSelectionChanged = useCallback((selectedRanges: MyRange[]) => {
