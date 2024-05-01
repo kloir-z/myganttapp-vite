@@ -129,12 +129,13 @@ function Gantt() {
     if (dragTimeoutRef.current) {
       clearTimeout(dragTimeoutRef.current);
     }
-    dragTimeoutRef.current = setTimeout(() => {
+    // setTimeout の戻り値を `number` 型として扱う
+    dragTimeoutRef.current = window.setTimeout(() => {
       if (dragTimeoutRef.current !== null) {
         clearTimeout(dragTimeoutRef.current);
       }
       setIsGridRefDragging(false);
-    }, 80);
+    }, 80) as unknown as number;
   }, []);
 
   const handleVerticalScroll = useCallback((sourceRef: React.RefObject<HTMLDivElement>, targetRef: React.RefObject<HTMLDivElement>) => {
