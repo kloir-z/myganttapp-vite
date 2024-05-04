@@ -30,6 +30,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         const left = cellWidth * index;
         const today = cdate();
         const isToday = date.format("YYYY/MM/DD") === today.format("YYYY/MM/DD");
+        const keyDate = date.format("YYYYMMDD")
         let borderLeft;
         if (cellWidth > 5.5 && cellWidth <= 8) {
           borderLeft = '#00000008';
@@ -40,7 +41,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
         }
 
         return (
-          <>
+          <React.Fragment key={keyDate}>
             <CalendarCell
               key={index}
               data-index={index}
@@ -66,7 +67,7 @@ const GridVertical: React.FC<CalendarProps> = memo(({ dateArray, gridHeight }) =
                 }}
               />
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </GanttRow>

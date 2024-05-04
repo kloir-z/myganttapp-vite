@@ -123,6 +123,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             const weekNumber = Math.floor(daysSinceFirstSunday / 7) + (skipFirstWeek ? 0 : 1);
             const today = cdate();
             const isToday = date.format("YYYY/MM/DD") === today.format("YYYY/MM/DD");
+            const keyDate = date.format("YYYYMMDD")
             const isContentStart = cellWidth <= 8;
             let displayText = `${date.get("date")}`;
             if (cellWidth <= 8) {
@@ -136,7 +137,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
             }
 
             return (
-              <>
+              <React.Fragment key={keyDate}>
                 <CalendarCell
                   key={index}
                   data-index={index}
@@ -177,7 +178,7 @@ const Calendar: React.FC<CalendarProps> = memo(({ dateArray }) => {
                     }}
                   />
                 )}
-              </>
+              </React.Fragment>
             );
           })}
         </GanttRow>
